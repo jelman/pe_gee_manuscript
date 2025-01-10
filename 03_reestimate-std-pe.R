@@ -9,15 +9,26 @@ library(haven)
 #--------------------------------#
 
 # Set working directory
-setwd("~/netshare/M/VETSA DATA FILES_852014/PracticeEffects")
+setwd("~/netshare/M/Projects/PracEffects_GEE")
 # setwd("M:/VETSA DATA FILES_852014/PracticeEffects")
 
 # Load admin data and get age 
 admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20241014.sas7bdat", NULL)
 admin <- admin %>% select(VETSAID=vetsaid, starts_with("AGE"))
 
-# Load in outcome data. These are variables we want to adjust for PEs
-outcome_data <- read.csv("data/temp_data/V1V2V3V4_cog_data_2025-01-07.csv")
+# Age 20 AFQT file
+nas201 <- read.csv("~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive measures/AFQT--age 20 cannot be distributed outside VETSA/AFQT_Age20_2020_05_19_revised.csv")
+nas201 <- nas201 %>% rename_all(toupper)
+
+# Load in raw (unadjusted) outcome data. These are variables we want to adjust for PEs
+outcome_data <- read.csv("data/V1V2V3V4_cog_data_raw_2025-01-08.csv")
+
+# Merge age 20 afqt into outcome data
+outcome_data <- outcome_data %>% 
+  left_join(nas201, by=c("VETSAID"))
+
+# Remove "p" suffix from raw data.
+colnames(outcome_data) <- gsub("p$", "", colnames(outcome_data))
 
 #----------------------------------------------------------------#
 # Define outcomes that we want to estimate practice effects for  #
@@ -43,7 +54,7 @@ outcome_varList_noV4 <- c("SSPFRAW","SSPBRAW","SSPTOTP")
 
 # Pivot outcome file from wide to long format. 
 outcome_data_long <- outcome_data %>% 
-  pivot_longer(cols = -c(VETSAID, CASE, NAS201TRAN),  
+  pivot_longer(cols = -c(VETSAID, NAS201TRAN),  
                names_to = c(".value", "WAVE"),
                names_pattern = "(\\w+)_V(\\d+)",
                values_drop_na = TRUE) %>%
@@ -127,6 +138,31 @@ for (outcome in outcome_varList) {
     filter(complete.cases(.)) %>% 
     arrange(VETSAID, WAVE)
   
+  # Calculate Wave 1 means and SDs for outcome and NAS201TRAN
+  wave1_stats <- gee_data %>%
+    filter(WAVE == 1) %>%
+    summarise(
+      nas_mean = mean(NAS201TRAN, na.rm = TRUE),
+      nas_sd = sd(NAS201TRAN, na.rm = TRUE),
+      outcome_mean = mean(!!sym(outcome), na.rm = TRUE),
+      outcome_sd = sd(!!sym(outcome), na.rm = TRUE)
+    )
+  
+  # Calculate full sample statistics for age
+  age_stats <- gee_data %>%
+    summarise(
+      age_mean = mean(AGE, na.rm = TRUE),
+      age_sd = sd(AGE, na.rm = TRUE)
+    )
+  
+  # Apply different standardization approaches
+  gee_data <- gee_data %>%
+    mutate(
+      AGE = (AGE - age_stats$age_mean) / age_stats$age_sd,  # full sample standardization
+      NAS201TRAN = (NAS201TRAN - wave1_stats$nas_mean) / wave1_stats$nas_sd,  # Wave 1 standardization
+      !!outcome := (!!sym(outcome) - wave1_stats$outcome_mean) / wave1_stats$outcome_sd  # Wave 1 standardization
+    )
+  
   # Create formula for GEE model.  
   # Note: We can use caret::findLinearCombos(model_matrix) to verify no linear combinations
   fmla <- as.formula(paste(outcome, "~ AGE + NAS201TRAN + WAVE2 + WAVE3 + WAVE4 + WAVE2_ASSESSMENT2 + WAVE3_ASSESSMENT2 + WAVE3_ASSESSMENT3 + WAVE4_ASSESSMENT3 + WAVE4_ASSESSMENT4 + SKIP1 + SKIP2"))
@@ -157,9 +193,9 @@ wide_results <- all_results %>%
     names_sep = "_"
   )
 
-# Remove parantheses from column names
+# Remove parentheses from column names
 colnames(wide_results) <- gsub("//(|//)", "", colnames(wide_results))
 
 # Save results to file
 date <- format(Sys.Date(), "%Y-%m-%d")
-write.csv(wide_results, paste0("results/model_estimates/gee_results_", date, ".csv"), row.names = FALSE)
+write.csv(wide_results, paste0("data/gee_standardized_results_", date, ".csv"), row.names = FALSE)
