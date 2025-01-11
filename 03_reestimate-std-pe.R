@@ -9,15 +9,15 @@ library(haven)
 #--------------------------------#
 
 # Set working directory
-setwd("~/netshare/M/Projects/PracEffects_GEE")
-# setwd("M:/VETSA DATA FILES_852014/PracticeEffects")
+# setwd("~/netshare/M/Projects/PracEffects_GEE")
+setwd("M:/Projects/PracEffects_GEE")
 
 # Load admin data and get age 
-admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20241014.sas7bdat", NULL)
+admin <- read_sas("M:/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20241014.sas7bdat", NULL)
 admin <- admin %>% select(VETSAID=vetsaid, starts_with("AGE"))
 
 # Age 20 AFQT file
-nas201 <- read.csv("~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive measures/AFQT--age 20 cannot be distributed outside VETSA/AFQT_Age20_2020_05_19_revised.csv")
+nas201 <- read.csv("M:/NAS VETSA MASTER DATAFILES/Other cognitive measures/AFQT--age 20 cannot be distributed outside VETSA/AFQT_Age20_2020_05_19_revised.csv")
 nas201 <- nas201 %>% rename_all(toupper)
 
 # Load in raw (unadjusted) outcome data. These are variables we want to adjust for PEs
@@ -44,8 +44,6 @@ outcome_varList <- c("MR1COR","TRL1TLOG","TRL2TLOG","TRL3TLOG","TRL4TLOG","TRL5T
                      "LFFCOR","LFACOR","LFSCOR","LFCOR","CFANCOR","CFBNCOR","CFCOR","CSCOR",
                      "RSATOT","SRTGMEANLOG","SRTGSTDLOG","CHRTGMEANLOG","CHRTGSTDLOG")
 
-# Variable not collected at wave 4. Adjust separately
-outcome_varList_noV4 <- c("SSPFRAW","SSPBRAW","SSPTOTP")
 
 #---------------------------------------------------------#
 # Clean up and format outcome data:                       #
@@ -63,6 +61,12 @@ outcome_data_long <- outcome_data %>%
 # Sort by VETSAID and WAVE
 outcome_data_long <- outcome_data_long %>% 
   arrange(VETSAID, WAVE)
+
+# Trails and reaction time variables should be multiplied by -1 so that higher scores indicate better performance
+rt_vars = c("TRL1TLOG", "TRL2TLOG", "TRL3TLOG", "TRL4TLOG", "TRL5TLOG", 
+            "SRTGMEANLOG", "CHRTGMEANLOG")
+outcome_data_long[,rt_vars] <- outcome_data_long[,rt_vars] * -1
+  
 
 # Create several variables:
 #   ASSESSMENT: how many assessments has an individual completed?
