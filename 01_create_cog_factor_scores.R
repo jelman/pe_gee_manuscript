@@ -12,7 +12,7 @@ library(psych)
 library(haven)
 
 ### Set working directory
-setwd("V:/PROJ/PracEffects_GEE")
+setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 ### Set input data file. This should either be the raw or PE adjusted data.
 # Adjusted
@@ -27,7 +27,7 @@ outfile = "data/V1V2V3V4_cog_factor_scores_pe_adjusted_2024-01-08.csv"
 # outfile = "data/V1V2V3V4_cog_factor_scores_raw_2024-01-08.csv"
 
 # Load admin file
-admin <- read_sas("M:/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20241014.sas7bdat", NULL)
+admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20241014.sas7bdat", NULL)
 
 
 # J Elman adding in hard-coded corrections per CR's SAS data prep script
@@ -385,6 +385,8 @@ CatSw_V4 <- (resid(CatSw_V4_lm)-mean(CSSACC_V1p, na.rm=T)+mean(CSSACC_V4p, na.rm
 ####    prep domains and exclude missing    ####
 ################################################
 
+set.seed(1234)
+
 #Create Datasets for imputation (dataset for each domain and wave, removing sjs missing too many tests, create dataset with and without ID var for MICE)
 EF1x <- data.frame(VETSAID, Stroop_V1z, Trail_V1z, CatSw_V1z, LNseq_V1_stndV1, RSasc_V1_stndV1, DStot_V1_stndV1)
 EF2x <- data.frame(VETSAID, Stroop_V2,  Trail_V2,  CatSw_V2,  LNseq_V2_stndV1, RSasc_V2_stndV1, DStot_V2_stndV1)
@@ -686,7 +688,6 @@ names(WM4_Imputed) <- c("VETSAID","LN4_wm","RS4_wm","DS4_wm") ## rename variable
 dataimp <- SF1
 for(i in 1:dim(SF1y)[1]){dataimp[i,] <- colMeans(SF1_data2[SF1_data2$.id==i,3:5])} # averaging values across 5 imputations
 SF1_Imputed <- cbind(SF1y[,1],dataimp)
-names(SF1)
 names(SF1_Imputed) <- c("VETSAID","AN1_sf","BN1_sf","CS1_sf") ## rename variables so they don't conflict with fluency domain
 
 dataimp <- SF2
