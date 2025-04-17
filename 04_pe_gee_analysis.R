@@ -16,6 +16,7 @@ library(ggpubr)
 library(lmerTest)
 library(parameters)
 library(tableone)
+library(flextable)
 
 #---------------------------------#
 # Set directories and load data   #
@@ -152,9 +153,16 @@ pe_summary <- pe_plot_df %>%
     .groups = "drop"
   ) %>%
   arrange(Domain, Model) %>%
-  kbl() %>%
-  kable_classic(full_width=FALSE, html_font="Times New Roman") %>%
-  collapse_rows(columns = 1, valign = "top")
+  flextable() %>% 
+  theme_apa() %>%
+  colformat_double(digits=2) %>% 
+  merge_v("Domain") %>% 
+  valign(j="Domain", valign="top") %>%
+  autofit()
+
+# Save summary table
+pe_summary_outname = paste0("results/pe_summary_", Sys.Date(), ".docx")
+save_as_docx(pe_summary, path = pe_summary_outname)
 
 #-----------------------------------#
 # Plot practice effects estimates   #
@@ -198,7 +206,7 @@ forest_plot <- ggplot(pe_plot_df, aes(x = term, y = estimate,
         axis.title = element_text(size = 12))
 
 # Save out forest plot
-forestplot_name = paste0("results/forest_plot_", Sys.Date(), "_")
+forestplot_name = paste0("results/forest_plot_", Sys.Date(), ".svg")
 ggsave(forestplot_name, forest_plot, width = 16, height = 8, 
        device = "svg", dpi = 300)
 
@@ -284,10 +292,17 @@ factors_diff_summary <- factors_diff %>%
     SE = sd(Diff, na.rm=T) / sqrt(n()),
     Min = min(Diff, na.rm=T),
     Max = max(Diff, na.rm=T),
-    .groups = "drop") %>%
-  kbl(digits=3) %>%
-  kable_classic(full_width=FALSE, html_font="Times New Roman") %>%
-  collapse_rows(columns = 1, valign = "top")
+    .groups = "drop") %>% 
+  flextable() %>% 
+  theme_apa() %>%
+  colformat_double(digits=3) %>% 
+  merge_v("Domain") %>% 
+  valign(j=1, valign="top") %>%
+  autofit()
+
+# Save summary table
+factors_diff_outname = paste0("results/factors_diff_summary_", Sys.Date(), ".docx")
+save_as_docx(factors_diff_summary, path = factors_diff_outname)
 
 # Get summary statistics for only subjects with all WAVES. There should be 4 (1, 2, 3, 4)
 factors_diff_summary_4tp <- factors_diff %>%
@@ -301,10 +316,17 @@ factors_diff_summary_4tp <- factors_diff %>%
     Min = min(Diff, na.rm=T),
     Max = max(Diff, na.rm=T),
     .groups = "drop") %>%
-  kbl(digits=3) %>%
-  kable_classic(full_width=FALSE, html_font="Times New Roman") %>%
-  collapse_rows(columns = 1, valign = "top")
+  flextable() %>% 
+  theme_apa() %>%
+  colformat_double(digits=3) %>% 
+  merge_v("Domain") %>% 
+  valign(j="Domain", valign="top") %>%
+  autofit()
   
+# Save summary table
+factors_diff_4tp_outname = paste0("results/factors_diff_summary_4tp_", Sys.Date(), ".docx")
+save_as_docx(factors_diff_summary_4tp, path = factors_diff_4tp_outname)
+
 ### Test for differences in adjustment by domain and wave ###
 factors_long$WAVE = as.factor(factors_long$WAVE)
 factors_long$Adjustment = factor(factors_long$Adjustment, levels = c("Unadjusted", "PE_corrected"))
@@ -332,10 +354,17 @@ vis_spat_summ = lmer(vis_spat ~ WAVE * Adjustment + (1|VETSAID), data = factors_
 # Combine results
 factors_diff_test <- bind_rows(memory_summ, ef_summ, fluency_summ, speed_summ, vis_mem_summ, vis_spat_summ) 
 
-factors_diff_test %>% 
-  kbl(digits=3) %>%
-  kable_classic(full_width=FALSE, html_font="Times New Roman") %>%
-  collapse_rows(columns = 1, valign = "top")
+factors_diff_test_table <- factors_diff_test %>% 
+  flextable() %>% 
+  theme_apa() %>%
+  colformat_double(digits=3) %>% 
+  merge_v("Domain") %>% 
+  valign(j="Domain", valign="top") %>%
+  autofit()
+
+# Save summary table
+factors_diff_test_outname = paste0("results/factors_diff_test_summary_", Sys.Date(), ".docx")
+save_as_docx(factors_diff_test_table, path = factors_diff_test_outname)
 
 #-----------------------------------------------------------------#
 #   Plot factor scores trajectories with and without adjustment   #
@@ -389,7 +418,7 @@ factor_score_summary_plot <- ggplot(factor_score_summary, aes(x = WAVE, y = Mean
         axis.title = element_text(size = 18))
 
 # Save plot
-factor_score_outname = paste0("results/factor_score_plot_", Sys.Date(), "_")
+factor_score_outname = paste0("results/factor_score_plot_", Sys.Date(), ".svg")
 ggsave(factor_score_outname, factor_score_summary_plot, width = 12, height = 8, 
        device = "svg", dpi = 300)
 
@@ -446,7 +475,8 @@ factor_score_summary_plot_4tp <- ggplot(factor_score_summary_4tp, aes(x = WAVE, 
         axis.title = element_text(size = 18))
 
 # Save plot
-ggsave("results/factor_score_plot_color_4tp.svg", factor_score_summary_plot_4tp, width = 12, height = 8, 
+factor_score_plot_4tp_outname = paste0("results/factor_score_plot_4tp_", Sys.Date(), ".svg")
+ggsave(factor_score_plot_4tp_outname, factor_score_summary_plot_4tp, width = 12, height = 8, 
        device = "svg", dpi = 300)
 
 
