@@ -16,23 +16,18 @@ setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 ### Set input data file. This should either be the raw or PE adjusted data.
 # Adjusted
-data <- read.csv("data/V1V2V3V4_cog_data_pe_adjusted_2025-01-08.csv",head=T, stringsAsFactors = F)           
+data <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-17.csv",head=T, stringsAsFactors = F)           
 # # Raw 
-# data <- read.csv("data/V1V2V3V4_cog_data_raw_2025-01-08.csv",head=T, stringsAsFactors = F)           
+# data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-04-17.csv",head=T, stringsAsFactors = F)           
 
 ### Set output file name. This should correspond to either the raw of PE adjusted data.
 # Adjusted
-outfile = "data/V1V2V3V4_cog_factor_scores_pe_adjusted_2024-01-08.csv"
+outfile = "data/created_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-04-17.csv"
 # # Raw
-# outfile = "data/V1V2V3V4_cog_factor_scores_raw_2024-01-08.csv"
+# outfile = "data/created_data/V1V2V3V4_cog_factor_scores_raw_2025-04-17.csv"
 
 # Load admin file
-admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20241014.sas7bdat", NULL)
-
-
-# J Elman adding in hard-coded corrections per CR's SAS data prep script
-data[data$VETSAID=="20527A","VRCTOT_V1p"] = NA
-data[data$VETSAID=="20201B","VRCTOT_V1p"] = 67
+admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
 
 # Rename to uppercase
@@ -143,10 +138,6 @@ VRCTOT_V2_stndV1 = (VRCTOT_V2p-mean(VRCTOT_V1p,na.rm=T))/sd(VRCTOT_V1p,na.rm=T)
 VRCTOT_V3_stndV1 = (VRCTOT_V3p-mean(VRCTOT_V1p,na.rm=T))/sd(VRCTOT_V1p,na.rm=T)
 VRCTOT_V4_stndV1 = (VRCTOT_V4p-mean(VRCTOT_V1p,na.rm=T))/sd(VRCTOT_V1p,na.rm=T)
 
-CVA1RAW_V1_stndV1 = scale(CVA1RAW_V1p)
-CVA1RAW_V2_stndV1 = (CVA1RAW_V2p-mean(CVA1RAW_V1p,na.rm=T))/sd(CVA1RAW_V1p,na.rm=T)
-CVA1RAW_V3_stndV1 = (CVA1RAW_V3p-mean(CVA1RAW_V1p,na.rm=T))/sd(CVA1RAW_V1p,na.rm=T)
-CVA1RAW_V4_stndV1 = (CVA1RAW_V4p-mean(CVA1RAW_V1p,na.rm=T))/sd(CVA1RAW_V1p,na.rm=T)
 CVATOT_V1_stndV1 = scale(CVATOT_V1p)
 CVATOT_V2_stndV1 = (CVATOT_V2p-mean(CVATOT_V1p,na.rm=T))/sd(CVATOT_V1p,na.rm=T)
 CVATOT_V3_stndV1 = (CVATOT_V3p-mean(CVATOT_V1p,na.rm=T))/sd(CVATOT_V1p,na.rm=T)
@@ -188,13 +179,6 @@ DStot_V2_stndV1=(DSTOT_V2p-mean(DSTOT_V1p,na.rm=T))/sd(DSTOT_V1p,na.rm=T)
 DStot_V3_stndV1=(DSTOT_V3p-mean(DSTOT_V1p,na.rm=T))/sd(DSTOT_V1p,na.rm=T)
 DStot_V4_stndV1=(DSTOT_V4p-mean(DSTOT_V1p,na.rm=T))/sd(DSTOT_V1p,na.rm=T)
 
-#These vars do not exist
-#SStot_V1_stndV1 = scale(SSPTOTP_V1p)
-#SStot_V2_stndV1 = (SSPTOTP_V2p-mean(SSPTOTP_V1p,na.rm=T))/sd(SSPTOTP_V1p,na.rm=T)
-#SStot_V3_stndV1 = (SSPTOTP_V3p-mean(SSPTOTP_V1p,na.rm=T))/sd(SSPTOTP_V1p,na.rm=T)
-#SStot_V4_stndV1 = (SSPTOTP_V4p-mean(SSPTOTP_V1p,na.rm=T))/sd(SSPTOTP_V1p,na.rm=T)
-
-
 TRL2rt <- exp(TRL2TLOG_V1p)
 TRL3rt <- exp(TRL3TLOG_V1p)
 TRL4rt <- exp(TRL4TLOG_V1p)
@@ -221,12 +205,6 @@ Trail2_V1_stndV1=scale(TRL2rt)
 Trail2_V2_stndV1=(TRL2rt_V2p-mean(TRL2rt,na.rm=T))/sd(TRL2rt,na.rm=T)
 Trail2_V3_stndV1=(TRL2rt_V3p-mean(TRL2rt,na.rm=T))/sd(TRL2rt,na.rm=T)
 Trail2_V4_stndV1=(TRL2rt_V4p-mean(TRL2rt,na.rm=T))/sd(TRL2rt,na.rm=T)
-
-# These vars are not present
-#AXHITRATE_V1_stndV1 = scale(AXHITRATE_V1p) 
-#AXHITRATE_V2_stndV1 = (AXHITRATE_V2p-mean(AXHITRATE_V1p,na.rm=T))/sd(AXHITRATE_V1p,na.rm=T)
-#BXFARATE_V2_stndV1=scale(BXFARATE_V1p)
-#BXFARATE_V2_stndV1 = (BXFARATE_V2p-mean(BXFARATE_V1p,na.rm=T))/sd(BXFARATE_V1p,na.rm=T)
 
 SRTGMEANLOG_V1_stndV1 = scale(SRTGMEANLOG_V1p)
 SRTGMEANLOG_V2_stndV1 = (SRTGMEANLOG_V2p-mean(SRTGMEANLOG_V1p,na.rm=T))/sd(SRTGMEANLOG_V1p,na.rm=T)
@@ -366,19 +344,6 @@ CatSw_V3_lm <- lmer(CSSACC_V3p~CFANCOR_V3p+CFBNCOR_V3p + (1|CASE), na.action=na.
 CatSw_V3 <- (resid(CatSw_V3_lm)-mean(CSSACC_V1p, na.rm=T)+mean(CSSACC_V3p, na.rm=T))/sd(CSSACC_V1p, na.rm=T)
 CatSw_V4_lm <- lmer(CSSACC_V4p~CFANCOR_V4p+CFBNCOR_V4p + (1|CASE), na.action=na.exclude)
 CatSw_V4 <- (resid(CatSw_V4_lm)-mean(CSSACC_V1p, na.rm=T)+mean(CSSACC_V4p, na.rm=T))/sd(CSSACC_V1p, na.rm=T)
-
-##### AXCPT Dprime - Not in VETSA 3
-#asinTransform <- function(p) { asin(sqrt(p)) }
-
-#AXdprime_V1_step1 = AXHITRATE-BXFARATE
-#AXdprime_V1_step2 = asinTransform(AXdprime_V1_step1)
-#AXdprime_V1_step2[AXdprime_V1_step2<0] <- 0
-#AXdprime_V1 = scale(AXdprime_V1_step2)
-
-#AXdprime_V2_step1 = AXHITRATE_V2p-BXFARATE_V2p
-#AXdprime_V2_step2 = asinTransform(AXdprime_V2_step1)
-#AXdprime_V2_step2[AXdprime_V2_step2<0] <- 0
-#AXdprime_V2 = (AXdprime_V2_step2-mean(AXdprime_V1_step2,na.rm=T))/sd(AXdprime_V1_step2, na.rm=T)
 
 ################################################
 ########     IMPUTE MISSING DATA       #########
@@ -578,7 +543,7 @@ EF3_data2$.id = as.integer(EF3_data2$.id)
 EF4_data2$.id = as.integer(EF4_data2$.id)
 
 dataimp <- FLU1                                                                       # temporary dataset with imputed data
-for(i in 1:dim(FLU1y)[1]){dataimp[i,] <- colMeans(FLU1_data2[FLU1_data2$.id==i,3:8])} # average values across 5 imputations
+for(i in 1:dim(FLU1y)[1]){dataimp[i,] <- colMeans(FLU1_data2[FLU1_data2$.id==i,1:6])} # average values across 5 imputations
 FLU1_Imputed <- cbind(FLU1y[,1],dataimp)                                              # combine with original list of IDs
 names(FLU1_Imputed)[1] <- "VETSAID"                                                   # rename first column
 # Checking Summaries post imputation, there should be no missing data
@@ -587,162 +552,162 @@ names(FLU1_Imputed)[1] <- "VETSAID"                                             
 #write.csv(V3_Imp, "V3_Imp.csv")
 
 dataimp <- FLU2
-for(i in 1:dim(FLU2y)[1]){dataimp[i,] <- colMeans(FLU2_data2[FLU2_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(FLU2y)[1]){dataimp[i,] <- colMeans(FLU2_data2[FLU2_data2$.id==i,1:6])} # averaging values across 5 imputations
 FLU2_Imputed <- cbind(FLU2y[,1],dataimp)
 names(FLU2_Imputed)[1] <- "VETSAID"
 dataimp <- FLU3
 
 dataimp <- FLU3
-for(i in 1:dim(FLU3y)[1]){dataimp[i,] <- colMeans(FLU3_data2[FLU3_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(FLU3y)[1]){dataimp[i,] <- colMeans(FLU3_data2[FLU3_data2$.id==i,1:6])} # averaging values across 5 imputations
 FLU3_Imputed <- cbind(FLU3y[,1],dataimp)
 names(FLU3_Imputed)[1] <- "VETSAID"
 
 dataimp <- FLU4
-for(i in 1:dim(FLU4y)[1]){dataimp[i,] <- colMeans(FLU4_data2[FLU4_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(FLU4y)[1]){dataimp[i,] <- colMeans(FLU4_data2[FLU4_data2$.id==i,1:6])} # averaging values across 5 imputations
 FLU4_Imputed <- cbind(FLU4y[,1],dataimp)
 names(FLU4_Imputed)[1] <- "VETSAID"
 
 dataimp <- EF1
-for(i in 1:dim(EF1y)[1]){dataimp[i,] <- colMeans(EF1_data2[EF1_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(EF1y)[1]){dataimp[i,] <- colMeans(EF1_data2[EF1_data2$.id==i,1:6])} # averaging values across 5 imputations
 EF1_Imputed <- cbind(EF1y[,1],dataimp)
 names(EF1_Imputed)[1] <- "VETSAID"
 
 dataimp <- EF2
-for(i in 1:dim(EF2y)[1]){dataimp[i,] <- colMeans(EF2_data2[EF2_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(EF2y)[1]){dataimp[i,] <- colMeans(EF2_data2[EF2_data2$.id==i,1:6])} # averaging values across 5 imputations
 EF2_Imputed <- cbind(EF2y[,1],dataimp)
 names(EF2_Imputed)[1] <- "VETSAID"
 
 dataimp <- EF3
-for(i in 1:dim(EF3y)[1]){dataimp[i,] <- colMeans(EF3_data2[EF3_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(EF3y)[1]){dataimp[i,] <- colMeans(EF3_data2[EF3_data2$.id==i,1:6])} # averaging values across 5 imputations
 EF3_Imputed <- cbind(EF3y[,1],dataimp)
 names(EF3_Imputed)[1] <- "VETSAID"
 
 dataimp <- EF4
-for(i in 1:dim(EF4y)[1]){dataimp[i,] <- colMeans(EF4_data2[EF4_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(EF4y)[1]){dataimp[i,] <- colMeans(EF4_data2[EF4_data2$.id==i,1:6])} # averaging values across 5 imputations
 EF4_Imputed <- cbind(EF4y[,1],dataimp)
 names(EF4_Imputed)[1] <- "VETSAID"
 
 
 dataimp <- MEM1
-for(i in 1:dim(MEM1y)[1]){dataimp[i,] <- colMeans(MEM1_data2[MEM1_data2$.id==i,3:9])} # averaging values across 5 imputations
+for(i in 1:dim(MEM1y)[1]){dataimp[i,] <- colMeans(MEM1_data2[MEM1_data2$.id==i,1:7])} # averaging values across 5 imputations
 MEM1_Imputed <- cbind(MEM1y[,1],dataimp)
 names(MEM1_Imputed)[1] <- "VETSAID"
 
 dataimp <- MEM2
-for(i in 1:dim(MEM2y)[1]){dataimp[i,] <- colMeans(MEM2_data2[MEM2_data2$.id==i,3:9])} # averaging values across 5 imputations
+for(i in 1:dim(MEM2y)[1]){dataimp[i,] <- colMeans(MEM2_data2[MEM2_data2$.id==i,1:7])} # averaging values across 5 imputations
 MEM2_Imputed <- cbind(MEM2y[,1],dataimp)
 names(MEM2_Imputed)[1] <- "VETSAID"
 
 dataimp <- MEM3
-for(i in 1:dim(MEM3y)[1]){dataimp[i,] <- colMeans(MEM3_data2[MEM3_data2$.id==i,3:9])} # averaging values across 5 imputations
+for(i in 1:dim(MEM3y)[1]){dataimp[i,] <- colMeans(MEM3_data2[MEM3_data2$.id==i,1:7])} # averaging values across 5 imputations
 MEM3_Imputed <- cbind(MEM3y[,1],dataimp)
 names(MEM3_Imputed)[1] <- "VETSAID"
 
 dataimp <- MEM4
-for(i in 1:dim(MEM4y)[1]){dataimp[i,] <- colMeans(MEM4_data2[MEM4_data2$.id==i,3:9])} # averaging values across 5 imputations
+for(i in 1:dim(MEM4y)[1]){dataimp[i,] <- colMeans(MEM4_data2[MEM4_data2$.id==i,1:7])} # averaging values across 5 imputations
 MEM4_Imputed <- cbind(MEM4y[,1],dataimp)
 names(MEM4_Imputed)[1] <- "VETSAID"
 
 
 dataimp <- SPD1
-for(i in 1:dim(SPD1y)[1]){dataimp[i,] <- colMeans(SPD1_data2[SPD1_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(SPD1y)[1]){dataimp[i,] <- colMeans(SPD1_data2[SPD1_data2$.id==i,1:6])} # averaging values across 5 imputations
 SPD1_Imputed <- cbind(SPD1y[,1],dataimp)
 names(SPD1_Imputed)[1] <- "VETSAID"
 
 dataimp <- SPD2
-for(i in 1:dim(SPD2y)[1]){dataimp[i,] <- colMeans(SPD2_data2[SPD2_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(SPD2y)[1]){dataimp[i,] <- colMeans(SPD2_data2[SPD2_data2$.id==i,1:6])} # averaging values across 5 imputations
 SPD2_Imputed <- cbind(SPD2y[,1],dataimp)
 names(SPD2_Imputed)[1] <- "VETSAID"
 
 dataimp <- SPD3
-for(i in 1:dim(SPD3y)[1]){dataimp[i,] <- colMeans(SPD3_data2[SPD3_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(SPD3y)[1]){dataimp[i,] <- colMeans(SPD3_data2[SPD3_data2$.id==i,1:6])} # averaging values across 5 imputations
 SPD3_Imputed <- cbind(SPD3y[,1],dataimp)
 names(SPD3_Imputed)[1] <- "VETSAID"
 
 dataimp <- SPD4
-for(i in 1:dim(SPD4y)[1]){dataimp[i,] <- colMeans(SPD4_data2[SPD4_data2$.id==i,3:8])} # averaging values across 5 imputations
+for(i in 1:dim(SPD4y)[1]){dataimp[i,] <- colMeans(SPD4_data2[SPD4_data2$.id==i,1:6])} # averaging values across 5 imputations
 SPD4_Imputed <- cbind(SPD4y[,1],dataimp)
 names(SPD4_Imputed)[1] <- "VETSAID"
 
 
 dataimp <- WM1
-for(i in 1:dim(WM1y)[1]){dataimp[i,] <- colMeans(WM1_data2[WM1_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(WM1y)[1]){dataimp[i,] <- colMeans(WM1_data2[WM1_data2$.id==i,1:3])} # averaging values across 5 imputations
 WM1_Imputed <- cbind(WM1y[,1],dataimp)
 names(WM1_Imputed) <- c("VETSAID","LN1_wm","RS1_wm","DS1_wm") ## rename variables so they don't conflict with EF domain
 
 dataimp <- WM2
-for(i in 1:dim(WM2y)[1]){dataimp[i,] <- colMeans(WM2_data2[WM2_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(WM2y)[1]){dataimp[i,] <- colMeans(WM2_data2[WM2_data2$.id==i,1:3])} # averaging values across 5 imputations
 WM2_Imputed <- cbind(WM2y[,1],dataimp)
 names(WM2_Imputed) <- c("VETSAID","LN2_wm","RS2_wm","DS2_wm") ## rename variables so they don't conflict with EF domain
 
 dataimp <- WM3
-for(i in 1:dim(WM3y)[1]){dataimp[i,] <- colMeans(WM3_data2[WM3_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(WM3y)[1]){dataimp[i,] <- colMeans(WM3_data2[WM3_data2$.id==i,1:3])} # averaging values across 5 imputations
 WM3_Imputed <- cbind(WM3y[,1],dataimp)
 names(WM3_Imputed) <- c("VETSAID","LN3_wm","RS3_wm","DS3_wm") ## rename variables so they don't conflict with EF domain
 
 dataimp <- WM4
-for(i in 1:dim(WM4y)[1]){dataimp[i,] <- colMeans(WM4_data2[WM4_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(WM4y)[1]){dataimp[i,] <- colMeans(WM4_data2[WM4_data2$.id==i,1:3])} # averaging values across 5 imputations
 WM4_Imputed <- cbind(WM4y[,1],dataimp)
 names(WM4_Imputed) <- c("VETSAID","LN4_wm","RS4_wm","DS4_wm") ## rename variables so they don't conflict with EF domain
 
 dataimp <- SF1
-for(i in 1:dim(SF1y)[1]){dataimp[i,] <- colMeans(SF1_data2[SF1_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(SF1y)[1]){dataimp[i,] <- colMeans(SF1_data2[SF1_data2$.id==i,1:3])} # averaging values across 5 imputations
 SF1_Imputed <- cbind(SF1y[,1],dataimp)
 names(SF1_Imputed) <- c("VETSAID","AN1_sf","BN1_sf","CS1_sf") ## rename variables so they don't conflict with fluency domain
 
 dataimp <- SF2
-for(i in 1:dim(SF2y)[1]){dataimp[i,] <- colMeans(SF2_data2[SF2_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(SF2y)[1]){dataimp[i,] <- colMeans(SF2_data2[SF2_data2$.id==i,1:3])} # averaging values across 5 imputations
 SF2_Imputed <- cbind(SF2y[,1],dataimp)
 names(SF2_Imputed) <- c("VETSAID","AN2_sf","BN2_sf","CS2_sf") ## rename variables so they don't conflict with fluency domain
 
 dataimp <- SF3
-for(i in 1:dim(SF3y)[1]){dataimp[i,] <- colMeans(SF3_data2[SF3_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(SF3y)[1]){dataimp[i,] <- colMeans(SF3_data2[SF3_data2$.id==i,1:3])} # averaging values across 5 imputations
 SF3_Imputed <- cbind(SF3y[,1],dataimp)
 names(SF3_Imputed) <- c("VETSAID","AN3_sf","BN3_sf","CS3_sf")
 
 dataimp <- SF4
-for(i in 1:dim(SF4y)[1]){dataimp[i,] <- colMeans(SF4_data2[SF4_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(SF4y)[1]){dataimp[i,] <- colMeans(SF4_data2[SF4_data2$.id==i,1:3])} # averaging values across 5 imputations
 SF4_Imputed <- cbind(SF4y[,1],dataimp)
 names(SF4_Imputed) <- c("VETSAID","AN4_sf","BN4_sf","CS4_sf")
 
 
 dataimp <- VMEM1
-for(i in 1:dim(VMEM1y)[1]){dataimp[i,] <- colMeans(VMEM1_data2[VMEM1_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(VMEM1y)[1]){dataimp[i,] <- colMeans(VMEM1_data2[VMEM1_data2$.id==i,1:3])} # averaging values across 5 imputations
 VMEM1_Imputed <- cbind(VMEM1y[,1],dataimp)
 names(VMEM1_Imputed)[1] <- "VETSAID"
 
 dataimp <- VMEM2
-for(i in 1:dim(VMEM2y)[1]){dataimp[i,] <- colMeans(VMEM2_data2[VMEM2_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(VMEM2y)[1]){dataimp[i,] <- colMeans(VMEM2_data2[VMEM2_data2$.id==i,1:3])} # averaging values across 5 imputations
 VMEM2_Imputed <- cbind(VMEM2y[,1],dataimp)
 names(VMEM2_Imputed)[1] <- "VETSAID"
 
 dataimp <- VMEM3
-for(i in 1:dim(VMEM3y)[1]){dataimp[i,] <- colMeans(VMEM3_data2[VMEM3_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(VMEM3y)[1]){dataimp[i,] <- colMeans(VMEM3_data2[VMEM3_data2$.id==i,1:3])} # averaging values across 5 imputations
 VMEM3_Imputed <- cbind(VMEM3y[,1],dataimp)
 names(VMEM3_Imputed)[1] <- "VETSAID"
 
 dataimp <- VMEM4
-for(i in 1:dim(VMEM4y)[1]){dataimp[i,] <- colMeans(VMEM4_data2[VMEM4_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(VMEM4y)[1]){dataimp[i,] <- colMeans(VMEM4_data2[VMEM4_data2$.id==i,1:3])} # averaging values across 5 imputations
 VMEM4_Imputed <- cbind(VMEM4y[,1],dataimp)
 names(VMEM4_Imputed)[1] <- "VETSAID"
 
 dataimp <- SPA1
-for(i in 1:dim(SPA1y)[1]){dataimp[i,] <- colMeans(SPA1_data2[SPA1_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(SPA1y)[1]){dataimp[i,] <- colMeans(SPA1_data2[SPA1_data2$.id==i,1:3])} # averaging values across 5 imputations
 SPA1_Imputed <- cbind(SPA1y[,1],dataimp)
 names(SPA1_Imputed)[1] <- "VETSAID"
 
 dataimp <- SPA2
-for(i in 1:dim(SPA2y)[1]){dataimp[i,] <- colMeans(SPA2_data2[SPA2_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(SPA2y)[1]){dataimp[i,] <- colMeans(SPA2_data2[SPA2_data2$.id==i,1:3])} # averaging values across 5 imputations
 SPA2_Imputed <- cbind(SPA2y[,1],dataimp)
 names(SPA2_Imputed)[1] <- "VETSAID"
 
 dataimp <- SPA3
-for(i in 1:dim(SPA3y)[1]){dataimp[i,] <- colMeans(SPA3_data2[SPA3_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(SPA3y)[1]){dataimp[i,] <- colMeans(SPA3_data2[SPA3_data2$.id==i,1:3])} # averaging values across 5 imputations
 SPA3_Imputed <- cbind(SPA3y[,1],dataimp)
 names(SPA3_Imputed)[1] <- "VETSAID"
 
 dataimp <- SPA4
-for(i in 1:dim(SPA4y)[1]){dataimp[i,] <- colMeans(SPA4_data2[SPA4_data2$.id==i,3:5])} # averaging values across 5 imputations
+for(i in 1:dim(SPA4y)[1]){dataimp[i,] <- colMeans(SPA4_data2[SPA4_data2$.id==i,1:3])} # averaging values across 5 imputations
 SPA4_Imputed <- cbind(SPA4y[,1],dataimp)
 names(SPA4_Imputed)[1] <- "VETSAID"
 
