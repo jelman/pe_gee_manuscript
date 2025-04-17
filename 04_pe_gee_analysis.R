@@ -13,6 +13,9 @@ library(extrafont)
 library(knitr)
 library(kableExtra)
 library(ggpubr)
+library(lmerTest)
+library(parameters)
+library(tableone)
 
 #---------------------------------#
 # Set directories and load data   #
@@ -22,20 +25,26 @@ library(ggpubr)
 setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 # Load model estimates of practice effects
-pe_estimates <- read.csv("data/gee_standardized_results_2025-01-11.csv")
+pe_estimates <- read.csv("results/gee_standardized_results_2025-04-17.csv")
 
 # Load raw and adjusted cognitive test scores
-tests_raw <- read.csv("data/V1V2V3V4_cog_data_raw_2025-01-08.csv")
-tests_adj <- read.csv("data/V1V2V3V4_cog_data_pe_adjusted_2025-01-08.csv")
+tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-04-17.csv")
+tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-17.csv")
 
 # Load raw and adjusted cognitive factor scores
-factors_raw <- read.csv("data/V1V2V3V4_cog_factor_scores_raw_2024-01-08.csv")
-factors_adj <- read.csv("data/V1V2V3V4_cog_factor_scores_pe_adjusted_2024-01-08.csv")
+factors_raw <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_raw_2025-04-17.csv")
+factors_adj <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-04-17.csv")
 
 # Load raw and adjusted MCI diagnosis
-# mci_raw <- read.csv()
-# mci_adj <- read.csv()
+mci_v1_raw <- read.csv("data/created_data/Unadjusted/MCI_05a_vetsa1_final_2025_01_23.csv")
+mci_v2_raw <- read.csv("data/created_data/Unadjusted/MCI_05b_vetsa2_final_2025_01_15.csv")
+mci_v3_raw <- read.csv("data/created_data/Unadjusted/MCI_05c_vetsa3_final_2025_01_15.csv")
+mci_v4_raw <- read.csv("data/created_data/Unadjusted/MCI_05d_vetsa4_final_2025_01_16.csv")
 
+mci_v1_adj <- read.csv("data/created_data/Adjusted/MCI_05a_vetsa1_final_2025_01_23.csv")
+mci_v2_adj <- read.csv("data/created_data/Adjusted/MCI_05b_vetsa2_final_2025_01_23.csv")
+mci_v3_adj <- read.csv("data/created_data/Adjusted/MCI_05c_vetsa3_final_2025_01_23.csv")
+mci_v4_adj <- read.csv("data/created_data/Adjusted/MCI_05d_vetsa4_final_2025_01_23.csv")
 
 #-------------------------------------------#
 #     Prep practice effect estimate data    #
@@ -169,7 +178,7 @@ forest_plot <- ggplot(pe_plot_df, aes(x = term, y = estimate,
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
   coord_flip() +
   facet_wrap(~ Model) +
-  ylab("Standardized Practice Effect Estimates") + xlab("") +
+  ylab("Practice Effect Estimates (SD units)") + xlab("") +
   geom_text(data = text_df, 
             aes(x = term, y = max_y * 1.5, # Adjust position of text (change scale_y_continuous as well)  
                 label = text_label),
@@ -188,8 +197,9 @@ forest_plot <- ggplot(pe_plot_df, aes(x = term, y = estimate,
         strip.text = element_text(face = "bold", size = 12),
         axis.title = element_text(size = 12))
 
-# Save out plot
-ggsave("results/forest_plot.svg", forest_plot, width = 16, height = 8, 
+# Save out forest plot
+forestplot_name = paste0("results/forest_plot_", Sys.Date(), "_")
+ggsave(forestplot_name, forest_plot, width = 16, height = 8, 
        device = "svg", dpi = 300)
 
 # Version of plot without estimates and CIs
@@ -201,7 +211,7 @@ forest_plot_no_text <- ggplot(pe_plot_df, aes(x = term, y = estimate,
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
   coord_flip() +
   facet_wrap(~ Model) +
-  ylab("Standardized Practice Effect Estimates") + xlab("") +
+  ylab("Practice Effect Estimates (SD units)") + xlab("") +
   scale_color_manual(values = custom_d3) +
   theme_bw() +
   theme(text = element_text(family = "Arial"),
@@ -218,7 +228,6 @@ forest_plot_no_text <- ggplot(pe_plot_df, aes(x = term, y = estimate,
 #     Prep cognitive factor score data      #
 #-------------------------------------------#
 
-
 # Pivot to long format
 factors_raw_long <- factors_raw %>%
   pivot_longer(cols = -VETSAID, 
@@ -232,7 +241,7 @@ factors_adj_long <- factors_adj %>%
                names_to = c(".value", "WAVE"), 
                names_pattern = "(.+?)_V(.$)",
                values_drop_na = TRUE) %>%
-  mutate(Adjustment = "PE-corrected")
+  mutate(Adjustment = "PE_corrected")
 
 # Bind raw and adjusted data
 factors_long <- factors_raw_long %>% 
@@ -257,13 +266,14 @@ factors_long_domain <- factors_long_domain %>%
                          vis_spat = "Visuospatial"))
 
 #--------------------------------------------------------------------#
-# Descriptive statistics of PE-adjustment effects on factor scores   #
+# Descriptive and statistics tests of cognitive factor scores with   #
+# and without PE adjustment                                          #
 #--------------------------------------------------------------------#
 
 # Get difference scores for each domain
 factors_diff <- factors_long_domain %>%
   pivot_wider(names_from = Adjustment, values_from = Score) %>%
-  mutate(Diff = Unadjusted - `PE-corrected`)
+  mutate(Diff = Unadjusted - PE_corrected)
 
 # Get summary statistics of difference scores by wave and domain
 factors_diff_summary <- factors_diff %>%
@@ -271,7 +281,7 @@ factors_diff_summary <- factors_diff %>%
   group_by(Domain, WAVE) %>%
   summarize(
     Mean = mean(Diff, na.rm=T),
-    SD = sd(Diff, na.rm=T),
+    SE = sd(Diff, na.rm=T) / sqrt(n()),
     Min = min(Diff, na.rm=T),
     Max = max(Diff, na.rm=T),
     .groups = "drop") %>%
@@ -287,7 +297,7 @@ factors_diff_summary_4tp <- factors_diff %>%
   group_by(Domain, WAVE) %>%
   summarize(
     Mean = mean(Diff, na.rm=T),
-    SD = sd(Diff, na.rm=T),
+    SE = sd(Diff, na.rm=T) / sqrt(n()),
     Min = min(Diff, na.rm=T),
     Max = max(Diff, na.rm=T),
     .groups = "drop") %>%
@@ -295,18 +305,61 @@ factors_diff_summary_4tp <- factors_diff %>%
   kable_classic(full_width=FALSE, html_font="Times New Roman") %>%
   collapse_rows(columns = 1, valign = "top")
   
-  
+### Test for differences in adjustment by domain and wave ###
+factors_long$WAVE = as.factor(factors_long$WAVE)
+factors_long$Adjustment = factor(factors_long$Adjustment, levels = c("Unadjusted", "PE_corrected"))
+
+# Test for differences in adjustment by domain and wave
+# Memory
+memory_summ = lmer(memory ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
+  model_parameters() %>% mutate(Domain = "Episodic memory")
+# Executive Function
+ef_summ = lmer(commonEF ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
+  model_parameters()  %>% mutate(Domain = "Executive function")
+# Fluency
+fluency_summ = lmer(fluency ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
+  model_parameters() %>% mutate(Domain = "Fluency")
+# Processing Speed
+speed_summ = lmer(speed ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
+  model_parameters() %>% mutate(Domain = "Processing speed")
+# Visual Memory
+vis_mem_summ = lmer(vis_mem ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
+  model_parameters() %>% mutate(Domain = "Visual memory")
+# Visuospatial
+vis_spat_summ = lmer(vis_spat ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
+  model_parameters() %>% mutate(Domain = "Visuospatial")
+
+# Combine results
+factors_diff_test <- bind_rows(memory_summ, ef_summ, fluency_summ, speed_summ, vis_mem_summ, vis_spat_summ) 
+
+factors_diff_test %>% 
+  kbl(digits=3) %>%
+  kable_classic(full_width=FALSE, html_font="Times New Roman") %>%
+  collapse_rows(columns = 1, valign = "top")
+
 #-----------------------------------------------------------------#
 #   Plot factor scores trajectories with and without adjustment   #
-#-----------------------------------------------------------------
+#-----------------------------------------------------------------#
 
-# Create dataframe with mean and SE of cognitive factor scores by Adjustment and Domain
+# Create dataframe with mean and within-subject SE of cognitive factor scores by Adjustment and Domain
 factor_score_summary <- factors_long_domain %>%
+  # First center scores within subject for each Domain and Adjustment combination
+  group_by(VETSAID, Domain, Adjustment) %>%
+  mutate(
+    subject_mean = mean(Score, na.rm = TRUE),
+    Score_centered = Score - subject_mean
+  ) %>%
+  ungroup() %>%
+  # Then calculate group-level statistics 
   group_by(WAVE, Domain, Adjustment) %>%
   summarize(
-    Mean = round(mean(Score, na.rm=T), 2),
-    SE = round(sd(Score, na.rm=T) / sqrt(n()), 2),
-    .groups = "drop")
+    Mean = mean(Score, na.rm = TRUE),
+    within_var = var(Score_centered, na.rm = TRUE),
+    n = sum(!is.na(Score)),
+    SE = sqrt(within_var/n),
+    .groups = "drop"
+  )
+
 
 # Order domains
 factor_score_summary$Domain <- factor(factor_score_summary$Domain, 
@@ -322,8 +375,8 @@ factor_score_summary_plot <- ggplot(factor_score_summary, aes(x = WAVE, y = Mean
   geom_point(aes(shape = Adjustment)) +
   geom_line(aes(linetype = Adjustment)) +
   geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = 0.2) +
-  facet_wrap(~ Domain) +
-  ylab("Score (standardized)") + xlab("Wave") +
+  facet_wrap(~ Domain, scales = "free_y") +
+  ylab("Score (SD units)") + xlab("Wave") +
   scale_color_d3(guide = "none") + # Use standard d3 palette because no GCA
   theme_bw(14) +
   theme(text = element_text(family = "Arial"),
@@ -336,19 +389,34 @@ factor_score_summary_plot <- ggplot(factor_score_summary, aes(x = WAVE, y = Mean
         axis.title = element_text(size = 18))
 
 # Save plot
-ggsave("results/factor_score_plot_color.svg", factor_score_summary_plot, width = 12, height = 8, 
+factor_score_outname = paste0("results/factor_score_plot_", Sys.Date(), "_")
+ggsave(factor_score_outname, factor_score_summary_plot, width = 12, height = 8, 
        device = "svg", dpi = 300)
 
-# Create cognitive factor trajectory plot for people with all 4 waves
+
+# Create dataframe with mean and within-subject SE of cognitive factor scores by Adjustment and Domain
+# Only include subjects with all 4 assessments
 factor_score_summary_4tp <- factors_long_domain %>%
   group_by(VETSAID) %>%
   add_count() %>%
   filter(n==48) %>% # 4 waves * 6 domains * 2 adjustments
+  # First center scores within subject for each Domain and Adjustment combination
+  group_by(VETSAID, Domain, Adjustment) %>%
+  mutate(
+    subject_mean = mean(Score, na.rm = TRUE),
+    Score_centered = Score - subject_mean
+  ) %>%
+  ungroup() %>%
+  # Then calculate group-level statistics
   group_by(WAVE, Domain, Adjustment) %>%
   summarize(
-    Mean = round(mean(Score, na.rm=T), 2),
-    SE = round(sd(Score, na.rm=T) / sqrt(n()), 2),
-    .groups = "drop")
+    Mean = mean(Score, na.rm = TRUE),
+    within_var = var(Score_centered, na.rm = TRUE),
+    n = sum(!is.na(Score)),
+    SE = sqrt(within_var/n),
+    .groups = "drop"
+  )
+
 
 # Order domains
 factor_score_summary_4tp$Domain <- factor(factor_score_summary_4tp$Domain, 
@@ -364,8 +432,8 @@ factor_score_summary_plot_4tp <- ggplot(factor_score_summary_4tp, aes(x = WAVE, 
   geom_point(aes(shape = Adjustment)) +
   geom_line(aes(linetype = Adjustment)) +
   geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = 0.2) +
-  facet_wrap(~ Domain) +
-  ylab("Score (standardized)") + xlab("Wave") +
+  facet_wrap(~ Domain, scales = "free_y") +
+  ylab("Score (SD units)") + xlab("Wave") +
   scale_color_d3(guide = "none") + # Use standard d3 palette because no GCA
   theme_bw(14) +
   theme(text = element_text(family = "Arial"),
@@ -380,3 +448,53 @@ factor_score_summary_plot_4tp <- ggplot(factor_score_summary_4tp, aes(x = WAVE, 
 # Save plot
 ggsave("results/factor_score_plot_color_4tp.svg", factor_score_summary_plot_4tp, width = 12, height = 8, 
        device = "svg", dpi = 300)
+
+
+#--------------------------#
+#     Prep MCI dx  data    #
+#--------------------------#
+
+# Join all waves of diagnosis data based on raw scores
+mci_raw <- mci_v1_raw %>%
+  select(vetsaid, MCI_cons_V1) %>%
+  full_join(mci_v2_raw %>% select(vetsaid, MCI_cons_V2), by = "vetsaid") %>%
+  full_join(mci_v3_raw %>% select(vetsaid, MCI_cons_V3), by = "vetsaid") %>%
+  full_join(mci_v4_raw %>% select(vetsaid, MCI_cons_V4), by = "vetsaid") %>%
+  # filter(!is.na(MCI_cons_V1) & !is.na(MCI_cons_V2) & !is.na(MCI_cons_V3) & !is.na(MCI_cons_V4)) %>%
+  mutate(Adjustment = "Unadjusted")
+
+# Join all waves of diagnosis data based on adjusted scores
+mci_adj <- mci_v1_adj %>%
+  select(vetsaid, MCI_cons_V1) %>%
+  full_join(mci_v2_adj %>% select(vetsaid, MCI_cons_V2), by = "vetsaid") %>%
+  full_join(mci_v3_adj %>% select(vetsaid, MCI_cons_V3), by = "vetsaid") %>%
+  full_join(mci_v4_adj %>% select(vetsaid, MCI_cons_V4), by = "vetsaid") %>%
+  # filter(!is.na(MCI_cons_V1) & !is.na(MCI_cons_V2) & !is.na(MCI_cons_V3) & !is.na(MCI_cons_V4)) %>%
+  mutate(Adjustment = "PE_corrected")
+
+# Create anyMCI variables for raw data
+mci_raw <- mci_raw %>%
+  mutate(anyMCI_V1 = ifelse(MCI_cons_V1 > 0, 1, 0),
+         anyMCI_V2 = ifelse(MCI_cons_V2 > 0, 1, 0),
+         anyMCI_V3 = ifelse(MCI_cons_V3 > 0, 1, 0),
+         anyMCI_V4 = ifelse(MCI_cons_V4 > 0, 1, 0))
+
+# Create anyMCI variables for adjusted data
+mci_adj <- mci_adj %>%
+  mutate(anyMCI_V1 = ifelse(MCI_cons_V1 > 0, 1, 0),
+         anyMCI_V2 = ifelse(MCI_cons_V2 > 0, 1, 0),
+         anyMCI_V3 = ifelse(MCI_cons_V3 > 0, 1, 0),
+         anyMCI_V4 = ifelse(MCI_cons_V4 > 0, 1, 0))
+
+# Bind raw and adjusted data
+mci_long <- mci_raw %>% 
+  bind_rows(mci_adj)
+
+# Convert MCI_cons to factor 
+mci_long <- mci_long %>%
+  mutate_at(vars(starts_with("MCI_cons")), as.factor)
+
+# Get rates of MCI at each wave by adjustment status
+mci_vars <- mci_long %>% select(contains("MCI")) %>% names()
+CreateTableOne(vars = mci_vars, 
+               strata = "Adjustment", data = mci_long, test = FALSE) 

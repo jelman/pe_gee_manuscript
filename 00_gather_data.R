@@ -1,10 +1,10 @@
 library(dplyr)
 
-
 # Read in the data
-uncorr_df <- read.csv("M:/VETSA DATA FILES_852014/PracticeEffects/data/temp_data/V1V2V3V4_cog_data_2025-01-07.csv")
+uncorr_df <- read.csv("~/netshare/M/VETSA DATA FILES_852014/PracticeEffects/data/temp_data/V1V2V3V4_cog_data_raw_2025-04-17.csv")
 str(uncorr_df)
-corr_df <- read.csv("M:/VETSA DATA FILES_852014/PracticeEffects/data/output_data/V1V2V3V4_cog_data_pe_adjusted_2025-01-07.csv")
+corr_df <- read.csv("~/netshare/M/VETSA DATA FILES_852014/PracticeEffects/data/output_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-17.csv")
+str(corr_df)
 
 # Get names of corrected variables
 corr_vars <- corr_df %>% select(ends_with("p")) %>% names()
@@ -20,5 +20,5 @@ uncorr_df <- uncorr_df %>% select(VETSAID, all_of(corr_vars))
 all.equal(names(uncorr_df), names(corr_df))
 
 # Write out the data
-write.csv(uncorr_df, "V:/PROJ/PracEffects_GEE/data/V1V2V3V4_cog_data_raw_2025-01-08.csv", row.names = FALSE)
-write.csv(corr_df, "V:/PROJ/PracEffects_GEE/data/V1V2V3V4_cog_data_pe_adjusted_2025-01-08.csv", row.names = FALSE)
+write.csv(uncorr_df, "~/netshare/M/Projects/PracEffects_GEE/data/raw_data/V1V2V3V4_cog_data_raw_2025-04-17.csv", row.names = FALSE)
+write.csv(corr_df, "~/netshare/M/Projects/PracEffects_GEE/data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-17.csv", row.names = FALSE)

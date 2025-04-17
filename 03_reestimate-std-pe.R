@@ -3,25 +3,24 @@ library(tidyr)
 library(geepack)
 library(haven)
 
-
 #--------------------------------#
 # Set directories and load data  #
 #--------------------------------#
 
 # Set working directory
 # setwd("~/netshare/M/Projects/PracEffects_GEE")
-setwd("M:/Projects/PracEffects_GEE")
+setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 # Load admin data and get age 
-admin <- read_sas("M:/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20241014.sas7bdat", NULL)
+admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 admin <- admin %>% select(VETSAID=vetsaid, starts_with("AGE"))
 
 # Age 20 AFQT file
-nas201 <- read.csv("M:/NAS VETSA MASTER DATAFILES/Other cognitive measures/AFQT--age 20 cannot be distributed outside VETSA/AFQT_Age20_2020_05_19_revised.csv")
+nas201 <- read.csv("~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive measures/AFQT--age 20 cannot be distributed outside VETSA/AFQT_Age20_2020_05_19_revised.csv")
 nas201 <- nas201 %>% rename_all(toupper)
 
 # Load in raw (unadjusted) outcome data. These are variables we want to adjust for PEs
-outcome_data <- read.csv("data/V1V2V3V4_cog_data_raw_2025-01-08.csv")
+outcome_data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-04-17.csv", stringsAsFactors = FALSE)
 
 # Merge age 20 afqt into outcome data
 outcome_data <- outcome_data %>% 
@@ -34,9 +33,9 @@ colnames(outcome_data) <- gsub("p$", "", colnames(outcome_data))
 # Define outcomes that we want to estimate practice effects for  #
 #----------------------------------------------------------------#
 
-# Variables that are in all waves ### TODO: Change afqt to half-rounded variable names
+# Variables that are in all waves 
 outcome_varList <- c("MR1COR","TRL1TLOG","TRL2TLOG","TRL3TLOG","TRL4TLOG","TRL5TLOG",
-                     "CSSACC","MTXRAW","CVA1RAW","CVATOT","CVSDFR","CVLDFR",
+                     "CSSACC","MTXRAW","CVATOT","CVSDFR","CVLDFR",
                      "AFQTPCTTRAN_R","AFQTVOCPCTTRAN_R","AFQTARPCTTRAN_R","AFQTTLPCTTRAN_R","AFQTBXPCTTRAN_R",
                      "DSFRAW","DSBRAW","DSFMAX","DSTOT","LNTOT",
                      "LM1A","LM1B","LM2A","LM2B","LMITOT","LMDTOT",
@@ -72,8 +71,6 @@ outcome_data_long[,rt_vars] <- outcome_data_long[,rt_vars] * -1
 #   ASSESSMENT: how many assessments has an individual completed?
 #   GAP: how many waves have elapsed since last assessment?
 #   SKIP: indicate how many 
-#   OUTCOME_LAG: Version of outcome variable for missingness module, will have NAs filled
-
 assessment_outcome_long <- outcome_data_long %>%
   group_by(VETSAID) %>%
   mutate(ASSESSMENT = row_number(),
@@ -202,4 +199,4 @@ colnames(wide_results) <- gsub("//(|//)", "", colnames(wide_results))
 
 # Save results to file
 date <- format(Sys.Date(), "%Y-%m-%d")
-write.csv(wide_results, paste0("data/gee_standardized_results_", date, ".csv"), row.names = FALSE)
+write.csv(wide_results, paste0("results/gee_standardized_results_", date, ".csv"), row.names = FALSE)
