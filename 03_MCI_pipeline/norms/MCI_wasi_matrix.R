@@ -1,0 +1,169 @@
+# WASI Matrix Reasoning normative scoring functions
+
+library(dplyr)
+
+norm_wasi_matrix <- function(df) {
+  # Create default MTXT column if it doesn't exist
+  if (!"MTXT" %in% names(df)) {
+    df$MTXT <- NA_real_
+  }
+  
+  # Apply rounding to MTX variables
+  df <- df %>%
+    mutate(
+      MTXAGE = round(MTXAGE, 0)
+    )
+  
+  df <- df %>%
+    mutate(
+      # T-scores for WASI Matrix Reasoning
+      MTXT = case_when(
+        # Check for missing values first
+        is.na(MTXAGE) ~ NA_real_,
+        
+        # Age 55-64 (to match SAS script exactly)
+        AGE >= 55 & AGE < 65 & MTXAGE == 0 ~ 22,
+        AGE >= 55 & AGE < 65 & MTXAGE == 1 ~ 23,
+        AGE >= 55 & AGE < 65 & MTXAGE == 2 ~ 24,
+        AGE >= 55 & AGE < 65 & MTXAGE == 3 ~ 26,
+        AGE >= 55 & AGE < 65 & MTXAGE == 4 ~ 27,
+        AGE >= 55 & AGE < 65 & MTXAGE == 5 ~ 28,
+        AGE >= 55 & AGE < 65 & MTXAGE == 6 ~ 30,
+        AGE >= 55 & AGE < 65 & MTXAGE == 7 ~ 31,
+        AGE >= 55 & AGE < 65 & MTXAGE == 8 ~ 33,
+        AGE >= 55 & AGE < 65 & MTXAGE == 9 ~ 34,
+        AGE >= 55 & AGE < 65 & MTXAGE == 10 ~ 36,
+        AGE >= 55 & AGE < 65 & MTXAGE == 11 ~ 37,
+        AGE >= 55 & AGE < 65 & MTXAGE == 12 ~ 39,
+        AGE >= 55 & AGE < 65 & MTXAGE == 13 ~ 41,
+        AGE >= 55 & AGE < 65 & MTXAGE == 14 ~ 42,
+        AGE >= 55 & AGE < 65 & MTXAGE == 15 ~ 44,
+        AGE >= 55 & AGE < 65 & MTXAGE == 16 ~ 45,
+        AGE >= 55 & AGE < 65 & MTXAGE == 17 ~ 47,
+        AGE >= 55 & AGE < 65 & MTXAGE == 18 ~ 49,
+        AGE >= 55 & AGE < 65 & MTXAGE == 19 ~ 50,
+        AGE >= 55 & AGE < 65 & MTXAGE == 20 ~ 52,
+        AGE >= 55 & AGE < 65 & MTXAGE == 21 ~ 53,
+        AGE >= 55 & AGE < 65 & MTXAGE == 22 ~ 55,
+        AGE >= 55 & AGE < 65 & MTXAGE == 23 ~ 57,
+        AGE >= 55 & AGE < 65 & MTXAGE == 24 ~ 58,
+        AGE >= 55 & AGE < 65 & MTXAGE == 25 ~ 59,
+        AGE >= 55 & AGE < 65 & MTXAGE == 26 ~ 61,
+        AGE >= 55 & AGE < 65 & MTXAGE == 27 ~ 62,
+        AGE >= 55 & AGE < 65 & MTXAGE == 28 ~ 64,
+        AGE >= 55 & AGE < 65 & MTXAGE == 29 ~ 66,
+        AGE >= 55 & AGE < 65 & MTXAGE == 30 ~ 68,
+        AGE >= 55 & AGE < 65 & MTXAGE == 31 ~ 70,
+        AGE >= 55 & AGE < 65 & MTXAGE == 32 ~ 72,
+        
+        # Age 65-69
+        AGE >= 65 & AGE < 70 & MTXAGE == 0 ~ 23,
+        AGE >= 65 & AGE < 70 & MTXAGE == 1 ~ 25,
+        AGE >= 65 & AGE < 70 & MTXAGE == 2 ~ 26,
+        AGE >= 65 & AGE < 70 & MTXAGE == 3 ~ 28,
+        AGE >= 65 & AGE < 70 & MTXAGE == 4 ~ 29,
+        AGE >= 65 & AGE < 70 & MTXAGE == 5 ~ 30,
+        AGE >= 65 & AGE < 70 & MTXAGE == 6 ~ 32,
+        AGE >= 65 & AGE < 70 & MTXAGE == 7 ~ 34,
+        AGE >= 65 & AGE < 70 & MTXAGE == 8 ~ 35,
+        AGE >= 65 & AGE < 70 & MTXAGE == 9 ~ 37,
+        AGE >= 65 & AGE < 70 & MTXAGE == 10 ~ 38,
+        AGE >= 65 & AGE < 70 & MTXAGE == 11 ~ 40,
+        AGE >= 65 & AGE < 70 & MTXAGE == 12 ~ 41,
+        AGE >= 65 & AGE < 70 & MTXAGE == 13 ~ 43,
+        AGE >= 65 & AGE < 70 & MTXAGE == 14 ~ 44,
+        AGE >= 65 & AGE < 70 & MTXAGE == 15 ~ 46,
+        AGE >= 65 & AGE < 70 & MTXAGE == 16 ~ 48,
+        AGE >= 65 & AGE < 70 & MTXAGE == 17 ~ 49,
+        AGE >= 65 & AGE < 70 & MTXAGE == 18 ~ 51,
+        AGE >= 65 & AGE < 70 & MTXAGE == 19 ~ 52,
+        AGE >= 65 & AGE < 70 & MTXAGE == 20 ~ 54,
+        AGE >= 65 & AGE < 70 & MTXAGE == 21 ~ 55,
+        AGE >= 65 & AGE < 70 & MTXAGE == 22 ~ 57,
+        AGE >= 65 & AGE < 70 & MTXAGE == 23 ~ 59,
+        AGE >= 65 & AGE < 70 & MTXAGE == 24 ~ 60,
+        AGE >= 65 & AGE < 70 & MTXAGE == 25 ~ 62,
+        AGE >= 65 & AGE < 70 & MTXAGE == 26 ~ 63,
+        AGE >= 65 & AGE < 70 & MTXAGE == 27 ~ 65,
+        AGE >= 65 & AGE < 70 & MTXAGE == 28 ~ 67,
+        AGE >= 65 & AGE < 70 & MTXAGE == 29 ~ 69,
+        AGE >= 65 & AGE < 70 & MTXAGE == 30 ~ 71,
+        AGE >= 65 & AGE < 70 & MTXAGE == 31 ~ 73,
+        AGE >= 65 & AGE < 70 & MTXAGE == 32 ~ 75,
+        
+        # Age 70-74
+        AGE >= 70 & AGE < 75 & MTXAGE == 0 ~ 24,
+        AGE >= 70 & AGE < 75 & MTXAGE == 1 ~ 26,
+        AGE >= 70 & AGE < 75 & MTXAGE == 2 ~ 28,
+        AGE >= 70 & AGE < 75 & MTXAGE == 3 ~ 30,
+        AGE >= 70 & AGE < 75 & MTXAGE == 4 ~ 31,
+        AGE >= 70 & AGE < 75 & MTXAGE == 5 ~ 33,
+        AGE >= 70 & AGE < 75 & MTXAGE == 6 ~ 34,
+        AGE >= 70 & AGE < 75 & MTXAGE == 7 ~ 36,
+        AGE >= 70 & AGE < 75 & MTXAGE == 8 ~ 37,
+        AGE >= 70 & AGE < 75 & MTXAGE == 9 ~ 39,
+        AGE >= 70 & AGE < 75 & MTXAGE == 10 ~ 41,
+        AGE >= 70 & AGE < 75 & MTXAGE == 11 ~ 42,
+        AGE >= 70 & AGE < 75 & MTXAGE == 12 ~ 44,
+        AGE >= 70 & AGE < 75 & MTXAGE == 13 ~ 45,
+        AGE >= 70 & AGE < 75 & MTXAGE == 14 ~ 47,
+        AGE >= 70 & AGE < 75 & MTXAGE == 15 ~ 48,
+        AGE >= 70 & AGE < 75 & MTXAGE == 16 ~ 50,
+        AGE >= 70 & AGE < 75 & MTXAGE == 17 ~ 51,
+        AGE >= 70 & AGE < 75 & MTXAGE == 18 ~ 53,
+        AGE >= 70 & AGE < 75 & MTXAGE == 19 ~ 54,
+        AGE >= 70 & AGE < 75 & MTXAGE == 20 ~ 56,
+        AGE >= 70 & AGE < 75 & MTXAGE == 21 ~ 57,
+        AGE >= 70 & AGE < 75 & MTXAGE == 22 ~ 59,
+        AGE >= 70 & AGE < 75 & MTXAGE == 23 ~ 60,
+        AGE >= 70 & AGE < 75 & MTXAGE == 24 ~ 62,
+        AGE >= 70 & AGE < 75 & MTXAGE == 25 ~ 64,
+        AGE >= 70 & AGE < 75 & MTXAGE == 26 ~ 65,
+        AGE >= 70 & AGE < 75 & MTXAGE == 27 ~ 67,
+        AGE >= 70 & AGE < 75 & MTXAGE == 28 ~ 69,
+        AGE >= 70 & AGE < 75 & MTXAGE == 29 ~ 71,
+        AGE >= 70 & AGE < 75 & MTXAGE == 30 ~ 73,
+        AGE >= 70 & AGE < 75 & MTXAGE == 31 ~ 75,
+        AGE >= 70 & AGE < 75 & MTXAGE == 32 ~ 77,
+        
+        # Age 75-79
+        AGE >= 75 & AGE < 80 & MTXAGE == 0 ~ 26,
+        AGE >= 75 & AGE < 80 & MTXAGE == 1 ~ 28,
+        AGE >= 75 & AGE < 80 & MTXAGE == 2 ~ 30,
+        AGE >= 75 & AGE < 80 & MTXAGE == 3 ~ 32,
+        AGE >= 75 & AGE < 80 & MTXAGE == 4 ~ 33,
+        AGE >= 75 & AGE < 80 & MTXAGE == 5 ~ 35,
+        AGE >= 75 & AGE < 80 & MTXAGE == 6 ~ 36,
+        AGE >= 75 & AGE < 80 & MTXAGE == 7 ~ 38,
+        AGE >= 75 & AGE < 80 & MTXAGE == 8 ~ 40,
+        AGE >= 75 & AGE < 80 & MTXAGE == 9 ~ 41,
+        AGE >= 75 & AGE < 80 & MTXAGE == 10 ~ 43,
+        AGE >= 75 & AGE < 80 & MTXAGE == 11 ~ 44,
+        AGE >= 75 & AGE < 80 & MTXAGE == 12 ~ 46,
+        AGE >= 75 & AGE < 80 & MTXAGE == 13 ~ 48,
+        AGE >= 75 & AGE < 80 & MTXAGE == 14 ~ 49,
+        AGE >= 75 & AGE < 80 & MTXAGE == 15 ~ 51,
+        AGE >= 75 & AGE < 80 & MTXAGE == 16 ~ 52,
+        AGE >= 75 & AGE < 80 & MTXAGE == 17 ~ 54,
+        AGE >= 75 & AGE < 80 & MTXAGE == 18 ~ 56,
+        AGE >= 75 & AGE < 80 & MTXAGE == 19 ~ 57,
+        AGE >= 75 & AGE < 80 & MTXAGE == 20 ~ 59,
+        AGE >= 75 & AGE < 80 & MTXAGE == 21 ~ 60,
+        AGE >= 75 & AGE < 80 & MTXAGE == 22 ~ 62,
+        AGE >= 75 & AGE < 80 & MTXAGE == 23 ~ 64,
+        AGE >= 75 & AGE < 80 & MTXAGE == 24 ~ 65,
+        AGE >= 75 & AGE < 80 & MTXAGE == 25 ~ 67,
+        AGE >= 75 & AGE < 80 & MTXAGE == 26 ~ 68,
+        AGE >= 75 & AGE < 80 & MTXAGE == 27 ~ 70,
+        AGE >= 75 & AGE < 80 & MTXAGE == 28 ~ 72,
+        AGE >= 75 & AGE < 80 & MTXAGE == 29 ~ 74,
+        AGE >= 75 & AGE < 80 & MTXAGE == 30 ~ 76,
+        AGE >= 75 & AGE < 80 & MTXAGE == 31 ~ 78,
+        AGE >= 75 & AGE < 80 & MTXAGE == 32 ~ 80,
+        
+        TRUE ~ as.numeric(MTXT)  # Keep existing value if no match
+      )
+    )
+  
+  return(df)
+}

@@ -1,0 +1,392 @@
+# WMS Visual Reproduction normative scoring functions
+
+library(dplyr)
+
+norm_visual_reproduction <- function(df) {
+  # Create default variables if they don't exist
+  for (col in c("VRITOTSS", "VRDTOTSS", "VRCTOTSS")) {
+    if (!(col %in% names(df))) {
+      df[[col]] <- NA_real_
+    }
+  }
+  
+  # Round Visual Reproduction variables
+  df <- df %>%
+    mutate(
+      VRITOT = round(VRITOT, 0),
+      VRDTOT = round(VRDTOT, 0),
+      VRCTOT = round(VRCTOT, 0)
+    )
+  
+  df <- df %>%
+    mutate(
+      # Scale scores for Visual Reproduction Immediate (Raw Total)
+      VRITOTSS = case_when(
+        # Check for missing values first
+        is.na(VRITOT) ~ NA_real_,
+        
+        # Age 55-64
+        AGE >= 55 & AGE < 65 & VRITOT >= 0 & VRITOT <= 20 ~ 1,
+        AGE >= 55 & AGE < 65 & VRITOT >= 21 & VRITOT <= 30 ~ 2,
+        AGE >= 55 & AGE < 65 & VRITOT >= 31 & VRITOT <= 40 ~ 3,
+        AGE >= 55 & AGE < 65 & VRITOT >= 41 & VRITOT <= 49 ~ 4,
+        AGE >= 55 & AGE < 65 & VRITOT >= 50 & VRITOT <= 57 ~ 5,
+        AGE >= 55 & AGE < 65 & VRITOT >= 58 & VRITOT <= 65 ~ 6,
+        AGE >= 55 & AGE < 65 & VRITOT >= 66 & VRITOT <= 70 ~ 7,
+        AGE >= 55 & AGE < 65 & VRITOT >= 71 & VRITOT <= 73 ~ 8,
+        AGE >= 55 & AGE < 65 & VRITOT >= 74 & VRITOT <= 76 ~ 9,
+        AGE >= 55 & AGE < 65 & VRITOT >= 77 & VRITOT <= 79 ~ 10,
+        AGE >= 55 & AGE < 65 & VRITOT >= 80 & VRITOT <= 83 ~ 11,
+        AGE >= 55 & AGE < 65 & VRITOT >= 84 & VRITOT <= 87 ~ 12,
+        AGE >= 55 & AGE < 65 & VRITOT >= 88 & VRITOT <= 91 ~ 13,
+        AGE >= 55 & AGE < 65 & VRITOT >= 92 & VRITOT <= 95 ~ 14,
+        AGE >= 55 & AGE < 65 & VRITOT >= 96 & VRITOT <= 98 ~ 15,
+        AGE >= 55 & AGE < 65 & VRITOT >= 99 & VRITOT <= 101 ~ 16,
+        AGE >= 55 & AGE < 65 & VRITOT >= 102 & VRITOT <= 104 ~ 17,
+        
+        # Age 65-69
+        AGE >= 65 & AGE < 70 & VRITOT >= 0 & VRITOT <= 14 ~ 1,
+        AGE >= 65 & AGE < 70 & VRITOT >= 15 & VRITOT <= 24 ~ 2,
+        AGE >= 65 & AGE < 70 & VRITOT >= 25 & VRITOT <= 34 ~ 3,
+        AGE >= 65 & AGE < 70 & VRITOT >= 35 & VRITOT <= 44 ~ 4,
+        AGE >= 65 & AGE < 70 & VRITOT >= 45 & VRITOT <= 51 ~ 5,
+        AGE >= 65 & AGE < 70 & VRITOT >= 52 & VRITOT <= 56 ~ 6,
+        AGE >= 65 & AGE < 70 & VRITOT >= 57 & VRITOT <= 61 ~ 7,
+        AGE >= 65 & AGE < 70 & VRITOT >= 62 & VRITOT <= 65 ~ 8,
+        AGE >= 65 & AGE < 70 & VRITOT >= 66 & VRITOT <= 69 ~ 9,
+        AGE >= 65 & AGE < 70 & VRITOT >= 70 & VRITOT <= 73 ~ 10,
+        AGE >= 65 & AGE < 70 & VRITOT >= 74 & VRITOT <= 77 ~ 11,
+        AGE >= 65 & AGE < 70 & VRITOT >= 78 & VRITOT <= 81 ~ 12,
+        AGE >= 65 & AGE < 70 & VRITOT >= 82 & VRITOT <= 85 ~ 13,
+        AGE >= 65 & AGE < 70 & VRITOT >= 86 & VRITOT <= 89 ~ 14,
+        AGE >= 65 & AGE < 70 & VRITOT >= 90 & VRITOT <= 93 ~ 15,
+        AGE >= 65 & AGE < 70 & VRITOT >= 94 & VRITOT <= 97 ~ 16,
+        AGE >= 65 & AGE < 70 & VRITOT >= 98 & VRITOT <= 101 ~ 17,
+        AGE >= 65 & AGE < 70 & VRITOT >= 102 & VRITOT <= 104 ~ 18,
+        
+        # Age 70-74
+        AGE >= 70 & AGE < 75 & VRITOT >= 0 & VRITOT <= 12 ~ 1,
+        AGE >= 70 & AGE < 75 & VRITOT >= 13 & VRITOT <= 22 ~ 2,
+        AGE >= 70 & AGE < 75 & VRITOT >= 23 & VRITOT <= 31 ~ 3,
+        AGE >= 70 & AGE < 75 & VRITOT >= 32 & VRITOT <= 39 ~ 4,
+        AGE >= 70 & AGE < 75 & VRITOT >= 40 & VRITOT <= 46 ~ 5,
+        AGE >= 70 & AGE < 75 & VRITOT >= 47 & VRITOT <= 52 ~ 6,
+        AGE >= 70 & AGE < 75 & VRITOT >= 53 & VRITOT <= 57 ~ 7,
+        AGE >= 70 & AGE < 75 & VRITOT >= 58 & VRITOT <= 62 ~ 8,
+        AGE >= 70 & AGE < 75 & VRITOT >= 63 & VRITOT <= 67 ~ 9,
+        AGE >= 70 & AGE < 75 & VRITOT >= 68 & VRITOT <= 72 ~ 10,
+        AGE >= 70 & AGE < 75 & VRITOT >= 73 & VRITOT <= 76 ~ 11,
+        AGE >= 70 & AGE < 75 & VRITOT >= 77 & VRITOT <= 80 ~ 12,
+        AGE >= 70 & AGE < 75 & VRITOT >= 81 & VRITOT <= 85 ~ 13,
+        AGE >= 70 & AGE < 75 & VRITOT >= 86 & VRITOT <= 89 ~ 14,
+        AGE >= 70 & AGE < 75 & VRITOT >= 90 & VRITOT <= 92 ~ 15,
+        AGE >= 70 & AGE < 75 & VRITOT >= 93 & VRITOT <= 95 ~ 16,
+        AGE >= 70 & AGE < 75 & VRITOT >= 96 & VRITOT <= 98 ~ 17,
+        AGE >= 70 & AGE < 75 & VRITOT >= 99 & VRITOT <= 101 ~ 18,
+        AGE >= 70 & AGE < 75 & VRITOT >= 102 & VRITOT <= 104 ~ 19,
+        
+        # Age 75-79
+        AGE >= 75 & AGE < 80 & VRITOT >= 0 & VRITOT <= 10 ~ 1,
+        AGE >= 75 & AGE < 80 & VRITOT >= 11 & VRITOT <= 20 ~ 2,
+        AGE >= 75 & AGE < 80 & VRITOT >= 21 & VRITOT <= 29 ~ 3,
+        AGE >= 75 & AGE < 80 & VRITOT >= 30 & VRITOT <= 37 ~ 4,
+        AGE >= 75 & AGE < 80 & VRITOT >= 38 & VRITOT <= 44 ~ 5,
+        AGE >= 75 & AGE < 80 & VRITOT >= 45 & VRITOT <= 50 ~ 6,
+        AGE >= 75 & AGE < 80 & VRITOT >= 51 & VRITOT <= 55 ~ 7,
+        AGE >= 75 & AGE < 80 & VRITOT >= 56 & VRITOT <= 60 ~ 8,
+        AGE >= 75 & AGE < 80 & VRITOT >= 61 & VRITOT <= 65 ~ 9,
+        AGE >= 75 & AGE < 80 & VRITOT >= 66 & VRITOT <= 70 ~ 10,
+        AGE >= 75 & AGE < 80 & VRITOT >= 71 & VRITOT <= 75 ~ 11,
+        AGE >= 75 & AGE < 80 & VRITOT >= 76 & VRITOT <= 80 ~ 12,
+        AGE >= 75 & AGE < 80 & VRITOT >= 81 & VRITOT <= 84 ~ 13,
+        AGE >= 75 & AGE < 80 & VRITOT >= 85 & VRITOT <= 88 ~ 14,
+        AGE >= 75 & AGE < 80 & VRITOT >= 89 & VRITOT <= 92 ~ 15,
+        AGE >= 75 & AGE < 80 & VRITOT >= 93 & VRITOT <= 95 ~ 16,
+        AGE >= 75 & AGE < 80 & VRITOT >= 96 & VRITOT <= 98 ~ 17,
+        AGE >= 75 & AGE < 80 & VRITOT >= 99 & VRITOT <= 101 ~ 18,
+        AGE >= 75 & AGE < 80 & VRITOT >= 102 & VRITOT <= 104 ~ 19,
+        
+        # Age 80-84
+        AGE >= 80 & AGE < 85 & VRITOT >= 0 & VRITOT <= 8 ~ 1,
+        AGE >= 80 & AGE < 85 & VRITOT >= 9 & VRITOT <= 15 ~ 2,
+        AGE >= 80 & AGE < 85 & VRITOT >= 16 & VRITOT <= 22 ~ 3,
+        AGE >= 80 & AGE < 85 & VRITOT >= 23 & VRITOT <= 29 ~ 4,
+        AGE >= 80 & AGE < 85 & VRITOT >= 30 & VRITOT <= 35 ~ 5,
+        AGE >= 80 & AGE < 85 & VRITOT >= 36 & VRITOT <= 41 ~ 6,
+        AGE >= 80 & AGE < 85 & VRITOT >= 42 & VRITOT <= 47 ~ 7,
+        AGE >= 80 & AGE < 85 & VRITOT >= 48 & VRITOT <= 53 ~ 8,
+        AGE >= 80 & AGE < 85 & VRITOT >= 54 & VRITOT <= 59 ~ 9,
+        AGE >= 80 & AGE < 85 & VRITOT >= 60 & VRITOT <= 65 ~ 10,
+        AGE >= 80 & AGE < 85 & VRITOT >= 66 & VRITOT <= 70 ~ 11,
+        AGE >= 80 & AGE < 85 & VRITOT >= 71 & VRITOT <= 74 ~ 12,
+        AGE >= 80 & AGE < 85 & VRITOT >= 75 & VRITOT <= 78 ~ 13,
+        AGE >= 80 & AGE < 85 & VRITOT >= 79 & VRITOT <= 82 ~ 14,
+        AGE >= 80 & AGE < 85 & VRITOT >= 83 & VRITOT <= 86 ~ 15,
+        AGE >= 80 & AGE < 85 & VRITOT >= 87 & VRITOT <= 90 ~ 16,
+        AGE >= 80 & AGE < 85 & VRITOT >= 91 & VRITOT <= 94 ~ 17,
+        AGE >= 80 & AGE < 85 & VRITOT >= 95 & VRITOT <= 99 ~ 18,
+        AGE >= 80 & AGE < 85 & VRITOT >= 100 & VRITOT <= 104 ~ 19,
+        
+        # Age 85-89
+        AGE >= 85 & AGE < 90 & VRITOT >= 0 & VRITOT <= 6 ~ 1,
+        AGE >= 85 & AGE < 90 & VRITOT >= 7 & VRITOT <= 13 ~ 2,
+        AGE >= 85 & AGE < 90 & VRITOT >= 14 & VRITOT <= 20 ~ 3,
+        AGE >= 85 & AGE < 90 & VRITOT >= 21 & VRITOT <= 27 ~ 4,
+        AGE >= 85 & AGE < 90 & VRITOT >= 28 & VRITOT <= 33 ~ 5,
+        AGE >= 85 & AGE < 90 & VRITOT >= 34 & VRITOT <= 39 ~ 6,
+        AGE >= 85 & AGE < 90 & VRITOT >= 40 & VRITOT <= 45 ~ 7,
+        AGE >= 85 & AGE < 90 & VRITOT >= 46 & VRITOT <= 50 ~ 8,
+        AGE >= 85 & AGE < 90 & VRITOT >= 51 & VRITOT <= 54 ~ 9,
+        AGE >= 85 & AGE < 90 & VRITOT >= 55 & VRITOT <= 59 ~ 10,
+        AGE >= 85 & AGE < 90 & VRITOT >= 60 & VRITOT <= 63 ~ 11,
+        AGE >= 85 & AGE < 90 & VRITOT >= 64 & VRITOT <= 67 ~ 12,
+        AGE >= 85 & AGE < 90 & VRITOT >= 68 & VRITOT <= 71 ~ 13,
+        AGE >= 85 & AGE < 90 & VRITOT >= 72 & VRITOT <= 76 ~ 14,
+        AGE >= 85 & AGE < 90 & VRITOT >= 77 & VRITOT <= 81 ~ 15,
+        AGE >= 85 & AGE < 90 & VRITOT >= 82 & VRITOT <= 86 ~ 16,
+        AGE >= 85 & AGE < 90 & VRITOT >= 87 & VRITOT <= 91 ~ 17,
+        AGE >= 85 & AGE < 90 & VRITOT >= 92 & VRITOT <= 97 ~ 18,
+        AGE >= 85 & AGE < 90 & VRITOT >= 98 & VRITOT <= 104 ~ 19,
+        
+        TRUE ~ as.numeric(VRITOTSS)  # Keep existing value if no match
+      ),
+      
+      # Scale scores for Visual Reproduction Delayed (Raw Total)
+      VRDTOTSS = case_when(
+        # Check for missing values first
+        is.na(VRDTOT) ~ NA_real_,
+        
+        # Age 55-64
+        AGE >= 55 & AGE < 65 & VRDTOT >= 0 & VRDTOT <= 3 ~ 4,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 4 & VRDTOT <= 8 ~ 5,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 9 & VRDTOT <= 14 ~ 6,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 15 & VRDTOT <= 22 ~ 7,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 23 & VRDTOT <= 32 ~ 8,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 33 & VRDTOT <= 42 ~ 9,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 43 & VRDTOT <= 51 ~ 10,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 52 & VRDTOT <= 58 ~ 11,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 59 & VRDTOT <= 64 ~ 12,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 65 & VRDTOT <= 70 ~ 13,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 71 & VRDTOT <= 75 ~ 14,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 76 & VRDTOT <= 80 ~ 15,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 81 & VRDTOT <= 85 ~ 16,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 86 & VRDTOT <= 90 ~ 17,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 91 & VRDTOT <= 96 ~ 18,
+        AGE >= 55 & AGE < 65 & VRDTOT >= 97 & VRDTOT <= 104 ~ 19,
+        
+        # Age 65-69
+        AGE >= 65 & AGE < 70 & VRDTOT >= 0 & VRDTOT <= 3 ~ 4,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 4 & VRDTOT <= 8 ~ 5,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 9 & VRDTOT <= 14 ~ 6,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 15 & VRDTOT <= 20 ~ 7,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 21 & VRDTOT <= 25 ~ 8,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 26 & VRDTOT <= 30 ~ 9,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 31 & VRDTOT <= 36 ~ 10,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 37 & VRDTOT <= 43 ~ 11,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 44 & VRDTOT <= 50 ~ 12,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 51 & VRDTOT <= 58 ~ 13,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 59 & VRDTOT <= 65 ~ 14,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 66 & VRDTOT <= 73 ~ 15,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 74 & VRDTOT <= 81 ~ 16,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 82 & VRDTOT <= 88 ~ 17,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 89 & VRDTOT <= 95 ~ 18,
+        AGE >= 65 & AGE < 70 & VRDTOT >= 96 & VRDTOT <= 104 ~ 19,
+        
+        # Age 70-74
+        AGE >= 70 & AGE < 75 & VRDTOT >= 0 & VRDTOT <= 3 ~ 4,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 4 & VRDTOT <= 7 ~ 5,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 8 & VRDTOT <= 12 ~ 6,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 13 & VRDTOT <= 17 ~ 7,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 18 & VRDTOT <= 22 ~ 8,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 23 & VRDTOT <= 27 ~ 9,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 28 & VRDTOT <= 34 ~ 10,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 35 & VRDTOT <= 40 ~ 11,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 41 & VRDTOT <= 47 ~ 12,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 48 & VRDTOT <= 54 ~ 13,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 55 & VRDTOT <= 61 ~ 14,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 62 & VRDTOT <= 67 ~ 15,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 68 & VRDTOT <= 73 ~ 16,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 74 & VRDTOT <= 81 ~ 17,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 82 & VRDTOT <= 90 ~ 18,
+        AGE >= 70 & AGE < 75 & VRDTOT >= 91 & VRDTOT <= 104 ~ 19,
+        
+        # Age 75-79
+        AGE >= 75 & AGE < 80 & VRDTOT >= 0 & VRDTOT <= 2 ~ 4,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 3 & VRDTOT <= 6 ~ 5,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 7 & VRDTOT <= 10 ~ 6,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 11 & VRDTOT <= 15 ~ 7,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 16 & VRDTOT <= 21 ~ 8,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 22 & VRDTOT <= 27 ~ 9,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 28 & VRDTOT <= 34 ~ 10,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 35 & VRDTOT <= 40 ~ 11,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 41 & VRDTOT <= 46 ~ 12,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 47 & VRDTOT <= 52 ~ 13,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 53 & VRDTOT <= 58 ~ 14,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 59 & VRDTOT <= 63 ~ 15,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 64 & VRDTOT <= 71 ~ 16,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 72 & VRDTOT <= 79 ~ 17,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 80 & VRDTOT <= 87 ~ 18,
+        AGE >= 75 & AGE < 80 & VRDTOT >= 88 & VRDTOT <= 104 ~ 19,
+        
+        # Age 80-84
+        AGE >= 80 & AGE < 85 & VRDTOT >= 0 & VRDTOT <= 2 ~ 5,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 3 & VRDTOT <= 6 ~ 6,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 7 & VRDTOT <= 10 ~ 7,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 11 & VRDTOT <= 15 ~ 8,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 16 & VRDTOT <= 20 ~ 9,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 21 & VRDTOT <= 27 ~ 10,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 28 & VRDTOT <= 35 ~ 11,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 36 & VRDTOT <= 43 ~ 12,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 44 & VRDTOT <= 51 ~ 13,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 52 & VRDTOT <= 58 ~ 14,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 59 & VRDTOT <= 63 ~ 15,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 64 & VRDTOT <= 69 ~ 16,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 70 & VRDTOT <= 77 ~ 17,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 78 & VRDTOT <= 85 ~ 18,
+        AGE >= 80 & AGE < 85 & VRDTOT >= 86 & VRDTOT <= 104 ~ 19,
+        
+        # Age 85-89
+        AGE >= 85 & AGE < 90 & VRDTOT >= 0 & VRDTOT <= 2 ~ 6,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 3 & VRDTOT <= 5 ~ 7,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 6 & VRDTOT <= 10 ~ 8,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 11 & VRDTOT <= 15 ~ 9,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 16 & VRDTOT <= 21 ~ 10,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 22 & VRDTOT <= 27 ~ 11,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 28 & VRDTOT <= 34 ~ 12,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 35 & VRDTOT <= 42 ~ 13,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 43 & VRDTOT <= 50 ~ 14,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 51 & VRDTOT <= 57 ~ 15,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 58 & VRDTOT <= 64 ~ 16,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 65 & VRDTOT <= 72 ~ 17,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 73 & VRDTOT <= 80 ~ 18,
+        AGE >= 85 & AGE < 90 & VRDTOT >= 81 & VRDTOT <= 104 ~ 19,
+        
+        TRUE ~ as.numeric(VRDTOTSS)  # Keep existing value if no match
+      ),
+      
+      # Scale scores for Visual Reproduction Copy
+      VRCTOTSS = case_when(
+        # Check for missing values first
+        is.na(VRCTOT) ~ NA_real_,
+        
+        # Age 55-64
+        AGE >= 55 & AGE < 65 & VRCTOT >= 0 & VRCTOT <= 74 ~ 1,
+        AGE >= 55 & AGE < 65 & VRCTOT >= 75 & VRCTOT <= 80 ~ 2,
+        AGE >= 55 & AGE < 65 & VRCTOT >= 81 & VRCTOT <= 84 ~ 3,
+        AGE >= 55 & AGE < 65 & VRCTOT >= 85 & VRCTOT <= 87 ~ 4,
+        AGE >= 55 & AGE < 65 & VRCTOT >= 88 & VRCTOT <= 89 ~ 5,
+        AGE >= 55 & AGE < 65 & VRCTOT >= 90 & VRCTOT <= 91 ~ 6,
+        AGE >= 55 & AGE < 65 & VRCTOT == 92 ~ 7,
+        AGE >= 55 & AGE < 65 & VRCTOT == 93 ~ 8,
+        AGE >= 55 & AGE < 65 & VRCTOT == 94 ~ 9,
+        AGE >= 55 & AGE < 65 & VRCTOT >= 95 & VRCTOT <= 96 ~ 10,
+        AGE >= 55 & AGE < 65 & VRCTOT == 97 ~ 11,
+        AGE >= 55 & AGE < 65 & VRCTOT >= 98 & VRCTOT <= 99 ~ 12,
+        AGE >= 55 & AGE < 65 & VRCTOT == 100 ~ 14,
+        AGE >= 55 & AGE < 65 & VRCTOT == 101 ~ 15,
+        AGE >= 55 & AGE < 65 & VRCTOT == 102 ~ 16,
+        AGE >= 55 & AGE < 65 & VRCTOT == 103 ~ 17,
+        AGE >= 55 & AGE < 65 & VRCTOT == 104 ~ 18,
+        
+        # Age 65-69
+        AGE >= 65 & AGE < 70 & VRCTOT >= 0 & VRCTOT <= 70 ~ 1,
+        AGE >= 65 & AGE < 70 & VRCTOT >= 71 & VRCTOT <= 77 ~ 2,
+        AGE >= 65 & AGE < 70 & VRCTOT >= 78 & VRCTOT <= 81 ~ 3,
+        AGE >= 65 & AGE < 70 & VRCTOT >= 82 & VRCTOT <= 85 ~ 4,
+        AGE >= 65 & AGE < 70 & VRCTOT >= 86 & VRCTOT <= 88 ~ 5,
+        AGE >= 65 & AGE < 70 & VRCTOT >= 89 & VRCTOT < 91 ~ 6,
+        AGE >= 65 & AGE < 70 & VRCTOT >= 91 & VRCTOT < 93 ~ 7,
+        AGE >= 65 & AGE < 70 & VRCTOT == 93 ~ 8,
+        AGE >= 65 & AGE < 70 & VRCTOT == 94 ~ 9,
+        AGE >= 65 & AGE < 70 & VRCTOT >= 95 & VRCTOT <= 96 ~ 10,
+        AGE >= 65 & AGE < 70 & VRCTOT == 97 ~ 11,
+        AGE >= 65 & AGE < 70 & VRCTOT == 98 ~ 12,
+        AGE >= 65 & AGE < 70 & VRCTOT == 99 ~ 13,
+        AGE >= 65 & AGE < 70 & VRCTOT == 100 ~ 14,
+        AGE >= 65 & AGE < 70 & VRCTOT == 101 ~ 15,
+        AGE >= 65 & AGE < 70 & VRCTOT >= 102 & VRCTOT <= 103 ~ 17,
+        AGE >= 65 & AGE < 70 & VRCTOT == 104 ~ 18,
+        
+        # Age 70-74
+        AGE >= 70 & AGE < 75 & VRCTOT >= 0 & VRCTOT <= 67 ~ 1,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 68 & VRCTOT <= 73 ~ 2,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 74 & VRCTOT <= 78 ~ 3,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 79 & VRCTOT <= 82 ~ 4,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 83 & VRCTOT <= 85 ~ 5,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 86 & VRCTOT <= 87 ~ 6,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 88 & VRCTOT <= 90 ~ 7,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 91 & VRCTOT <= 92 ~ 8,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 93 & VRCTOT <= 94 ~ 9,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 95 & VRCTOT <= 96 ~ 10,
+        AGE >= 70 & AGE < 75 & VRCTOT == 97 ~ 11,
+        AGE >= 70 & AGE < 75 & VRCTOT == 98 ~ 12,
+        AGE >= 70 & AGE < 75 & VRCTOT == 99 ~ 13,
+        AGE >= 70 & AGE < 75 & VRCTOT == 100 ~ 14,
+        AGE >= 70 & AGE < 75 & VRCTOT == 101 ~ 15,
+        AGE >= 70 & AGE < 75 & VRCTOT >= 102 & VRCTOT <= 103 ~ 17,
+        AGE >= 70 & AGE < 75 & VRCTOT == 104 ~ 18,
+        
+        # Age 75-79
+        AGE >= 75 & AGE < 80 & VRCTOT >= 0 & VRCTOT <= 67 ~ 1,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 68 & VRCTOT <= 73 ~ 2,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 74 & VRCTOT <= 78 ~ 3,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 79 & VRCTOT <= 82 ~ 4,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 83 & VRCTOT <= 85 ~ 5,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 86 & VRCTOT <= 87 ~ 6,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 88 & VRCTOT <= 90 ~ 7,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 91 & VRCTOT <= 92 ~ 8,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 93 & VRCTOT <= 94 ~ 9,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 95 & VRCTOT <= 96 ~ 10,
+        AGE >= 75 & AGE < 80 & VRCTOT == 97 ~ 11,
+        AGE >= 75 & AGE < 80 & VRCTOT == 98 ~ 12,
+        AGE >= 75 & AGE < 80 & VRCTOT == 99 ~ 13,
+        AGE >= 75 & AGE < 80 & VRCTOT == 100 ~ 14,
+        AGE >= 75 & AGE < 80 & VRCTOT == 101 ~ 16,
+        AGE >= 75 & AGE < 80 & VRCTOT >= 102 & VRCTOT <= 103 ~ 17,
+        AGE >= 75 & AGE < 80 & VRCTOT == 104 ~ 18,
+        
+        # Age 80-84
+        AGE >= 80 & AGE < 85 & VRCTOT >= 0 & VRCTOT <= 65 ~ 1,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 66 & VRCTOT <= 71 ~ 2,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 72 & VRCTOT <= 76 ~ 3,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 77 & VRCTOT <= 80 ~ 4,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 81 & VRCTOT <= 83 ~ 5,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 84 & VRCTOT <= 86 ~ 6,
+        AGE >= 80 & AGE < 85 & VRCTOT == 87 ~ 7,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 88 & VRCTOT <= 89 ~ 8,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 90 & VRCTOT <= 91 ~ 9,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 92 & VRCTOT <= 93 ~ 10,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 94 & VRCTOT <= 95 ~ 11,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 96 & VRCTOT <= 97 ~ 12,
+        AGE >= 80 & AGE < 85 & VRCTOT == 98 ~ 13,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 99 & VRCTOT <= 100 ~ 14,
+        AGE >= 80 & AGE < 85 & VRCTOT == 101 ~ 16,
+        AGE >= 80 & AGE < 85 & VRCTOT >= 102 & VRCTOT <= 103 ~ 17,
+        AGE >= 80 & AGE < 85 & VRCTOT == 104 ~ 19,
+        
+        # Age 85-89
+        AGE >= 85 & AGE < 90 & VRCTOT >= 0 & VRCTOT <= 61 ~ 1,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 62 & VRCTOT <= 66 ~ 2,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 67 & VRCTOT <= 71 ~ 3,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 72 & VRCTOT <= 75 ~ 4,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 76 & VRCTOT <= 79 ~ 5,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 80 & VRCTOT <= 81 ~ 6,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 82 & VRCTOT <= 84 ~ 7,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 85 & VRCTOT <= 87 ~ 8,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 88 & VRCTOT <= 90 ~ 9,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 91 & VRCTOT <= 93 ~ 10,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 94 & VRCTOT <= 95 ~ 11,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 96 & VRCTOT <= 97 ~ 12,
+        AGE >= 85 & AGE < 90 & VRCTOT == 98 ~ 13,
+        AGE >= 85 & AGE < 90 & VRCTOT >= 99 & VRCTOT <= 100 ~ 15,
+        AGE >= 85 & AGE < 90 & VRCTOT == 101 ~ 16,
+        AGE >= 85 & AGE < 90 & VRCTOT == 102 ~ 17,
+        AGE >= 85 & AGE < 90 & VRCTOT == 103 ~ 18,
+        AGE >= 85 & AGE < 90 & VRCTOT == 104 ~ 19,
+        
+        TRUE ~ as.numeric(VRCTOTSS)  # Keep existing value if no match
+      )
+    )
+  
+  return(df)
+}
