@@ -26,28 +26,26 @@ library(flextable)
 setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 # Load model estimates of practice effects
-pe_estimates <- read.csv("results/gee_standardized_results_2025-04-25.csv")
+pe_estimates <- read.csv("results/gee_standardized_results_complete_2025-05-09.csv")
 
 # Load raw and adjusted cognitive test scores
 tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-04-25.csv")
 tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-25.csv")
-tests_adj_unbounded <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_unbounded_2025-04-25.csv")
 
 # Load raw and adjusted cognitive factor scores
-factors_raw <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_raw_2025-04-25.csv")
-factors_adj <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-04-25.csv")
-factors_adj_unbounded <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_pe-adjusted_unbounded_2025-04-25.csv")
+factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-05-09.csv")
+factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-09.csv")
 
 # Load raw and adjusted MCI diagnosis
-mci_v1_raw <- read.csv("data/created_data/Unadjusted/MCI_05a_vetsa1_final_2025_01_23.csv")
-mci_v2_raw <- read.csv("data/created_data/Unadjusted/MCI_05b_vetsa2_final_2025_01_15.csv")
-mci_v3_raw <- read.csv("data/created_data/Unadjusted/MCI_05c_vetsa3_final_2025_01_15.csv")
-mci_v4_raw <- read.csv("data/created_data/Unadjusted/MCI_05d_vetsa4_final_2025_01_16.csv")
+mci_v1_raw <- read.csv("data/output_data/vetsa1_mci_raw_2025-05-09.csv")
+mci_v2_raw <- read.csv("data/output_data/vetsa2_mci_raw_2025-05-09.csv")
+mci_v3_raw <- read.csv("data/output_data/vetsa3_mci_raw_2025-05-09.csv")
+mci_v4_raw <- read.csv("data/output_data/vetsa4_mci_raw_2025-05-09.csv")
 
-mci_v1_adj <- read.csv("data/created_data/Adjusted/MCI_05a_vetsa1_final_2025_01_23.csv")
-mci_v2_adj <- read.csv("data/created_data/Adjusted/MCI_05b_vetsa2_final_2025_01_23.csv")
-mci_v3_adj <- read.csv("data/created_data/Adjusted/MCI_05c_vetsa3_final_2025_01_23.csv")
-mci_v4_adj <- read.csv("data/created_data/Adjusted/MCI_05d_vetsa4_final_2025_01_23.csv")
+mci_v1_adj <- read.csv("data/output_data/vetsa1_mci_adjusted_2025-05-09.csv")
+mci_v2_adj <- read.csv("data/output_data/vetsa2_mci_adjusted_2025-05-09.csv")
+mci_v3_adj <- read.csv("data/output_data/vetsa3_mci_adjusted_2025-05-09.csv")
+mci_v4_adj <- read.csv("data/output_data/vetsa4_mci_adjusted_2025-05-09.csv")
 
 #-------------------------------------------#
 #     Prep practice effect estimate data    #
@@ -488,45 +486,127 @@ ggsave(factor_score_plot_4tp_outname, factor_score_summary_plot_4tp, width = 12,
 
 # Join all waves of diagnosis data based on raw scores
 mci_raw <- mci_v1_raw %>%
-  select(vetsaid, MCI_cons_V1) %>%
-  full_join(mci_v2_raw %>% select(vetsaid, MCI_cons_V2), by = "vetsaid") %>%
-  full_join(mci_v3_raw %>% select(vetsaid, MCI_cons_V3), by = "vetsaid") %>%
-  full_join(mci_v4_raw %>% select(vetsaid, MCI_cons_V4), by = "vetsaid") %>%
-  # filter(!is.na(MCI_cons_V1) & !is.na(MCI_cons_V2) & !is.na(MCI_cons_V3) & !is.na(MCI_cons_V4)) %>%
+  select(VETSAID, rMCI_cons_V1) %>%
+  full_join(mci_v2_raw %>% select(VETSAID, rMCI_cons_V2), by = "VETSAID") %>%
+  full_join(mci_v3_raw %>% select(VETSAID, rMCI_cons_V3), by = "VETSAID") %>%
+  full_join(mci_v4_raw %>% select(VETSAID, rMCI_cons_V4), by = "VETSAID") %>%
+  # filter(!is.na(rMCI_cons_V1) & !is.na(rMCI_cons_V2) & !is.na(rMCI_cons_V3) & !is.na(rMCI_cons_V4)) %>%
   mutate(Adjustment = "Unadjusted")
 
 # Join all waves of diagnosis data based on adjusted scores
 mci_adj <- mci_v1_adj %>%
-  select(vetsaid, MCI_cons_V1) %>%
-  full_join(mci_v2_adj %>% select(vetsaid, MCI_cons_V2), by = "vetsaid") %>%
-  full_join(mci_v3_adj %>% select(vetsaid, MCI_cons_V3), by = "vetsaid") %>%
-  full_join(mci_v4_adj %>% select(vetsaid, MCI_cons_V4), by = "vetsaid") %>%
-  # filter(!is.na(MCI_cons_V1) & !is.na(MCI_cons_V2) & !is.na(MCI_cons_V3) & !is.na(MCI_cons_V4)) %>%
-  mutate(Adjustment = "PE_corrected")
+  select(VETSAID, rMCI_cons_V1) %>%
+  full_join(mci_v2_adj %>% select(VETSAID, rMCI_cons_V2), by = "VETSAID") %>%
+  full_join(mci_v3_adj %>% select(VETSAID, rMCI_cons_V3), by = "VETSAID") %>%
+  full_join(mci_v4_adj %>% select(VETSAID, rMCI_cons_V4), by = "VETSAID") %>%
+  # filter(!is.na(rMCI_cons_V1) & !is.na(rMCI_cons_V2) & !is.na(rMCI_cons_V3) & !is.na(rMCI_cons_V4)) %>%
+  mutate(Adjustment = "PE-corrected")
 
 # Create anyMCI variables for raw data
 mci_raw <- mci_raw %>%
-  mutate(anyMCI_V1 = ifelse(MCI_cons_V1 > 0, 1, 0),
-         anyMCI_V2 = ifelse(MCI_cons_V2 > 0, 1, 0),
-         anyMCI_V3 = ifelse(MCI_cons_V3 > 0, 1, 0),
-         anyMCI_V4 = ifelse(MCI_cons_V4 > 0, 1, 0))
+  mutate(anyMCI_V1 = ifelse(rMCI_cons_V1 > 0, 1, 0),
+         anyMCI_V2 = ifelse(rMCI_cons_V2 > 0, 1, 0),
+         anyMCI_V3 = ifelse(rMCI_cons_V3 > 0, 1, 0),
+         anyMCI_V4 = ifelse(rMCI_cons_V4 > 0, 1, 0))
 
 # Create anyMCI variables for adjusted data
 mci_adj <- mci_adj %>%
-  mutate(anyMCI_V1 = ifelse(MCI_cons_V1 > 0, 1, 0),
-         anyMCI_V2 = ifelse(MCI_cons_V2 > 0, 1, 0),
-         anyMCI_V3 = ifelse(MCI_cons_V3 > 0, 1, 0),
-         anyMCI_V4 = ifelse(MCI_cons_V4 > 0, 1, 0))
+  mutate(anyMCI_V1 = ifelse(rMCI_cons_V1 > 0, 1, 0),
+         anyMCI_V2 = ifelse(rMCI_cons_V2 > 0, 1, 0),
+         anyMCI_V3 = ifelse(rMCI_cons_V3 > 0, 1, 0),
+         anyMCI_V4 = ifelse(rMCI_cons_V4 > 0, 1, 0))
 
 # Bind raw and adjusted data
 mci_long <- mci_raw %>% 
   bind_rows(mci_adj)
 
-# Convert MCI_cons to factor 
+# Convert rMCI_cons and anyMCI to factor.
+# Levels for anyMCI are: 0 = CU, 1 = MCI
+# Levels for rMCI_cons are: 0 = CU, 1 = nonamn sMCI, 2 = amn sMCI, 3 = nonamn mMCI, 4 = amn mMCI
 mci_long <- mci_long %>%
-  mutate_at(vars(starts_with("MCI_cons")), as.factor)
+  mutate_at(vars(starts_with("rMCI_cons")), 
+            ~ factor(., levels = c(0, 1, 2, 3, 4), 
+                     labels = c("CU", "nonamn sMCI", "amn sMCI", "nonamn mMCI", "amn mMCI"))) %>%
+  mutate_at(vars(starts_with("anyMCI")), 
+            ~ factor(., levels = c(0, 1), labels = c("CU", "MCI"))) %>%
+  mutate(Adjustment = factor(Adjustment, levels = c("Unadjusted", "PE-corrected"))) 
 
-# Get rates of MCI at each wave by adjustment status
-mci_vars <- mci_long %>% select(contains("MCI")) %>% names()
-CreateTableOne(vars = mci_vars, 
-               strata = "Adjustment", data = mci_long, test = FALSE) 
+ 
+#---------------------------------#
+#     Summary tables of MCI dx    #
+#---------------------------------#
+
+
+# Get rates of MCI categories at each wave by adjustment status
+rmci_vars <- mci_long %>% select(contains("rMCI")) %>% names()
+rmci_tab <- print(CreateTableOne(vars = rmci_vars, 
+                                 strata = "Adjustment", 
+                                 data = mci_long, 
+                                 test = FALSE), 
+      quote = FALSE, noSpaces = TRUE, printToggle = TRUE) 
+write.csv(rmci_tab, "results/rMCI_rates.csv")
+
+# Get rates of any MCIat each wave by adjustment status
+anymci_vars <- mci_long %>% select(contains("anyMCI")) %>% names()
+anymci_tab <- print(CreateTableOne(vars = anymci_vars, 
+                                 strata = "Adjustment", 
+                                 data = mci_long, 
+                                 test = TRUE), 
+                  quote = FALSE, noSpaces = TRUE, printToggle = TRUE) 
+write.csv(rmci_tab, "results/anyMCI_rates.csv")
+
+
+#------------------------#
+#     Plots of MCI dx    #
+#------------------------#
+
+### Any MCI ###
+
+# Step 1: Calculate MCI percentages by wave and adjustment method
+anymci_percentages <- mci_long %>%
+  group_by(Adjustment) %>%
+  summarize(
+    # For factor variables, we count the proportion where the factor equals "MCI"
+    MCI_V1 = mean(anyMCI_V1 == "MCI", na.rm = TRUE) * 100,
+    MCI_V2 = mean(anyMCI_V2 == "MCI", na.rm = TRUE) * 100,
+    MCI_V3 = mean(anyMCI_V3 == "MCI", na.rm = TRUE) * 100,
+    MCI_V4 = mean(anyMCI_V4 == "MCI", na.rm = TRUE) * 100,
+  )
+
+# Step 2: Convert to long format for plotting
+anymci_percentages <- anymci_percentages %>%
+  pivot_longer(
+    cols = starts_with("MCI_"),
+    names_to = "Wave",
+    values_to = "Percentage"
+  ) %>%
+  mutate(Wave = factor(Wave, 
+                       levels = c("MCI_V1", "MCI_V2", "MCI_V3", "MCI_V4"),
+                       labels = c("1", "2", "3", "4")))
+
+# Step 3: Create bar plot
+anymci_plot <- ggplot(anymci_percentages, aes(x = Wave, y = Percentage, fill = Adjustment)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9), width = 0.8) +
+  geom_text(aes(label = sprintf("%.1f%%", Percentage)), 
+            position = position_dodge(width = 0.9), 
+            vjust = -0.5, 
+            size = 5) +
+  labs(
+    x = "Wave",
+    y = "MCI diagnosis (%)",
+    fill = NULL
+  ) +
+  scale_fill_manual(values = c("gray74","gray33")) + 
+  theme_pubr() +
+  theme(
+    legend.position = "bottom",
+    legend.text = element_text(size = 14),
+    axis.text = element_text(size = 14),
+    axis.title = element_text(size = 18, face = "bold")
+  )
+
+# Save plot
+anymci_plot_outname = paste0("results/anyMCI_plot_", Sys.Date(), ".svg")
+ggsave(anymci_plot_outname, anymci_plot, width = 12, height = 8, 
+       device = "svg", dpi = 300)
+
