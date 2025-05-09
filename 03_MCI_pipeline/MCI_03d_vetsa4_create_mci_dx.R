@@ -292,31 +292,31 @@ V4data$impNONMEM_comp25 <- rowSums(V4data[,doms_comp25])
 # 3 = Multi-Domain Non-Amnestic
 # 4 = Multi-Domain Amnestic
 
-V4data$rMCI_typ <- with(V4data, (0*(impMEM_typ==0 & impNONMEM_typ==0) +
+V4data$rMCI_typ_V4 <- with(V4data, (0*(impMEM_typ==0 & impNONMEM_typ==0) +
                            1*(impMEM_typ==0 & impNONMEM_typ==1) +
                            2*(impMEM_typ==1 & impNONMEM_typ==0) +
                            3*(impMEM_typ==0 & impNONMEM_typ>1) +
                            4*(impMEM_typ==1 & impNONMEM_typ>=1)))
 
-V4data$rMCI_comp <- with(V4data, (0*(impMEM_comp==0 & impNONMEM_comp==0) +
+V4data$rMCI_comp_V4 <- with(V4data, (0*(impMEM_comp==0 & impNONMEM_comp==0) +
                             1*(impMEM_comp==0 & impNONMEM_comp==1) +
                             2*(impMEM_comp==1 & impNONMEM_comp==0) +
                             3*(impMEM_comp==0 & impNONMEM_comp>1) +
                             4*(impMEM_comp==1 & impNONMEM_comp>=1)))
 
-V4data$rMCI_cons <- with(V4data, (0*(impMEM_cons==0 & impNONMEM_cons==0) +
+V4data$rMCI_cons_V4 <- with(V4data, (0*(impMEM_cons==0 & impNONMEM_cons==0) +
                             1*(impMEM_cons==0 & impNONMEM_cons==1) +
                             2*(impMEM_cons==1 & impNONMEM_cons==0) +
                             3*(impMEM_cons==0 & impNONMEM_cons>1) +
                             4*(impMEM_cons==1 & impNONMEM_cons>=1)))
 
-V4data$rMCI_p5 <- with(V4data, (0*(impMEM_comp5==0 & impNONMEM_comp5==0) +
+V4data$rMCI_p5_V4 <- with(V4data, (0*(impMEM_comp5==0 & impNONMEM_comp5==0) +
                           1*(impMEM_comp5==0 & impNONMEM_comp5==1) +
                           2*(impMEM_comp5==1 & impNONMEM_comp5==0) +
                           3*(impMEM_comp5==0 & impNONMEM_comp5>1) +
                           4*(impMEM_comp5==1 & impNONMEM_comp5>=1)))
 
-V4data$rMCI_p25 <- with(V4data, (0*(impMEM_comp25==0 & impNONMEM_comp25==0) +
+V4data$rMCI_p25_V4 <- with(V4data, (0*(impMEM_comp25==0 & impNONMEM_comp25==0) +
                            1*(impMEM_comp25==0 & impNONMEM_comp25==1) +
                            2*(impMEM_comp25==1 & impNONMEM_comp25==0) +
                            3*(impMEM_comp25==0 & impNONMEM_comp25>1) +
