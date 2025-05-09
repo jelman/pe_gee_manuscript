@@ -2,6 +2,8 @@ library(dplyr)
 library(tidyr)
 library(geepack)
 library(haven)
+library(broom)
+
 
 #--------------------------------#
 # Set directories and load data  #
@@ -34,14 +36,7 @@ colnames(outcome_data) <- gsub("p$", "", colnames(outcome_data))
 #----------------------------------------------------------------#
 
 # Variables that are in all waves 
-outcome_varList <- c("MR1COR","TRL1TLOG","TRL2TLOG","TRL3TLOG","TRL4TLOG","TRL5TLOG",
-                     "CSSACC","MTXRAW","MTXAGE","CVATOT","CVSDFR","CVLDFR",
-                     "AFQTPCTTRAN_R","AFQTVOCPCTTRAN_R","AFQTARPCTTRAN_R","AFQTTLPCTTRAN_R","AFQTBXPCTTRAN_R",
-                     "DSFRAW","DSBRAW","DSFMAX","DSTOT","LNTOT",
-                     "LM1A","LM1B","LM2A","LM2B","LMITOT","LMDTOT",
-                     "VRITOT","VRDTOT","VRCTOT","HFTOTCOR","STRWRAW","STRCRAW","STRCWRAW","STRIT",
-                     "LFFCOR","LFACOR","LFSCOR","LFCOR","CFANCOR","CFBNCOR","CFCOR","CSCOR",
-                     "RSATOT","SRTGMEANLOG","SRTGSTDLOG","CHRTGMEANLOG","CHRTGSTDLOG")
+outcome_varList <- c("BNTTOTCOR")
 
 
 #---------------------------------------------------------#
@@ -55,51 +50,25 @@ outcome_data_long <- outcome_data %>%
                names_to = c(".value", "WAVE"),
                names_pattern = "(\\w+)_V(\\d+)",
                values_drop_na = TRUE) %>%
-  mutate(WAVE = as.numeric(WAVE))
+  mutate(WAVE = as.numeric(WAVE)) %>%
+  filter(WAVE!=1 & WAVE!=2) # Remove wave 1 and 2 data
 
 # Sort by VETSAID and WAVE
 outcome_data_long <- outcome_data_long %>% 
   arrange(VETSAID, WAVE)
 
-# Trails and reaction time variables should be multiplied by -1 so that higher scores indicate better performance
-rt_vars = c("TRL1TLOG", "TRL2TLOG", "TRL3TLOG", "TRL4TLOG", "TRL5TLOG", 
-            "SRTGMEANLOG", "CHRTGMEANLOG")
-outcome_data_long[,rt_vars] <- outcome_data_long[,rt_vars] * -1
-  
-
 # Create several variables:
 #   ASSESSMENT: how many assessments has an individual completed?
-#   GAP: how many waves have elapsed since last assessment?
-#   SKIP: indicate how many 
 assessment_outcome_long <- outcome_data_long %>%
   group_by(VETSAID) %>%
-  mutate(ASSESSMENT = row_number(),
-         GAP = WAVE - lag(WAVE, default = first(WAVE)),
-         SKIP = ifelse(GAP>1, GAP-1, 0)) %>%
+  mutate(ASSESSMENT = row_number()) %>%
   ungroup()
 
 # Create variables that will be used in the GEE model.
-#   SKIP1: If SKIP is 1, then 1, else 0
-#   SKIP2: If SKIP is 2, then 1, else 0
-#   WAVE2: If WAVE is 2, then 1, else 0
-#   WAVE3: If WAVE is 3, then 1, else 0
 #   WAVE4: If WAVE is 4, then 1, else 0
-#   WAVE2_ASSESSMENT2: If WAVE is 2 and ASSESSMENT is 2, then 1, else 0
-#   WAVE3_ASSESSMENT2: If WAVE is 3 and ASSESSMENT is 2, then 1, else 0
-#   WAVE3_ASSESSMENT3: If WAVE is 3 and ASSESSMENT is 3, then 1, else 0
-#   WAVE4_ASSESSMENT3: If WAVE is 4 and ASSESSMENT is 3, then 1, else 0
-#   WAVE4_ASSESSMENT4: If WAVE is 4 and ASSESSMENT is 4, then 1, else 0
 assessment_outcome_long <- assessment_outcome_long %>%
-  mutate(SKIP1 = ifelse(SKIP == 1, 1, 0),
-         SKIP2 = ifelse(SKIP == 2, 1, 0),
-         WAVE2 = ifelse(WAVE == 2, 1, 0),
-         WAVE3 = ifelse(WAVE == 3, 1, 0),
-         WAVE4 = ifelse(WAVE == 4, 1, 0),
-         WAVE2_ASSESSMENT2 = ifelse(WAVE == 2 & ASSESSMENT == 2, 1, 0),
-         WAVE3_ASSESSMENT2 = ifelse(WAVE == 3 & ASSESSMENT == 2, 1, 0),
-         WAVE3_ASSESSMENT3 = ifelse(WAVE == 3 & ASSESSMENT == 3, 1, 0),
-         WAVE4_ASSESSMENT3 = ifelse(WAVE == 4 & ASSESSMENT == 3, 1, 0),
-         WAVE4_ASSESSMENT4 = ifelse(WAVE == 4 & ASSESSMENT == 4, 1, 0))
+  mutate(WAVE4 = ifelse(WAVE == 4, 1, 0))
+
 
 # Pivot age file to long format
 admin_long <- admin %>% 
@@ -108,7 +77,8 @@ admin_long <- admin %>%
                names_pattern = "(\\w+)_V(\\d+)",
                values_drop_na = TRUE) %>%
   mutate(WAVE = as.integer(WAVE),
-         AGE = as.numeric(AGE))
+         AGE = as.numeric(AGE)) %>%
+  filter(WAVE!=1 & WAVE!=2) # Remove wave 1 and 2 data
 
 # Merge age with outcome data
 assessment_outcome_long <- assessment_outcome_long %>%
@@ -128,10 +98,7 @@ for (outcome in outcome_varList) {
   print(paste("Running GEE model for", outcome))
 
   # Define columns that we want to obtain estimates for in GEE model
-  geeCols = c("AGE", "NAS201TRAN", "WAVE2", "WAVE3", "WAVE4",
-              "WAVE2_ASSESSMENT2", "WAVE3_ASSESSMENT2", "WAVE3_ASSESSMENT3",
-              "WAVE4_ASSESSMENT3", "WAVE4_ASSESSMENT4", 
-              "SKIP1", "SKIP2")
+  geeCols = c("AGE", "NAS201TRAN","WAVE4")
   
   # Select columns used in GEE model and filter for complete cases
   gee_data <- assessment_outcome_long %>% 
@@ -139,9 +106,9 @@ for (outcome in outcome_varList) {
     filter(complete.cases(.)) %>% 
     arrange(VETSAID, WAVE)
   
-  # Calculate Wave 1 means and SDs for outcome and NAS201TRAN
-  wave1_stats <- gee_data %>%
-    filter(WAVE == 1) %>%
+  # Calculate Wave 3 means and SDs (since Wave 3 is the first wave with this measure)
+  wave3_stats <- gee_data %>%
+    filter(WAVE == 3) %>%
     summarise(
       nas_mean = mean(NAS201TRAN, na.rm = TRUE),
       nas_sd = sd(NAS201TRAN, na.rm = TRUE),
@@ -160,13 +127,13 @@ for (outcome in outcome_varList) {
   gee_data <- gee_data %>%
     mutate(
       AGE = (AGE - age_stats$age_mean) / age_stats$age_sd,  # full sample standardization
-      NAS201TRAN = (NAS201TRAN - wave1_stats$nas_mean) / wave1_stats$nas_sd,  # Wave 1 standardization
-      !!outcome := (!!sym(outcome) - wave1_stats$outcome_mean) / wave1_stats$outcome_sd  # Wave 1 standardization
+      NAS201TRAN = (NAS201TRAN - wave3_stats$nas_mean) / wave3_stats$nas_sd,  # Wave 3 standardization
+      !!outcome := (!!sym(outcome) - wave3_stats$outcome_mean) / wave3_stats$outcome_sd  # Wave 3 standardization
     )
   
   # Create formula for GEE model.  
   # Note: We can use caret::findLinearCombos(model_matrix) to verify no linear combinations
-  fmla <- as.formula(paste(outcome, "~ AGE + NAS201TRAN + WAVE2 + WAVE3 + WAVE4 + WAVE2_ASSESSMENT2 + WAVE3_ASSESSMENT2 + WAVE3_ASSESSMENT3 + WAVE4_ASSESSMENT3 + WAVE4_ASSESSMENT4 + SKIP1 + SKIP2"))
+  fmla <- as.formula(paste(outcome, "~ AGE + NAS201TRAN + WAVE4"))
   
   # Run GEE model
   gee_mod <- geepack::geeglm(fmla, id = as.factor(gee_data$VETSAID), data = gee_data, 
@@ -199,4 +166,4 @@ colnames(wide_results) <- gsub("//(|//)", "", colnames(wide_results))
 
 # Save results to file
 date <- format(Sys.Date(), "%Y-%m-%d")
-write.csv(wide_results, paste0("results/gee_standardized_results_", date, ".csv"), row.names = FALSE)
+write.csv(wide_results, paste0("results/gee_bnt_standardized_results_", date, ".csv"), row.names = FALSE)
