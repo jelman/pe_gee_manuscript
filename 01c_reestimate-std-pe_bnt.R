@@ -166,4 +166,4 @@ colnames(wide_results) <- gsub("//(|//)", "", colnames(wide_results))
 
 # Save results to file
 date <- format(Sys.Date(), "%Y-%m-%d")
-write.csv(wide_results, paste0("results/gee_bnt_standardized_results_", date, ".csv"), row.names = FALSE)
+write.csv(wide_results, paste0("results/gee_standardized_results_bnt_", date, ".csv"), row.names = FALSE)
