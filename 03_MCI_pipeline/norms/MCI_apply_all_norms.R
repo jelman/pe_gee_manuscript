@@ -2,18 +2,21 @@
 
 library(dplyr)
 
-# Source all individual normative functions
-source("code/norms/MCI_cvlt.R")
-source("code/norms/MCI_wasi_matrix.R")
-source("code/norms/MCI_wms_logical_memory.R")
-source("code/norms/MCI_wms_digit_span.R")
-source("code/norms/MCI_wms_letter_number_sequencing.R")
-source("code/norms/MCI_dkefs_trailmaking.R")
-source("code/norms/MCI_wms_spatial_span.R")
-source("code/norms/MCI_stroop.R")
-source("code/norms/MCI_letter_category_fluency.R")
-source("code/norms/MCI_wms_visual_reproduction.R")
-source("code/norms/MCI_boston_naming.R")
+# Get the directory where this script is located
+script_dir <- dirname(sys.frame(1)$ofile)
+
+# Source all individual normative functions from the same directory
+source(file.path(script_dir, "MCI_cvlt.R"))
+source(file.path(script_dir, "MCI_wasi_matrix.R"))
+source(file.path(script_dir, "MCI_wms_logical_memory.R"))
+source(file.path(script_dir, "MCI_wms_digit_span.R"))
+source(file.path(script_dir, "MCI_wms_letter_number_sequencing.R"))
+source(file.path(script_dir, "MCI_dkefs_trailmaking.R"))
+source(file.path(script_dir, "MCI_wms_spatial_span.R"))
+source(file.path(script_dir, "MCI_stroop.R"))
+source(file.path(script_dir, "MCI_letter_category_fluency.R"))
+source(file.path(script_dir, "MCI_wms_visual_reproduction.R"))
+source(file.path(script_dir, "MCI_boston_naming.R"))
 
 # Master function to apply all normative conversions in correct order
 # Now with wave parameter to handle test availability differences

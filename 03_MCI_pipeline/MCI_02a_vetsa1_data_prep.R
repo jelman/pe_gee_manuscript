@@ -19,10 +19,10 @@ library(readr)
 library(haven)
 
 # Set working directory
-setwd("~/netshare/M/VETSA DATA FILES_852014/MCI Data/Revised_pipeline")
+setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 # Source the R versions of the norming scripts
-source("code/norms/MCI_apply_all_norms.R")
+source("code/pe_gee_manuscript/03_MCI_pipeline/norms/MCI_apply_all_norms.R")
 
 # Set file paths
 cog_data_file <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"

@@ -20,7 +20,7 @@
 library(dplyr)
 library(haven)
 
-setwd("~/netshare/M/VETSA DATA FILES_852014/MCI Data/Revised_pipeline")
+setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 #-------------------#
 #     Load data     #

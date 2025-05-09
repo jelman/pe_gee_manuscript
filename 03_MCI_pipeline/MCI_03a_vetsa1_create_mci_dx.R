@@ -34,7 +34,7 @@ library(mice) #loading mice library
 # -----------------------------------------------------------------------
 
 # Set working directory
-setwd("~/netshare/M/VETSA DATA FILES_852014/MCI Data/Revised_pipeline")
+setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 # Read in normed data
 V1 <- read_csv("data/intermediate_data/MCI_02a01_vetsa1_MCI_PreImputation.csv")

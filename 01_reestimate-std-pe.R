@@ -20,7 +20,7 @@ nas201 <- read.csv("~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive meas
 nas201 <- nas201 %>% rename_all(toupper)
 
 # Load in raw (unadjusted) outcome data. These are variables we want to adjust for PEs
-outcome_data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-04-17.csv", stringsAsFactors = FALSE)
+outcome_data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-04-25.csv", stringsAsFactors = FALSE)
 
 # Merge age 20 afqt into outcome data
 outcome_data <- outcome_data %>% 
@@ -35,7 +35,7 @@ colnames(outcome_data) <- gsub("p$", "", colnames(outcome_data))
 
 # Variables that are in all waves 
 outcome_varList <- c("MR1COR","TRL1TLOG","TRL2TLOG","TRL3TLOG","TRL4TLOG","TRL5TLOG",
-                     "CSSACC","MTXRAW","CVATOT","CVSDFR","CVLDFR",
+                     "CSSACC","MTXRAW","MTXAGE","CVATOT","CVSDFR","CVLDFR",
                      "AFQTPCTTRAN_R","AFQTVOCPCTTRAN_R","AFQTARPCTTRAN_R","AFQTTLPCTTRAN_R","AFQTBXPCTTRAN_R",
                      "DSFRAW","DSBRAW","DSFMAX","DSTOT","LNTOT",
                      "LM1A","LM1B","LM2A","LM2B","LMITOT","LMDTOT",

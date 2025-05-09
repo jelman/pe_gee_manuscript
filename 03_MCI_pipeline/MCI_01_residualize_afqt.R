@@ -18,7 +18,7 @@ rm(list = ls())
 library(dplyr)
 
 # Define the input and output file paths
-setwd("~/netshare/M/VETSA DATA FILES_852014/MCI Data/Revised_pipeline")
+setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 input_file <- "data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-25.csv"
 output_file <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"

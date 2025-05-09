@@ -26,15 +26,17 @@ library(flextable)
 setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 # Load model estimates of practice effects
-pe_estimates <- read.csv("results/gee_standardized_results_2025-04-17.csv")
+pe_estimates <- read.csv("results/gee_standardized_results_2025-04-25.csv")
 
 # Load raw and adjusted cognitive test scores
-tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-04-17.csv")
-tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-17.csv")
+tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-04-25.csv")
+tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-25.csv")
+tests_adj_unbounded <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_unbounded_2025-04-25.csv")
 
 # Load raw and adjusted cognitive factor scores
-factors_raw <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_raw_2025-04-17.csv")
-factors_adj <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-04-17.csv")
+factors_raw <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_raw_2025-04-25.csv")
+factors_adj <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-04-25.csv")
+factors_adj_unbounded <- read.csv("data/created_data/V1V2V3V4_cog_factor_scores_pe-adjusted_unbounded_2025-04-25.csv")
 
 # Load raw and adjusted MCI diagnosis
 mci_v1_raw <- read.csv("data/created_data/Unadjusted/MCI_05a_vetsa1_final_2025_01_23.csv")
