@@ -491,7 +491,7 @@ mci_raw <- mci_v1_raw %>%
   full_join(mci_v3_raw %>% select(VETSAID, rMCI_cons_V3), by = "VETSAID") %>%
   full_join(mci_v4_raw %>% select(VETSAID, rMCI_cons_V4), by = "VETSAID") %>%
   # filter(!is.na(rMCI_cons_V1) & !is.na(rMCI_cons_V2) & !is.na(rMCI_cons_V3) & !is.na(rMCI_cons_V4)) %>%
-  mutate(Adjustment = "Unadjusted")
+  mutate(Adjustment = "Uncorrected")
 
 # Join all waves of diagnosis data based on adjusted scores
 mci_adj <- mci_v1_adj %>%
@@ -529,13 +529,12 @@ mci_long <- mci_long %>%
                      labels = c("CU", "nonamn sMCI", "amn sMCI", "nonamn mMCI", "amn mMCI"))) %>%
   mutate_at(vars(starts_with("anyMCI")), 
             ~ factor(., levels = c(0, 1), labels = c("CU", "MCI"))) %>%
-  mutate(Adjustment = factor(Adjustment, levels = c("Unadjusted", "PE-corrected"))) 
+  mutate(Adjustment = factor(Adjustment, levels = c("Uncorrected", "PE-corrected"))) 
 
  
 #---------------------------------#
 #     Summary tables of MCI dx    #
 #---------------------------------#
-
 
 # Get rates of MCI categories at each wave by adjustment status
 rmci_vars <- mci_long %>% select(contains("rMCI")) %>% names()
@@ -544,7 +543,9 @@ rmci_tab <- print(CreateTableOne(vars = rmci_vars,
                                  data = mci_long, 
                                  test = FALSE), 
       quote = FALSE, noSpaces = TRUE, printToggle = TRUE) 
-write.csv(rmci_tab, "results/rMCI_rates.csv")
+# Save out summary table
+rmci_tab_outfile = paste0("results/mci_rates_rMCI_", Sys.Date(), ".csv")
+write.csv(rmci_tab, rmci_tab_outfile)
 
 # Get rates of any MCIat each wave by adjustment status
 anymci_vars <- mci_long %>% select(contains("anyMCI")) %>% names()
@@ -553,7 +554,8 @@ anymci_tab <- print(CreateTableOne(vars = anymci_vars,
                                  data = mci_long, 
                                  test = TRUE), 
                   quote = FALSE, noSpaces = TRUE, printToggle = TRUE) 
-write.csv(rmci_tab, "results/anyMCI_rates.csv")
+anymci_tab_outfile = paste0("results/mci_rates_anyMCI_", Sys.Date(), ".csv")
+write.csv(anymci_tab, anymci_tab_outfile)
 
 
 #------------------------#
@@ -606,7 +608,7 @@ anymci_plot <- ggplot(anymci_percentages, aes(x = Wave, y = Percentage, fill = A
   )
 
 # Save plot
-anymci_plot_outname = paste0("results/anyMCI_plot_", Sys.Date(), ".svg")
+anymci_plot_outname = paste0("results/mci_rates_plot_anyMCI_", Sys.Date(), ".svg")
 ggsave(anymci_plot_outname, anymci_plot, width = 12, height = 8, 
        device = "svg", dpi = 300)
 
