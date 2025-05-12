@@ -1,12 +1,14 @@
 library(dplyr)
+library(tidyr)
 library(tableone)
 library(ComplexUpset)
 library(ggplot2)
 library(ggridges)
 library(haven)
 library(forcats)
-library(UpSetR)
 library(labelled)
+library(ggpubr)
+
 
 # Set working directory
 setwd("~/netshare/M/Projects/PracEffects_GEE")
@@ -79,27 +81,59 @@ admin <- admin %>%
   mutate(NAS201 = pnorm(NAS201TRAN))
 
 
-#---------------------------------------------------#
-#   Create upset plot of assessment participation   #
-#---------------------------------------------------#
+#-------------------------------------------------------------------------#
+#   Create upset plot of assessment participation and ridge plot of ages  #
+#-------------------------------------------------------------------------#
 
-upset_plot <- admin %>%
-  select(`Wave 1`=VETSA_1, `Wave 2`=VETSA_2, `Wave 3`=VETSA_3, `Wave 4`=VETSA_4) %>%
-  as.matrix() %>%
-  as.data.frame() %>%
-  upset(
-    sets = rev(c("Wave 1", "Wave 2", "Wave 3", "Wave 4")),
-    keep.order = TRUE,
-    order.by = "freq",
-    set_size.show = TRUE,
-    mainbar.y.label = "Number of Participants", 
-    sets.x.label = "Participants per Timepoint",
-    text.scale = 1.3,
-    point.size = 3.5,
-    line.size = 1,
-    set_size.scale_max = 1500)
+upset_plot <- upset(
+  data=admin,
+  c("VETSA_1","VETSA_2","VETSA_3","VETSA_4"),
+  name = "Participants per timepoint",
+  set_sizes = 
+    upset_set_size() + 
+    geom_text(aes(label=..count..), hjust=1.1, stat="count") +
+    expand_limits(y=1600)
+  )
 
 
+# Pivot AGE and AR variables to long format. The suffix should indicate wave. 
+admin_long = admin %>% 
+  select(VETSAID, CASE, starts_with("AGE_"), starts_with("AR_")) %>%
+  pivot_longer(cols=-c("VETSAID", "CASE"), 
+               names_to=c(".value","WAVE"), 
+               values_to=c("AGE", "AR"), 
+               names_sep="_",
+               values_drop_na=TRUE)  %>%
+  mutate(WAVE = as.integer(gsub("V","",WAVE)))
+
+# Create a variable called GROUP which is the combination of the AR and WAVE variables.
+admin_long <- admin_long %>%
+  mutate(GROUP = ifelse(AR == 1, paste("Wave", WAVE, "AR"), paste("Wave", WAVE)))
+
+# Create a ridgeline plot with ggridges for AGE. 
+age_plot <- ggplot(admin_long, aes(x=AGE, y=fct_rev(GROUP), fill=factor(WAVE), alpha=factor(AR))) +
+  geom_density_ridges(scale=1.5, rel_min_height = 0.01) +
+  scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73", "#D55E00")) +
+  scale_alpha_manual(values=c("0"=1, "1"=0.5)) +
+  theme_minimal() +
+  labs(x="Age", y="") +
+  theme(
+    panel.background = element_rect(fill="white"),
+    legend.position="none",
+    axis.title=element_text(size=14),
+    axis.text=element_text(size=12)
+  )
+
+# Combine plots
+age_upset_plot <- ggpubr::ggarrange(upset_plot, age_plot, 
+                  nrow =1, 
+                  labels="AUTO", 
+                  font.label = list(size = 24)) +  bgcolor("white") 
+
+# Save plot
+age_upset_plot_outname = paste0("results/age_upset_plots_", Sys.Date(), ".svg")
+ggsave(age_upset_plot_outname, age_upset_plot, width = 16, height = 6, 
+       device = "svg", dpi = 300)
 
 #--------------------------------#
 #   Create sample descriptives   #
@@ -124,31 +158,6 @@ nonmissing_tests <- tests_adj %>%
 #   Create plots of age distribution by wave    #
 #-----------------------------------------------#
 
-# Pivot AGE and AR variables to long format. The suffix should indicate wave. 
-admin_long = admin %>% 
-  select(VETSAID, CASE, starts_with("AGE_"), starts_with("AR_")) %>%
-  pivot_longer(cols=-c("VETSAID", "CASE"), 
-               names_to=c(".value","WAVE"), 
-               values_to=c("AGE", "AR"), 
-               names_sep="_",
-               values_drop_na=TRUE)  %>%
-  mutate(WAVE = as.integer(gsub("V","",WAVE)))
 
-# Create a variable called GROUP which is the combination of the AR and WAVE variables.
-admin_long <- admin_long %>%
-  mutate(GROUP = ifelse(AR == 1, paste("Wave", WAVE, "AR"), paste("Wave", WAVE)))
-
-# Create a ridgeline plot with ggridges for AGE. 
-age_plot <- ggplot(admin_long, aes(x=AGE, y=fct_rev(GROUP), fill=factor(WAVE), alpha=factor(AR))) +
-  geom_density_ridges(scale=1.5, rel_min_height = 0.01) +
-  scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73", "#D55E00")) +
-  scale_alpha_manual(values=c("0"=1, "1"=0.5)) +
-  theme_minimal() +
-  labs(x="Age", y="") +
-  theme(
-    legend.position="none",
-    axis.title=element_text(size=14),
-    axis.text=element_text(size=14)
-  )
   
 
