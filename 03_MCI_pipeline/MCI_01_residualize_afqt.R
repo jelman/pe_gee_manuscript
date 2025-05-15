@@ -20,9 +20,10 @@ library(dplyr)
 # Define the input and output file paths
 setwd("~/netshare/M/Projects/PracEffects_GEE")
 
-input_file <- "data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-25.csv"
+input_file <- "data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-14.csv"
 output_file <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"
 nas201tran_file <- "~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive measures/AFQT--age 20 cannot be distributed outside VETSA/AFQT_Age20_2020_05_19_revised.csv"
+admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
 # Load input data
 df <- read.csv(input_file)
@@ -46,6 +47,15 @@ if (nrow(duplicates) > 0) {
 } else {
   cat("No duplicates found in the merged data.\n")
 }
+
+# Get list of V1NE participants
+v1ne_subjs <- admin %>% 
+  filter(grepl("V1NE", VGRP_procvar)) %>%
+  pull(vetsaid)
+
+# Remove V1NE participants from the dataset
+df <- df %>% 
+  filter(!VETSAID %in% v1ne_subjs)
 
 # The dataframe df now contains all cognitive scores and the age 20 AFQT scores (NAS201TRAN). 
 # For every score in df, regress on NAS201TRAN and save the residuals. 

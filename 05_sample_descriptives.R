@@ -141,12 +141,12 @@ ggsave(age_upset_plot_outname, age_upset_plot, width = 16, height = 6,
 
 # Get dataframe of demographic variables to include in table
 demo_df <- admin %>%
-  select(starts_with("AGE"), TEDALL, Race, Ethnicity, NAS201) 
+  select(starts_with("AGE"), TEDALL, Race, Ethnicity, NAS201, starts_with("TESTDIFF")) 
 
 # Create a table of demographic variables
 CreateTableOne(data = demo_df,
                includeNA = TRUE) %>%
-  print(showAllLevels = TRUE, noSpaces = TRUE)
+  print(showAllLevels = TRUE, quote=TRUE, noSpaces = TRUE)
 psych::describe(demo_df)
 
 # For every column in tests_adj, find how many rows have non-missing data

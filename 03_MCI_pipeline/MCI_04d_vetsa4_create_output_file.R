@@ -85,5 +85,5 @@ final_mci <- final_mci %>%
   left_join(common_excludes, by = "VETSAID") 
 
 # Save out final MCI dataset with date
-output_file <- paste0("data/output_data/vetsa4_mci_", format(Sys.Date(), "%Y-%m-%d"), ".csv")
+output_file <- paste0("data/output_data/vetsa4_mci_adjusted_", format(Sys.Date(), "%Y-%m-%d"), ".csv")
 write.csv(final_mci, output_file, row.names = FALSE)

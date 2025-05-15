@@ -16,23 +16,22 @@ setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 ### Set input data file. This should either be the raw or PE adjusted data.
 # Adjusted
-data <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-25.csv",head=T, stringsAsFactors = F)           
-# # Unbounded
-# data <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_unbounded_2025-04-25.csv",head=T, stringsAsFactors = F)           
-# # Raw 
-# data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-04-25.csv",head=T, stringsAsFactors = F)           
+data <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-14.csv",head=T, stringsAsFactors = F)           
+# # Raw
+# data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-14.csv",head=T, stringsAsFactors = F)
 
 ### Set output file name. This should correspond to either the raw of PE adjusted data.
 # Adjusted
-outfile = "data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-09.csv"
-# # Unbounded
-# outfile = "data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_unbounded_2025-05-09.csv"
+outfile = "data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-14.csv"
 # # Raw
-# outfile = "data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-05-09.csv"
+# outfile = "data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-05-14.csv"
 
 # Load admin file
 admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
+# remove V1NE participants
+admin <- admin %>% 
+  filter(!grepl("V1NE", VGRP_procvar)) 
 
 # Rename to uppercase
 admin <- admin %>% rename_all(toupper)
@@ -40,76 +39,9 @@ admin <- admin %>% rename_all(toupper)
 #Extract Case
 df_admin <- admin %>% select(VETSAID, CASE)
 
-########## Merge Function #########
-
-# Create merge functions
-
-ecr_merge <- function(data1, data2) {
-
-#Sort id variables first.
-data1 <- data1[order(data1$VETSAID),]
-data2 <- data2[order(data2$VETSAID),]
-
-merged <- merge(data1, data2, by="VETSAID", all=TRUE)
-
-#Check n's and variable numbers
-test1 <- list(dim(merged), dim(data1), dim(data2))
-
-#Check merge by sorting variables first
-merged <- merged[order(merged$VETSAID),]
-
-#Check for duplicates in id variables
-test2 <- merged[duplicated(merged$VETSAID),]
-
-merged
-
-}
-
-ecr_merge1 <- function(data1, data2) {
-
-#Sort id variables first.
-data1 <- data1[order(data1$VETSAID),]
-data2 <- data2[order(data2$VETSAID),]
-
-merged <- merge(data1, data2, by="VETSAID", all=TRUE)
-
-#Check n's and variable numbers
-test1 <- list(dim(merged), dim(data1), dim(data2))
-
-#Check merge by sorting variables first
-merged <- merged[order(merged$VETSAID),]
-
-#Check for duplicates in id variables
-test2 <- merged[duplicated(merged$VETSAID),]
-
-return(test1)
-
-}
-
-ecr_merge2 <- function(data1, data2) {
-
-#Sort id variables first.
-data1 <- data1[order(data1$VETSAID),]
-data2 <- data2[order(data2$VETSAID),]
-
-merged <- merge(data1, data2, by="VETSAID", all=TRUE)
-
-#Check n's and variable numbers
-test1 <- list(dim(merged), dim(data1), dim(data2))
-
-#Check merge by sorting variables first
-merged <- merged[order(merged$VETSAID),]
-
-#Check for duplicates in id variables
-test2 <- merged[duplicated(merged$VETSAID),]
-
-return(test2)
-}
 
 # Merge data
-dat <- ecr_merge(df_admin, data)
-ecr_merge1(df_admin, data)
-ecr_merge2(df_admin, data)
+dat <- df_admin %>% inner_join(data, by="VETSAID")
 
 dat<-arrange(dat, VETSAID)
 attach(dat)
