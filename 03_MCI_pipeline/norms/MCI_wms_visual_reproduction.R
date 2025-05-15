@@ -25,6 +25,25 @@ norm_visual_reproduction <- function(df) {
         # Check for missing values first
         is.na(VRITOT) ~ NA_real_,
         
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & VRITOT >= 0 & VRITOT <= 30 ~ 1,
+        AGE >= 45 & AGE < 55 & VRITOT >= 31 & VRITOT <= 40 ~ 2,
+        AGE >= 45 & AGE < 55 & VRITOT >= 41 & VRITOT <= 50 ~ 3,
+        AGE >= 45 & AGE < 55 & VRITOT >= 51 & VRITOT <= 60 ~ 4,
+        AGE >= 45 & AGE < 55 & VRITOT >= 61 & VRITOT <= 66 ~ 5,
+        AGE >= 45 & AGE < 55 & VRITOT >= 67 & VRITOT <= 71 ~ 6,
+        AGE >= 45 & AGE < 55 & VRITOT >= 72 & VRITOT <= 75 ~ 7,
+        AGE >= 45 & AGE < 55 & VRITOT >= 76 & VRITOT <= 78 ~ 8,
+        AGE >= 45 & AGE < 55 & VRITOT >= 79 & VRITOT <= 81 ~ 9,
+        AGE >= 45 & AGE < 55 & VRITOT >= 82 & VRITOT <= 85 ~ 10,
+        AGE >= 45 & AGE < 55 & VRITOT >= 86 & VRITOT <= 88 ~ 11,
+        AGE >= 45 & AGE < 55 & VRITOT >= 89 & VRITOT <= 91 ~ 12,
+        AGE >= 45 & AGE < 55 & VRITOT >= 92 & VRITOT <= 94 ~ 13,
+        AGE >= 45 & AGE < 55 & VRITOT >= 95 & VRITOT <= 97 ~ 14,
+        AGE >= 45 & AGE < 55 & VRITOT >= 98 & VRITOT <= 100 ~ 15,
+        AGE >= 45 & AGE < 55 & VRITOT >= 101 & VRITOT <= 102 ~ 16,
+        AGE >= 45 & AGE < 55 & VRITOT >= 103 & VRITOT <= 104 ~ 17,
+        
         # Age 55-64
         AGE >= 55 & AGE < 65 & VRITOT >= 0 & VRITOT <= 20 ~ 1,
         AGE >= 55 & AGE < 65 & VRITOT >= 21 & VRITOT <= 30 ~ 2,
@@ -156,6 +175,25 @@ norm_visual_reproduction <- function(df) {
         # Check for missing values first
         is.na(VRDTOT) ~ NA_real_,
         
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & VRDTOT >= 0 & VRDTOT <= 2 ~ 3,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 3 & VRDTOT <= 7 ~ 4,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 8 & VRDTOT <= 15 ~ 5,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 16 & VRDTOT <= 24 ~ 6,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 25 & VRDTOT <= 35 ~ 7,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 36 & VRDTOT <= 45 ~ 8,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 46 & VRDTOT <= 53 ~ 9,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 54 & VRDTOT <= 61 ~ 10,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 62 & VRDTOT <= 67 ~ 11,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 68 & VRDTOT <= 73 ~ 12,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 74 & VRDTOT <= 79 ~ 13,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 80 & VRDTOT <= 85 ~ 14,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 86 & VRDTOT <= 90 ~ 15,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 91 & VRDTOT <= 94 ~ 16,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 95 & VRDTOT <= 98 ~ 17,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 99 & VRDTOT <= 101 ~ 18,
+        AGE >= 45 & AGE < 55 & VRDTOT >= 102 & VRDTOT <= 104 ~ 19,
+        
         # Age 55-64
         AGE >= 55 & AGE < 65 & VRDTOT >= 0 & VRDTOT <= 3 ~ 4,
         AGE >= 55 & AGE < 65 & VRDTOT >= 4 & VRDTOT <= 8 ~ 5,
@@ -268,6 +306,23 @@ norm_visual_reproduction <- function(df) {
       VRCTOTSS = case_when(
         # Check for missing values first
         is.na(VRCTOT) ~ NA_real_,
+        
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & VRCTOT >= 0 & VRCTOT <= 76 ~ 1,
+        AGE >= 45 & AGE < 55 & VRCTOT >= 77 & VRCTOT <= 81 ~ 2,
+        AGE >= 45 & AGE < 55 & VRCTOT >= 82 & VRCTOT <= 85 ~ 3,
+        AGE >= 45 & AGE < 55 & VRCTOT >= 86 & VRCTOT <= 88 ~ 4,
+        AGE >= 45 & AGE < 55 & VRCTOT >= 89 & VRCTOT <= 90 ~ 5,
+        AGE >= 45 & AGE < 55 & VRCTOT == 91 ~ 6,
+        AGE >= 45 & AGE < 55 & VRCTOT >= 92 & VRCTOT <= 93 ~ 7,
+        AGE >= 45 & AGE < 55 & VRCTOT == 94 ~ 8,
+        AGE >= 45 & AGE < 55 & VRCTOT == 95 ~ 9,
+        AGE >= 45 & AGE < 55 & VRCTOT >= 96 & VRCTOT <= 97 ~ 10,
+        AGE >= 45 & AGE < 55 & VRCTOT >= 98 & VRCTOT <= 99 ~ 11,
+        AGE >= 45 & AGE < 55 & VRCTOT >= 100 & VRCTOT <= 101 ~ 12,
+        AGE >= 45 & AGE < 55 & VRCTOT == 102 ~ 14,
+        AGE >= 45 & AGE < 55 & VRCTOT == 103 ~ 15,
+        AGE >= 45 & AGE < 55 & VRCTOT == 104 ~ 17,
         
         # Age 55-64
         AGE >= 55 & AGE < 65 & VRCTOT >= 0 & VRCTOT <= 74 ~ 1,

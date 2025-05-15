@@ -23,6 +23,27 @@ norm_spatial_span <- function(df) {
       
       # Convert to scaled score based on age norms
       SSPSS = case_when(
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & is.na(SSPRAW) ~ NA_real_,
+        AGE >= 45 & AGE < 55 & SSPRAW >= 0 & SSPRAW <= 1 ~ 1,
+        AGE >= 45 & AGE < 55 & SSPRAW >= 2 & SSPRAW <= 5 ~ 2,
+        AGE >= 45 & AGE < 55 & SSPRAW >= 6 & SSPRAW <= 8 ~ 3,
+        AGE >= 45 & AGE < 55 & SSPRAW == 9 ~ 4,
+        AGE >= 45 & AGE < 55 & SSPRAW == 10 ~ 5,
+        AGE >= 45 & AGE < 55 & SSPRAW == 11 ~ 6,
+        AGE >= 45 & AGE < 55 & SSPRAW == 12 ~ 7,
+        AGE >= 45 & AGE < 55 & SSPRAW == 13 ~ 8,
+        AGE >= 45 & AGE < 55 & SSPRAW == 14 ~ 10,
+        AGE >= 45 & AGE < 55 & SSPRAW >= 15 & SSPRAW <= 16 ~ 11,
+        AGE >= 45 & AGE < 55 & SSPRAW == 17 ~ 12,
+        AGE >= 45 & AGE < 55 & SSPRAW == 18 ~ 13,
+        AGE >= 45 & AGE < 55 & SSPRAW == 19 ~ 14,
+        AGE >= 45 & AGE < 55 & SSPRAW == 20 ~ 15,
+        AGE >= 45 & AGE < 55 & SSPRAW >= 21 & SSPRAW <= 22 ~ 16,
+        AGE >= 45 & AGE < 55 & SSPRAW >= 23 & SSPRAW <= 24 ~ 17,
+        AGE >= 45 & AGE < 55 & SSPRAW >= 25 & SSPRAW <= 26 ~ 18,
+        AGE >= 45 & AGE < 55 & SSPRAW >= 27 & SSPRAW <= 32 ~ 19,
+        
         # Age 55-64
         AGE >= 55 & AGE < 65 & is.na(SSPRAW) ~ NA_real_,
         AGE >= 55 & AGE < 65 & SSPRAW == 0 ~ 1,

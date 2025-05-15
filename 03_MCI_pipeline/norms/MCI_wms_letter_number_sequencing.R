@@ -21,6 +21,30 @@ norm_letter_number_sequencing <- function(df) {
         # First check for missing values
         is.na(LNTOT) ~ NA_real_,
         
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & LNTOT == 21 ~ 19,
+        AGE >= 45 & AGE < 55 & LNTOT == 20 ~ 19,
+        AGE >= 45 & AGE < 55 & LNTOT == 19 ~ 19,
+        AGE >= 45 & AGE < 55 & LNTOT == 18 ~ 19,
+        AGE >= 45 & AGE < 55 & LNTOT == 17 ~ 18,
+        AGE >= 45 & AGE < 55 & LNTOT == 16 ~ 17,
+        AGE >= 45 & AGE < 55 & LNTOT == 15 ~ 15,
+        AGE >= 45 & AGE < 55 & LNTOT == 14 ~ 14,
+        AGE >= 45 & AGE < 55 & LNTOT == 13 ~ 13,
+        AGE >= 45 & AGE < 55 & LNTOT == 12 ~ 12,
+        AGE >= 45 & AGE < 55 & LNTOT == 11 ~ 11,
+        AGE >= 45 & AGE < 55 & LNTOT == 10 ~ 10,
+        AGE >= 45 & AGE < 55 & LNTOT == 9 ~ 9,
+        AGE >= 45 & AGE < 55 & LNTOT == 8 ~ 8,
+        AGE >= 45 & AGE < 55 & LNTOT == 7 ~ 7,
+        AGE >= 45 & AGE < 55 & LNTOT == 6 ~ 6,
+        AGE >= 45 & AGE < 55 & LNTOT == 5 ~ 5,
+        AGE >= 45 & AGE < 55 & LNTOT == 4 ~ 4,
+        AGE >= 45 & AGE < 55 & LNTOT == 3 ~ 3,
+        AGE >= 45 & AGE < 55 & LNTOT == 2 ~ 2,
+        AGE >= 45 & AGE < 55 & LNTOT == 1 ~ 1,
+        AGE >= 45 & AGE < 55 & LNTOT == 0 ~ 1,
+        
         # Age 55-64
         AGE >= 55 & AGE < 65 & LNTOT == 21 ~ 19,
         AGE >= 55 & AGE < 65 & LNTOT == 20 ~ 19,

@@ -26,6 +26,27 @@ norm_logical_memory <- function(df) {
         # Check for missing values first
         is.na(LM1A) ~ NA_real_,
         
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & LM1A == 0 ~ 1,
+        AGE >= 45 & AGE < 55 & LM1A == 1 ~ 2,
+        AGE >= 45 & AGE < 55 & LM1A >= 2 & LM1A <= 3 ~ 3,
+        AGE >= 45 & AGE < 55 & LM1A == 4 ~ 4,
+        AGE >= 45 & AGE < 55 & LM1A >= 5 & LM1A <= 6 ~ 5,
+        AGE >= 45 & AGE < 55 & LM1A == 7 ~ 6,
+        AGE >= 45 & AGE < 55 & LM1A >= 8 & LM1A <= 9 ~ 7,
+        AGE >= 45 & AGE < 55 & LM1A >= 10 & LM1A <= 11 ~ 8,
+        AGE >= 45 & AGE < 55 & LM1A == 12 ~ 9,
+        AGE >= 45 & AGE < 55 & LM1A >= 13 & LM1A <= 14 ~ 10,
+        AGE >= 45 & AGE < 55 & LM1A == 15 ~ 11,
+        AGE >= 45 & AGE < 55 & LM1A >= 16 & LM1A <= 17 ~ 12,
+        AGE >= 45 & AGE < 55 & LM1A == 18 ~ 13,
+        AGE >= 45 & AGE < 55 & LM1A >= 19 & LM1A <= 20 ~ 14,
+        AGE >= 45 & AGE < 55 & LM1A == 21 ~ 15,
+        AGE >= 45 & AGE < 55 & LM1A == 22 ~ 16,
+        AGE >= 45 & AGE < 55 & LM1A == 23 ~ 17,
+        AGE >= 45 & AGE < 55 & LM1A == 24 ~ 18,
+        AGE >= 45 & AGE < 55 & LM1A == 25 ~ 19,
+        
         # Age 55-64
         AGE >= 55 & AGE < 65 & LM1A == 0 ~ 1,
         AGE >= 55 & AGE < 65 & LM1A == 1 ~ 2,
@@ -154,6 +175,27 @@ norm_logical_memory <- function(df) {
       LM1BSS = case_when(
         # Check for missing values first
         is.na(LM1B) ~ NA_real_,
+        
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & LM1B >= 0 & LM1B <= 1 ~ 1,
+        AGE >= 45 & AGE < 55 & LM1B == 2 ~ 2,
+        AGE >= 45 & AGE < 55 & LM1B == 3 ~ 3,
+        AGE >= 45 & AGE < 55 & LM1B == 4 ~ 4,
+        AGE >= 45 & AGE < 55 & LM1B >= 5 & LM1B <= 6 ~ 5,
+        AGE >= 45 & AGE < 55 & LM1B == 7 ~ 6,
+        AGE >= 45 & AGE < 55 & LM1B == 8 ~ 7,
+        AGE >= 45 & AGE < 55 & LM1B == 9 ~ 8,
+        AGE >= 45 & AGE < 55 & LM1B >= 10 & LM1B <= 11 ~ 9,
+        AGE >= 45 & AGE < 55 & LM1B == 12 ~ 10,
+        AGE >= 45 & AGE < 55 & LM1B == 13 ~ 11,
+        AGE >= 45 & AGE < 55 & LM1B >= 14 & LM1B <= 15 ~ 12,
+        AGE >= 45 & AGE < 55 & LM1B == 16 ~ 13,
+        AGE >= 45 & AGE < 55 & LM1B == 17 ~ 14,
+        AGE >= 45 & AGE < 55 & LM1B >= 18 & LM1B <= 19 ~ 15,
+        AGE >= 45 & AGE < 55 & LM1B == 20 ~ 16,
+        AGE >= 45 & AGE < 55 & LM1B >= 21 & LM1B <= 22 ~ 17,
+        AGE >= 45 & AGE < 55 & LM1B == 23 ~ 18,
+        AGE >= 45 & AGE < 55 & LM1B >= 24 & LM1B <= 25 ~ 19,
         
         # Age 55-64
         AGE >= 55 & AGE < 65 & LM1B >= 0 & LM1B <= 1 ~ 1,
@@ -284,6 +326,27 @@ norm_logical_memory <- function(df) {
         # Check for missing values first
         is.na(LM2A) ~ NA_real_,
         
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & LM2A == 0 ~ 1,
+        AGE >= 45 & AGE < 55 & LM2A == 1 ~ 2,
+        AGE >= 45 & AGE < 55 & LM2A == 2 ~ 3,
+        AGE >= 45 & AGE < 55 & LM2A == 3 ~ 4,
+        AGE >= 45 & AGE < 55 & LM2A == 4 ~ 5,
+        AGE >= 45 & AGE < 55 & LM2A == 5 ~ 6,
+        AGE >= 45 & AGE < 55 & LM2A >= 6 & LM2A <= 7 ~ 7,
+        AGE >= 45 & AGE < 55 & LM2A == 8 ~ 8,
+        AGE >= 45 & AGE < 55 & LM2A >= 9 & LM2A <= 10 ~ 9,
+        AGE >= 45 & AGE < 55 & LM2A >= 11 & LM2A <= 12 ~ 10,
+        AGE >= 45 & AGE < 55 & LM2A >= 13 & LM2A <= 14 ~ 11,
+        AGE >= 45 & AGE < 55 & LM2A == 15 ~ 12,
+        AGE >= 45 & AGE < 55 & LM2A >= 16 & LM2A <= 17 ~ 13,
+        AGE >= 45 & AGE < 55 & LM2A == 18 ~ 14,
+        AGE >= 45 & AGE < 55 & LM2A >= 19 & LM2A <= 20 ~ 15,
+        AGE >= 45 & AGE < 55 & LM2A == 21 ~ 16,
+        AGE >= 45 & AGE < 55 & LM2A == 22 ~ 17,
+        AGE >= 45 & AGE < 55 & LM2A == 23 ~ 18,
+        AGE >= 45 & AGE < 55 & LM2A >= 24 & LM2A <= 25 ~ 19,
+        
         # Age 55-64
         AGE >= 55 & AGE < 65 & LM2A == 0 ~ 1,
         AGE >= 55 & AGE < 65 & LM2A == 1 ~ 2,
@@ -407,6 +470,27 @@ norm_logical_memory <- function(df) {
       LM2BSS = case_when(
         # Check for missing values first
         is.na(LM2B) ~ NA_real_,
+        
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & LM2B == 0 ~ 1,
+        AGE >= 45 & AGE < 55 & LM2B == 1 ~ 2,
+        AGE >= 45 & AGE < 55 & LM2B == 2 ~ 3,
+        AGE >= 45 & AGE < 55 & LM2B == 3 ~ 4,
+        AGE >= 45 & AGE < 55 & LM2B == 4 ~ 5,
+        AGE >= 45 & AGE < 55 & LM2B == 5 ~ 6,
+        AGE >= 45 & AGE < 55 & LM2B == 6 ~ 7,
+        AGE >= 45 & AGE < 55 & LM2B == 7 ~ 8,
+        AGE >= 45 & AGE < 55 & LM2B >= 8 & LM2B <= 9 ~ 9,
+        AGE >= 45 & AGE < 55 & LM2B == 10 ~ 10,
+        AGE >= 45 & AGE < 55 & LM2B >= 11 & LM2B <= 12 ~ 11,
+        AGE >= 45 & AGE < 55 & LM2B == 13 ~ 12,
+        AGE >= 45 & AGE < 55 & LM2B == 14 ~ 13,
+        AGE >= 45 & AGE < 55 & LM2B >= 15 & LM2B <= 16 ~ 14,
+        AGE >= 45 & AGE < 55 & LM2B == 17 ~ 15,
+        AGE >= 45 & AGE < 55 & LM2B == 18 ~ 16,
+        AGE >= 45 & AGE < 55 & LM2B >= 19 & LM2B <= 20 ~ 17,
+        AGE >= 45 & AGE < 55 & LM2B == 21 ~ 18,
+        AGE >= 45 & AGE < 55 & LM2B >= 22 & LM2B <= 25 ~ 19,
         
         # Age 55-64
         AGE >= 55 & AGE < 65 & LM2B == 0 ~ 1,

@@ -29,6 +29,27 @@ norm_digit_span <- function(df) {
         # First check for missing values
         is.na(DSPTOT) ~ NA_real_,
         
+        # Age 45-54
+        AGE >= 45 & AGE < 55 & DSPTOT >= 29 & DSPTOT <= 30 ~ 19,
+        AGE >= 45 & AGE < 55 & DSPTOT == 28 ~ 18,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 26 & DSPTOT <= 27 ~ 17,
+        AGE >= 45 & AGE < 55 & DSPTOT == 25 ~ 16,
+        AGE >= 45 & AGE < 55 & DSPTOT == 24 ~ 15,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 22 & DSPTOT <= 23 ~ 14,
+        AGE >= 45 & AGE < 55 & DSPTOT == 21 ~ 13,
+        AGE >= 45 & AGE < 55 & DSPTOT == 20 ~ 12,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 18 & DSPTOT <= 19 ~ 11,
+        AGE >= 45 & AGE < 55 & DSPTOT == 17 ~ 10,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 15 & DSPTOT <= 16 ~ 9,
+        AGE >= 45 & AGE < 55 & DSPTOT == 14 ~ 8,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 12 & DSPTOT <= 13 ~ 7,
+        AGE >= 45 & AGE < 55 & DSPTOT == 11 ~ 6,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 9 & DSPTOT <= 10 ~ 5,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 7 & DSPTOT <= 8 ~ 4,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 5 & DSPTOT <= 6 ~ 3,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 3 & DSPTOT <= 4 ~ 2,
+        AGE >= 45 & AGE < 55 & DSPTOT >= 0 & DSPTOT <= 2 ~ 1,
+        
         # Age 55-64
         AGE >= 55 & AGE < 65 & DSPTOT >= 28 & DSPTOT <= 30 ~ 19,
         AGE >= 55 & AGE < 65 & DSPTOT == 27 ~ 18,
