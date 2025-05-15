@@ -17,6 +17,7 @@ library(lmerTest)
 library(parameters)
 library(tableone)
 library(flextable)
+library(haven)
 
 #---------------------------------#
 # Set directories and load data   #
@@ -40,15 +41,15 @@ factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-05
 factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-14.csv")
 
 # Load raw and adjusted MCI diagnosis
-mci_v1_raw <- read.csv("data/output_data/vetsa1_mci_raw_2025-05-14.csv")
-mci_v2_raw <- read.csv("data/output_data/vetsa2_mci_raw_2025-05-14.csv")
-mci_v3_raw <- read.csv("data/output_data/vetsa3_mci_raw_2025-05-14.csv")
-mci_v4_raw <- read.csv("data/output_data/vetsa4_mci_raw_2025-05-14.csv")
+mci_v1_raw <- read.csv("data/output_data/vetsa1_mci_raw_2025-05-15.csv")
+mci_v2_raw <- read.csv("data/output_data/vetsa2_mci_raw_2025-05-15.csv")
+mci_v3_raw <- read.csv("data/output_data/vetsa3_mci_raw_2025-05-15.csv")
+mci_v4_raw <- read.csv("data/output_data/vetsa4_mci_raw_2025-05-15.csv")
 
-mci_v1_adj <- read.csv("data/output_data/vetsa1_mci_adjusted_2025-05-14.csv")
-mci_v2_adj <- read.csv("data/output_data/vetsa2_mci_adjusted_2025-05-14.csv")
-mci_v3_adj <- read.csv("data/output_data/vetsa3_mci_adjusted_2025-05-14.csv")
-mci_v4_adj <- read.csv("data/output_data/vetsa4_mci_adjusted_2025-05-14.csv")
+mci_v1_adj <- read.csv("data/output_data/vetsa1_mci_adjusted_2025-05-15.csv")
+mci_v2_adj <- read.csv("data/output_data/vetsa2_mci_adjusted_2025-05-15.csv")
+mci_v3_adj <- read.csv("data/output_data/vetsa3_mci_adjusted_2025-05-15.csv")
+mci_v4_adj <- read.csv("data/output_data/vetsa4_mci_adjusted_2025-05-15.csv")
 
 #-----------------------------------------------#
 #     Remove V1NE subjects from all datasets    #
@@ -89,25 +90,28 @@ mci_v4_adj <- remove_v1ne(mci_v4_adj)
 # Select tests of interest
 gca_tests <- c("AFQTPCTTRAN_R")
 epmem_tests <- c("LMITOT","LMDTOT","CVATOT","CVSDFR","CVLDFR")
-vismem_tests <- c("VRCTOT","VRITOT","VRDTOT")
-ef_tests <- c("STRCWRAW","TRL4TLOG","CSSACC", "LNTOT", "RSATOT", "DSTOT")
-fluency_tests <- c("LFFCOR","LFACOR","LFSCOR","CFANCOR","CFBNCOR","CSCOR")
+ef_tests <- c("TRL4TLOG","CSSACC","STRIT")
+fluency_tests <- c("LFCOR","CFCOR")
 speed_tests <- c("TRL2TLOG","TRL3TLOG","STRWRAW","STRCRAW","SRTGMEANLOG","CHRTGMEANLOG")
+wm_tests <- c("DSTOT","SSPTOTP","LNTOT","RSATOT")
 visspat_tests <- c("MR1COR","AFQTBXPCTTRAN_R","HFTOTCOR")
+vismem_tests <- c("VRCTOT","VRITOT","VRDTOT")
+abstract_tests <- c("MTXAGE")
 
 # Order of tests
-order_of_tests <- c(gca_tests, epmem_tests, vismem_tests, ef_tests, fluency_tests, speed_tests, visspat_tests)
+order_of_tests <- c(gca_tests, epmem_tests, ef_tests, fluency_tests, speed_tests, 
+                    wm_tests, visspat_tests, vismem_tests, abstract_tests)
 
-
-# Grouping of tests. Each bracket is specified by label, first test, last test
-test_groups <- list(
-  epmem = c("Episodic memory", epmem_tests[1], epmem_tests[length(epmem_tests)]),
-  ef = c("Executive function", ef_tests[1], ef_tests[length(ef_tests)]),
-  fluency = c("Fluency", fluency_tests[1], fluency_tests[length(fluency_tests)]),
-  speed = c("Processing speed", speed_tests[1], speed_tests[length(speed_tests)]),
-  vismem = c("Visual memory", vismem_tests[1], vismem_tests[length(vismem_tests)]),
-  visspat = c("Visuospatial", visspat_tests[1], visspat_tests[length(visspat_tests)])
-)
+# # Grouping of tests. Each bracket is specified by label, first test, last test
+# test_groups <- list(
+#   epmem = c("Episodic memory", epmem_tests[1], epmem_tests[length(epmem_tests)]),
+#   ef = c("Executive function", ef_tests[1], ef_tests[length(ef_tests)]),
+#   fluency = c("Fluency", fluency_tests[1], fluency_tests[length(fluency_tests)]),
+#   speed = c("Processing speed", speed_tests[1], speed_tests[length(speed_tests)]),
+#   wm = c("Working memory", wm_tests[1], wm_tests[length(wm_tests)]),
+#   visspat = c("Visuospatial", visspat_tests[1], visspat_tests[length(visspat_tests)]),
+#   vismem = c("Visual memory", vismem_tests[1], vismem_tests[length(vismem_tests)])
+# )
 
 ### Prep data ###
 
@@ -127,8 +131,10 @@ pe_estimates_long$Domain <- pe_estimates_long$term %>%
     !!!setNames(rep("Executive function", length(ef_tests)), ef_tests),
     !!!setNames(rep("Fluency", length(fluency_tests)), fluency_tests),
     !!!setNames(rep("Processing speed", length(speed_tests)), speed_tests),
+    !!!setNames(rep("Working memory", length(wm_tests)), wm_tests),
+    !!!setNames(rep("Visuospatial", length(visspat_tests)), visspat_tests),
     !!!setNames(rep("Visual memory", length(vismem_tests)), vismem_tests),
-    !!!setNames(rep("Visuospatial", length(visspat_tests)), visspat_tests)
+    !!!setNames(rep("Abstract reasoning", length(abstract_tests)), abstract_tests)
   )
 
 # Set order of domain to be GCA, Episodic memory, Visual memory, Executive function, Fluency, Processing speed, Visuospatial
@@ -136,7 +142,8 @@ pe_estimates_long$Domain <- factor(pe_estimates_long$Domain,
                                    levels = c("GCA", "Episodic memory", 
                                               "Executive function", 
                                               "Fluency", "Processing speed", 
-                                              "Visual memory", "Visuospatial"))
+                                              "Working memory","Visuospatial",
+                                              "Visual memory", "Abstract reasoning"))
 
 ### Create "model" variable with descriptive versions of coefficient ###
 pe_estimates_long$Model <- pe_estimates_long$Assessment %>%
@@ -202,12 +209,13 @@ save_as_docx(pe_summary, path = pe_summary_outname)
 #-----------------------------------#
 
 # Create annotation dataframe with max_y variable for positioning
-max_y <- max(pe_plot_df$conf.high)
+min_y <- min(pe_plot_df$conf.low, na.rm=TRUE)
+max_y <- max(pe_plot_df$conf.high, na.rm=TRUE)
 text_df <- pe_plot_df %>%
   mutate(text_label = sprintf("%.2f (%.2f, %.2f)", estimate, conf.low, conf.high))
 
 # Custom d3 color palette. Black as added as first color for GCA in forest plot
-d3_colors <- pal_d3()(6)  # Get 6 d3 colors for 6 domains
+d3_colors <- pal_d3()(8)  # Get 8 additional colors (black is first color)
 custom_d3 <- c("black", d3_colors)  # Add black as first color
 
 # Create annotated forest plot that includes estimates and CIs
@@ -226,7 +234,7 @@ forest_plot <- ggplot(pe_plot_df, aes(x = term, y = estimate,
             hjust = 1,
             color = "black",
             size = 3) +
-  scale_y_continuous(limits = c(min(pe_plot_df$conf.low), max_y * 1.5)) +
+  scale_y_continuous(limits = c(min_y, max_y * 1.5)) +
   scale_color_manual(values = custom_d3) +
   theme_bw() +
   theme(text = element_text(family = "Arial"),
@@ -580,7 +588,7 @@ rmci_tab <- print(CreateTableOne(vars = rmci_vars,
 rmci_tab_outfile = paste0("results/mci_rates_rMCI_", Sys.Date(), ".csv")
 write.csv(rmci_tab, rmci_tab_outfile)
 
-# Get rates of any MCIat each wave by adjustment status
+# Get rates of any MCI at each wave by adjustment status
 anymci_vars <- mci_long %>% select(contains("anyMCI")) %>% names()
 anymci_tab <- print(CreateTableOne(vars = anymci_vars, 
                                  strata = "Adjustment", 

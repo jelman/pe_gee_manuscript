@@ -26,16 +26,16 @@ afqt_20 = read.csv("~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive meas
 names(afqt_20) <- toupper(names(afqt_20))
 
 # Load individual test data
-tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-04-25.csv")
+tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-14.csv")
 
 # Load cognitive factor scores
-factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-09.csv")
+factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-14.csv")
 
 # Load and merge MCI data
-mci_v1_adj <- read.csv("data/output_data/vetsa1_mci_adjusted_2025-05-09.csv")
-mci_v2_adj <- read.csv("data/output_data/vetsa2_mci_adjusted_2025-05-09.csv")
-mci_v3_adj <- read.csv("data/output_data/vetsa3_mci_adjusted_2025-05-09.csv")
-mci_v4_adj <- read.csv("data/output_data/vetsa4_mci_adjusted_2025-05-09.csv")
+mci_v1_adj <- read.csv("data/output_data/vetsa1_mci_adjusted_2025-05-15.csv")
+mci_v2_adj <- read.csv("data/output_data/vetsa2_mci_adjusted_2025-05-15.csv")
+mci_v3_adj <- read.csv("data/output_data/vetsa3_mci_adjusted_2025-05-15.csv")
+mci_v4_adj <- read.csv("data/output_data/vetsa4_mci_adjusted_2025-05-15.csv")
 mci_adj <- mci_v1_adj %>%
   select(VETSAID, rMCI_cons_V1) %>%
   full_join(mci_v2_adj %>% select(VETSAID, rMCI_cons_V2), by = "VETSAID") %>%
@@ -50,6 +50,10 @@ mci_adj <- mci_v1_adj %>%
 admin = admin %>%
   remove_labels() %>%
   remove_attributes(attributes = "format.sas") 
+
+# Remove V1ne subjects
+admin = admin %>%
+  filter(!grepl("V1NE", VGRP_PROCVAR))
 
 # Label race and ethnicity, label regions
 admin = admin %>% 
@@ -153,11 +157,6 @@ psych::describe(demo_df)
 nonmissing_tests <- tests_adj %>% 
   summarise(across(everything(), ~ sum(!is.na(.)))) %>%
   pivot_longer(cols = everything(), names_to = "test", values_to = "n") 
-
-#-----------------------------------------------#
-#   Create plots of age distribution by wave    #
-#-----------------------------------------------#
-
 
   
 

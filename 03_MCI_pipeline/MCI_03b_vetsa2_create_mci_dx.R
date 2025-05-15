@@ -55,7 +55,7 @@ missing_names <- c("TOTALMISSING", "MEMORYMISSING", "EXECMISSING", "ATTNMISSING"
 norm_scores <- c("MTXT_V2", "CVATOTSS_V2", "CVLDFSS_V2", "LM1ASS_V2", "LM1BSS_V2", "LM2ASS_V2", "LM2BSS_V2", 
                  "DSPSS_V2", "LNSC_V2", "TRL1TSC_V2", "TRL2TSC_V2", "TRL3TSC_V2", "TRL4TSC_V2", "TRL5TSC_V2", 
                  "STRWT_V2", "STRCT_V2", "STRIT_V2", "HFTOTCOR_V2", "MR1COR_V2",
-                 "LFCORSC_V2", "CFCORSC_V2", "VRITOTSS_V2", "VRDTOTSS_V2", "VRCTOTSS_V2", "SSPSS_V2")
+                 "LFCORSC_V2", "CFCORSC_V2", "CSCORSC_V2", "CSSACCSC_V2", "VRITOTSS_V2", "VRDTOTSS_V2", "VRCTOTSS_V2", "SSPSS_V2")
 
 # -----------------------------------------------------------------------
 # Imputing Missing Data Scores 
@@ -125,7 +125,7 @@ names(V2_Imp)
 # Scaled Scores, mean = 10, sd = 3
 SStests <- c("DSPSS_V2", "LNSC_V2", "VRITOTSS_V2", "VRDTOTSS_V2", 
              "VRCTOTSS_V2", "TRL1TSC_V2", "TRL2TSC_V2", "TRL3TSC_V2", "TRL4TSC_V2",
-             "LFCORSC_V2", "CFCORSC_V2", "LM1ASS_V2", "LM1BSS_V2",
+             "LFCORSC_V2", "CFCORSC_V2", "CSSACCSC_V2", "LM1ASS_V2", "LM1BSS_V2",
              "LM2ASS_V2", "LM2BSS_V2", "SSPSS_V2")
 
 # T-Scores, mean = 50, sd = 10
@@ -163,7 +163,7 @@ V2MCI <- V2_Imp
 
 # Define domain tests - SSPSS_V2 in ATTNtests, No BNTSS in Wave 2
 MEMtests <- c("CVLT", "LM", "VR")  # 3 composites from 8 tests
-EXECtests <- c("TRL4TSC_V2", "STRIT_V2", "MTXT_V2") # 3 tests - No CSSACCSC_V2
+EXECtests <- c("TRL4TSC_V2", "CSSACCSC_V2", "STRIT_V2", "MTXT_V2") # 4 tests
 ATTNtests <- c("DSPSS_V2", "LNSC_V2", "TRL1TSC_V2", "SSPSS_V2") # 4 tests
 LANGtests <- c("LFCORSC_V2", "CFCORSC_V2") # 2 tests
 VStests <- c("HFTOTCORZ_V2", "MR1CORZ_V2", "VRCTOTSS_V2") # 3 tests

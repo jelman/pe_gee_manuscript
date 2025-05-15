@@ -16,6 +16,7 @@
 
 rm(list = ls())
 library(dplyr)
+library(haven)
 
 # Define the input and output file paths
 setwd("~/netshare/M/Projects/PracEffects_GEE")
