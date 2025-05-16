@@ -22,7 +22,10 @@ norm_stroop <- function(df) {
         STRCWRAW = round(STRCWRAW, 0),
         STRWPRED = round(STRWPRED, 0),
         STRCPRED = round(STRCPRED, 0),
-        STRCWPRED = round(STRCWPRED, 0)
+        STRCWPRED = round(STRCWPRED, 0),
+        STRWDEV = round(STRWDEV, 0),
+        STRCDEV = round(STRCDEV, 0),
+        STRCWDEV = round(STRCWDEV, 0)
     )
   
   # Call the main implementation function
@@ -37,10 +40,10 @@ stroop_norms <- function(df) {
   # Create a copy of the dataframe to add new variables
   df <- df %>%
     mutate(
-      # Calculating Residual/Deviation Scores
-      STRWDEV = STRWRAW - STRWPRED,
-      STRCDEV = STRCRAW - STRCPRED,
-      STRCWDEV = STRCWRAW - STRCWPRED,
+      # # Calculating Residual/Deviation Scores
+      # STRWDEV = STRWRAW - STRWPRED,
+      # STRCDEV = STRCRAW - STRCPRED,
+      # STRCWDEV = STRCWRAW - STRCWPRED,
       
       # Word Deviation to T-Score conversion using case_when
       STRWT = case_when(

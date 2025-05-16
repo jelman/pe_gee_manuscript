@@ -66,21 +66,21 @@ V1V2V3V4_CogData_PE <- V1V2V3V4_CogData_PE %>%
     TRL5T_V1P = exp(TRL5TLOG_V1P)
   )
 
-# Calculate age and education predicted stroop scores
-V1V2V3V4_CogData_PE <- V1V2V3V4_CogData_PE %>%
-  mutate(
-    # Predicted word score
-    STRWPREDEXT_V1 = 80.305 + (1.971 * TEDALL) - (0.105 * AGE_V1),
-    STRWPRED_V1 = round(STRWPREDEXT_V1, 1),
+# # Calculate age and education predicted stroop scores
+# V1V2V3V4_CogData_PE <- V1V2V3V4_CogData_PE %>%
+#   mutate(
+#     # Predicted word score
+#     STRWPREDEXT_V1 = 80.305 + (1.971 * TEDALL) - (0.105 * AGE_V1),
+#     STRWPRED_V1 = round(STRWPREDEXT_V1, 1),
     
-    # Predicted color score
-    STRCPREDEXT_V1 = 68.810 + (1.026 * TEDALL) - (0.1434 * AGE_V1),
-    STRCPRED_V1 = round(STRCPREDEXT_V1, 1),
+#     # Predicted color score
+#     STRCPREDEXT_V1 = 68.810 + (1.026 * TEDALL) - (0.1434 * AGE_V1),
+#     STRCPRED_V1 = round(STRCPREDEXT_V1, 1),
     
-    # Predicted color-word score
-    STRCWPREDEXT_V1 = 32.3655 + (1.351 * TEDALL) - (0.231 * AGE_V1),
-    STRCWPRED_V1 = round(STRCWPREDEXT_V1, 1)
-  )
+#     # Predicted color-word score
+#     STRCWPREDEXT_V1 = 32.3655 + (1.351 * TEDALL) - (0.231 * AGE_V1),
+#     STRCWPRED_V1 = round(STRCWPREDEXT_V1, 1)
+#   )
 
 # Select only VETSA1 variables
 wave_specific_df <- V1V2V3V4_CogData_PE %>%
