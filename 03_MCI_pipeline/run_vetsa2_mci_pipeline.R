@@ -22,7 +22,7 @@ brain_cancer_ids_file <- "data/raw_data/brain_cancer_ids.txt"
 
 # Final output file with date stamp
 date_stamp <- format(Sys.Date(), "%Y-%m-%d")
-output_file <- paste0("data/output_data/VETSA2_MCI_", date_stamp, ".csv")
+output_file <- paste0("data/output_data/vetsa2_mci_adjusted_", date_stamp, ".csv")
 
 # Intermediate files (these will be overwritten if they exist)
 pre_imputation_file <- "data/intermediate_data/MCI_02b01_vetsa2_MCI_PreImputation.csv"

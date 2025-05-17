@@ -22,7 +22,7 @@ brain_cancer_ids_file <- "data/raw_data/brain_cancer_ids.txt"
 
 # Final output file with date stamp
 date_stamp <- format(Sys.Date(), "%Y-%m-%d")
-output_file <- paste0("data/output_data/VETSA4_MCI_", date_stamp, ".csv")
+output_file <- paste0("data/output_data/vetsa4_mci_adjusted_", date_stamp, ".csv")
 
 # MRI additional exclusion file (for waves 3 and 4)
 mri_excludes_file <- "~/netshare/M/VETSA DATA FILES_852014/MRI/MRI_Admin/MRI_addtl_excludes.csv"
