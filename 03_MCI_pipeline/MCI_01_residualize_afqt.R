@@ -22,7 +22,12 @@ library(haven)
 setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 input_file <- "data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-14.csv"
+# input_file <- "data/raw_data/V1V2V3V4_cog_data_raw_2025-05-14.csv"
+
 output_file <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"
+# output_file <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_raw_afqt-adjusted.csv"
+
+
 nas201tran_file <- "~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive measures/AFQT--age 20 cannot be distributed outside VETSA/AFQT_Age20_2020_05_19_revised.csv"
 admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
