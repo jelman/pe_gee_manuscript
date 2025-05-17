@@ -550,12 +550,52 @@ mci_raw <- mci_raw %>%
          anyMCI_V3 = ifelse(rMCI_cons_V3 > 0, 1, 0),
          anyMCI_V4 = ifelse(rMCI_cons_V4 > 0, 1, 0))
 
+# Create amnMCI and nonamnMCI variables for raw data. If rMCI_cons is 2 or 4, then amnMCI. If rMCI_cons is 1 or 3, then nonamnMCI
+# For each one, leave the other MCI individuals NA and code 0 as CU
+mci_raw <- mci_raw %>%
+  mutate(amnMCI_V1 = ifelse(rMCI_cons_V1 == 2 | rMCI_cons_V1 == 4, 1, 
+                            ifelse(rMCI_cons_V1 == 0, 0, NA)),
+         amnMCI_V2 = ifelse(rMCI_cons_V2 == 2 | rMCI_cons_V2 == 4, 1, 
+                            ifelse(rMCI_cons_V2 == 0, 0, NA)),
+         amnMCI_V3 = ifelse(rMCI_cons_V3 == 2 | rMCI_cons_V3 == 4, 1, 
+                            ifelse(rMCI_cons_V3 == 0, 0, NA)),
+         amnMCI_V4 = ifelse(rMCI_cons_V4 == 2 | rMCI_cons_V4 == 4, 1, 
+                            ifelse(rMCI_cons_V4 == 0, 0, NA)),
+         nonamnMCI_V1 = ifelse(rMCI_cons_V1 == 1 | rMCI_cons_V1 == 3, 1,
+                               ifelse(rMCI_cons_V1 == 0, 0, NA)),
+         nonamnMCI_V2 = ifelse(rMCI_cons_V2 == 1 | rMCI_cons_V2 == 3, 1,
+                               ifelse(rMCI_cons_V2 == 0, 0, NA)),
+         nonamnMCI_V3 = ifelse(rMCI_cons_V3 == 1 | rMCI_cons_V3 == 3, 1,
+                               ifelse(rMCI_cons_V3 == 0, 0, NA)),
+         nonamnMCI_V4 = ifelse(rMCI_cons_V4 == 1 | rMCI_cons_V4 == 3, 1,
+                               ifelse(rMCI_cons_V4 == 0, 0, NA)))
+
 # Create anyMCI variables for adjusted data
 mci_adj <- mci_adj %>%
   mutate(anyMCI_V1 = ifelse(rMCI_cons_V1 > 0, 1, 0),
          anyMCI_V2 = ifelse(rMCI_cons_V2 > 0, 1, 0),
          anyMCI_V3 = ifelse(rMCI_cons_V3 > 0, 1, 0),
          anyMCI_V4 = ifelse(rMCI_cons_V4 > 0, 1, 0))
+
+# Create amnMCI and nonamnMCI variables for adjusted data. If rMCI_cons is 2 or 4, then amnMCI. If rMCI_cons is 1 or 3, then nonamnMCI
+# For each one, leave the other MCI individuals NA and code 0 as CU
+mci_adj <- mci_adj %>%
+  mutate(amnMCI_V1 = ifelse(rMCI_cons_V1 == 2 | rMCI_cons_V1 == 4, 1, 
+                            ifelse(rMCI_cons_V1 == 0, 0, NA)),
+         amnMCI_V2 = ifelse(rMCI_cons_V2 == 2 | rMCI_cons_V2 == 4, 1, 
+                            ifelse(rMCI_cons_V2 == 0, 0, NA)),
+         amnMCI_V3 = ifelse(rMCI_cons_V3 == 2 | rMCI_cons_V3 == 4, 1, 
+                            ifelse(rMCI_cons_V3 == 0, 0, NA)),
+         amnMCI_V4 = ifelse(rMCI_cons_V4 == 2 | rMCI_cons_V4 == 4, 1, 
+                            ifelse(rMCI_cons_V4 == 0, 0, NA)),
+         nonamnMCI_V1 = ifelse(rMCI_cons_V1 == 1 | rMCI_cons_V1 == 3, 1,
+                               ifelse(rMCI_cons_V1 == 0, 0, NA)),
+         nonamnMCI_V2 = ifelse(rMCI_cons_V2 == 1 | rMCI_cons_V2 == 3, 1,
+                               ifelse(rMCI_cons_V2 == 0, 0, NA)),
+         nonamnMCI_V3 = ifelse(rMCI_cons_V3 == 1 | rMCI_cons_V3 == 3, 1,
+                               ifelse(rMCI_cons_V3 == 0, 0, NA)),
+         nonamnMCI_V4 = ifelse(rMCI_cons_V4 == 1 | rMCI_cons_V4 == 3, 1,
+                               ifelse(rMCI_cons_V4 == 0, 0, NA)))
 
 # Bind raw and adjusted data
 mci_long <- mci_raw %>% 
@@ -599,9 +639,35 @@ anymci_tab <- print(CreateTableOne(vars = anymci_vars,
 anymci_tab_outfile = paste0("results/mci_rates_anyMCI_", Sys.Date(), ".csv")
 write.csv(anymci_tab, anymci_tab_outfile)
 
-# Run chisq test for each wave
+# Get rates of amnestic MCI at each wave by adjustment status
+amn_vars <- mci_long %>% select(contains("amnMCI")) %>% names()
+amn_tab <- print(CreateTableOne(vars = amn_vars, 
+                                 strata = "Adjustment", 
+                                 data = mci_long, 
+                                 test = TRUE), 
+                  quote = FALSE, noSpaces = TRUE, printToggle = TRUE)
+amn_tab_outfile = paste0("results/mci_rates_amnMCI-nonamnMCI_", Sys.Date(), ".csv")
+write.csv(amn_tab, amn_tab_outfile)
+
+# Run chisq test of any MCI for each wave
 for (i in 1:4) {
   wave_var <- paste0("anyMCI_V", i)
+  chisq_test <- chisq.test(table(mci_long$Adjustment, mci_long[[wave_var]]))
+  print(paste("Chi-squared test for wave", i))
+  print(chisq_test)
+}
+
+# Run chisq test of amnMCI for each wave
+for (i in 1:4) {
+  wave_var <- paste0("amnMCI_V", i)
+  chisq_test <- chisq.test(table(mci_long$Adjustment, mci_long[[wave_var]]))
+  print(paste("Chi-squared test for wave", i))
+  print(chisq_test)
+}
+
+# Run chisq test of nonamnMCI for each wave
+for (i in 1:4) {
+  wave_var <- paste0("nonamnMCI_V", i)
   chisq_test <- chisq.test(table(mci_long$Adjustment, mci_long[[wave_var]]))
   print(paste("Chi-squared test for wave", i))
   print(chisq_test)
