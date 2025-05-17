@@ -1,4 +1,3 @@
-rm(list = ls())
 library(dplyr)
 library(psych)
 library(readr)
@@ -34,11 +33,18 @@ library(mice) #loading mice library
 # Read In Raw Data
 # -----------------------------------------------------------------------
 
-# Set working directory
-setwd("~/netshare/M/Projects/PracEffects_GEE")
+# Note: Working directory should be set by the runner script
+
+# Use file paths from runner script if they exist, otherwise use defaults
+if(!exists("pre_imputation_file")) {
+  pre_imputation_file <- "data/intermediate_data/MCI_02b01_vetsa2_MCI_PreImputation.csv"
+}
+if(!exists("post_imputation_file")) {
+  post_imputation_file <- "data/intermediate_data/MCI_03b04_vetsa2_MCI_AllData.csv"
+}
 
 # Read in normed data
-V2 <- read_csv("data/intermediate_data/MCI_02b01_vetsa2_MCI_PreImputation.csv")
+V2 <- read_csv(pre_imputation_file)
 
 # Checking Summaries
 summary(V2)
@@ -319,5 +325,6 @@ V2data$rMCI_p25_V2 <- with(V2data, (0*(impMEM_comp25==0 & impNONMEM_comp25==0) +
 V2_final <- cbind(V2MCI, V2data)
 
 # Save final MCI measures file
-write.csv(V2_final, "data/intermediate_data/MCI_03b04_vetsa2_MCI_AllData.csv", row.names=FALSE)
+write.csv(V2_final, post_imputation_file, row.names=FALSE)
+cat("VETSA2 MCI diagnosis creation complete. Files written to:", post_imputation_file, "\n")
 summary(V2_final)

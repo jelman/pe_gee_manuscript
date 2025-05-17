@@ -19,23 +19,41 @@
 library(dplyr)
 library(haven)
 
-setwd("~/netshare/M/Projects/PracEffects_GEE")
+# Note: Working directory should be set by the runner script
 
 #-------------------#
 #     Load data     #
 #-------------------#
 
+# Use file paths from runner script if they exist, otherwise use defaults
+if(!exists("post_imputation_file")) {
+  post_imputation_file <- "data/intermediate_data/MCI_03d04_vetsa4_MCI_AllData.csv"
+}
+if(!exists("merge_file")) {
+  merge_file <- "~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/VETSA 4 Preliminary/vetsaiv_psy_20241210.sas7bdat"
+}
+if(!exists("brain_cancer_ids_file")) {
+  brain_cancer_ids_file <- "data/raw_data/brain_cancer_ids.txt"
+}
+if(!exists("output_file")) {
+  date_stamp <- format(Sys.Date(), "%Y-%m-%d")
+  output_file <- paste0("data/output_data/VETSA4_MCI_", date_stamp, ".csv")
+}
+if(!exists("mri_excludes_file")) {
+  mri_excludes_file <- "~/netshare/M/VETSA DATA FILES_852014/MRI/MRI_Admin/MRI_addtl_excludes.csv"
+}
+
 # Load the MCI dataset
-mci <- read.csv("data/intermediate_data/MCI_03d04_vetsa4_MCI_AllData.csv")
+mci <- read.csv(post_imputation_file)
 
 # Load merge file to get common excludes
-merge_file <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/VETSA 4 Preliminary/vetsaiv_psy_20241210.sas7bdat")
+merge_file <- read_sas(merge_file)
 
 # Load list of IDs with brain cancer dx. 
-brain_cancer_ids <- readLines("data/raw_data/brain_cancer_ids.txt")
+brain_cancer_ids <- readLines(brain_cancer_ids_file)
 
 # Load MRI additional excludes
-mri_excludes <- read.csv("~/netshare/M/VETSA DATA FILES_852014/MRI/MRI_Admin/MRI_addtl_excludes.csv")
+mri_excludes <- read.csv(mri_excludes_file)
 
 #--------------------------------------------------------#
 #   Select excludes and create global exclude indicator  #
@@ -84,6 +102,9 @@ final_mci <- mci %>%
 final_mci <- final_mci %>%
   left_join(common_excludes, by = "VETSAID") 
 
-# Save out final MCI dataset with date
-output_file <- paste0("data/output_data/vetsa4_mci_adjusted_", format(Sys.Date(), "%Y-%m-%d"), ".csv")
+# Save out final MCI dataset 
+# Note: output_file is set by runner script or defaults above
 write.csv(final_mci, output_file, row.names = FALSE)
+
+cat("VETSA4 MCI output file created:", output_file, "\n")
+cat("Number of subjects in output:", nrow(final_mci), "\n")

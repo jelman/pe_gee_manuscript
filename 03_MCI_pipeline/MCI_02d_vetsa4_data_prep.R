@@ -15,22 +15,57 @@ library(dplyr)
 library(readr)
 library(haven)
 
-# Set working directory
-setwd("~/netshare/M/Projects/PracEffects_GEE")
+# Note: Working directory should be set by the runner script
 
 # Source the R versions of the norming scripts
-source("code/pe_gee_manuscript/03_MCI_pipeline/norms/MCI_apply_all_norms.R")
+# Try multiple potential paths to find the norms file
+norms_paths <- c(
+  "code/pe_gee_manuscript/03_MCI_pipeline/norms/MCI_apply_all_norms.R",
+  "./code/pe_gee_manuscript/03_MCI_pipeline/norms/MCI_apply_all_norms.R",
+  "03_MCI_pipeline/norms/MCI_apply_all_norms.R",
+  "./03_MCI_pipeline/norms/MCI_apply_all_norms.R"
+)
 
-# Set file paths
-cog_data_file <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"
-output_file <- "data/intermediate_data/MCI_02d01_vetsa4_MCI_PreImputation.csv"
-admin <- "~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat"
+norms_file_found <- FALSE
+for (path in norms_paths) {
+  if (file.exists(path)) {
+    source(path)
+    cat("Sourced norms from:", path, "\n")
+    norms_file_found <- TRUE
+    break
+  }
+}
+
+if (!norms_file_found) {
+  stop("Could not locate MCI_apply_all_norms.R file in any expected location")
+}
+
+# Use file paths from runner script if they exist, otherwise use defaults
+if(!exists("input_cog_data")) {
+  input_cog_data <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"
+}
+if(!exists("pre_imputation_file")) {
+  pre_imputation_file <- "data/intermediate_data/MCI_02d01_vetsa4_MCI_PreImputation.csv"
+}
+if(!exists("admin_file")) {
+  admin_file <- "~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat"
+}
 
 # Read in the practice effects data
-V1V2V3V4_CogData_PE <- read_csv(cog_data_file)
+V1V2V3V4_CogData_PE <- read_csv(input_cog_data)
 
 # Read in admin file to get age at wave 4
-admin_data <- read_sas(admin, NULL)
+admin_data <- read_sas(admin_file, NULL)
+names(admin_data) <- toupper(names(admin_data))
+
+# Remove V1NE participants if VGRP_procvar exists
+if("VGRP_PROCVAR" %in% toupper(names(admin_data))) {
+  admin_data <- admin_data %>% 
+    filter(!grepl("V1NE", VGRP_PROCVAR))
+} else if("vgrp_procvar" %in% names(admin_data)) {
+  admin_data <- admin_data %>% 
+    filter(!grepl("V1NE", vgrp_procvar))
+}
 
 # Convert all variable names to uppercase
 names(V1V2V3V4_CogData_PE) <- toupper(names(V1V2V3V4_CogData_PE))
@@ -184,6 +219,6 @@ mci_prep_vars <- result_df %>%
   )
 
 # Write out the MCI pre-imputation dataset
-write_csv(mci_prep_vars, output_file)
+write_csv(mci_prep_vars, pre_imputation_file)
 
-cat("VETSA 4 data preparation complete. Files written to:", output_file, "\n")
+cat("VETSA 4 data preparation complete. Files written to:", pre_imputation_file, "\n")
