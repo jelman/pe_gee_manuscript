@@ -13,6 +13,8 @@ mci_scripts_dir <- file.path(working_dir, "code/pe_gee_manuscript/03_MCI_pipelin
 
 # Input file - Practice effects and AFQT-adjusted cognitive data
 input_cog_data <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"
+# input_cog_data <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_raw_afqt-adjusted.csv"
+
 
 # Admin file with demographic data
 admin_file <- "~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat"
@@ -26,6 +28,7 @@ brain_cancer_ids_file <- "data/raw_data/brain_cancer_ids.txt"
 # Final output file with date stamp
 date_stamp <- format(Sys.Date(), "%Y-%m-%d")
 output_file <- paste0("data/output_data/vetsa1_mci_adjusted_", date_stamp, ".csv")
+# output_file <- paste0("data/output_data/vetsa1_mci_raw_", date_stamp, ".csv")
 
 # Intermediate files (these will be overwritten if they exist)
 pre_imputation_file <- "data/intermediate_data/MCI_02a01_vetsa1_MCI_PreImputation.csv"
