@@ -8,9 +8,12 @@
 # Working directory - location of the MCI pipeline code
 working_dir <- "~/netshare/M/Projects/PracEffects_GEE"
 
+# Directory containing the MCI pipeline scripts
+mci_scripts_dir <- file.path(working_dir, "code/pe_gee_manuscript/03_MCI_pipeline")
+
 # Input file - Practice effects and AFQT-adjusted cognitive data
 input_cog_data <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"
-input_cog_data <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_raw_afqt-adjusted.csv"
+# input_cog_data <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_raw_afqt-adjusted.csv"
 
 # Admin file with demographic data
 admin_file <- "~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat"
