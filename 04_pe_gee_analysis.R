@@ -30,55 +30,55 @@ setwd("~/netshare/M/Projects/PracEffects_GEE")
 admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
 # Load model estimates of practice effects
-pe_estimates <- read.csv("results/gee_standardized_results_complete_2025-05-14.csv")
+pe_estimates <- read.csv("results/gee_standardized_results_complete_2025-05-17.csv")
 
 # Load raw and adjusted cognitive test scores
-tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-14.csv")
-tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-14.csv")
+tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv")
+tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv")
 
 # Load raw and adjusted cognitive factor scores
-factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-05-14.csv")
-factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-14.csv")
+factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-05-17.csv")
+factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-17.csv")
 
 # Load raw and adjusted MCI diagnosis
-mci_v1_raw <- read.csv("data/output_data/vetsa1_mci_raw_2025-05-15.csv")
-mci_v2_raw <- read.csv("data/output_data/vetsa2_mci_raw_2025-05-15.csv")
-mci_v3_raw <- read.csv("data/output_data/vetsa3_mci_raw_2025-05-15.csv")
-mci_v4_raw <- read.csv("data/output_data/vetsa4_mci_raw_2025-05-15.csv")
+mci_v1_raw <- read.csv("data/output_data/vetsa1_mci_raw_2025-05-17.csv")
+mci_v2_raw <- read.csv("data/output_data/vetsa2_mci_raw_2025-05-17.csv")
+mci_v3_raw <- read.csv("data/output_data/vetsa3_mci_raw_2025-05-17.csv")
+mci_v4_raw <- read.csv("data/output_data/vetsa4_mci_raw_2025-05-17.csv")
 
-mci_v1_adj <- read.csv("data/output_data/vetsa1_mci_adjusted_2025-05-15.csv")
-mci_v2_adj <- read.csv("data/output_data/vetsa2_mci_adjusted_2025-05-15.csv")
-mci_v3_adj <- read.csv("data/output_data/vetsa3_mci_adjusted_2025-05-15.csv")
-mci_v4_adj <- read.csv("data/output_data/vetsa4_mci_adjusted_2025-05-15.csv")
+mci_v1_adj <- read.csv("data/output_data/vetsa1_mci_adjusted_2025-05-17.csv")
+mci_v2_adj <- read.csv("data/output_data/vetsa2_mci_adjusted_2025-05-17.csv")
+mci_v3_adj <- read.csv("data/output_data/vetsa3_mci_adjusted_2025-05-17.csv")
+mci_v4_adj <- read.csv("data/output_data/vetsa4_mci_adjusted_2025-05-17.csv")
 
-#-----------------------------------------------#
-#     Remove V1NE subjects from all datasets    #
-#-----------------------------------------------#
-
-# Get list of V1NE participants
-v1ne_subjs <- admin %>% 
-  filter(grepl("V1NE", VGRP_procvar)) %>%
-  pull(vetsaid)
-
-# Create function to remove V1NE subjects from a dataset
-remove_v1ne <- function(data) {
-  data %>% 
-    filter(!VETSAID %in% v1ne_subjs)
-}
-
-# Remove V1NE subjects from all datasets
-tests_raw <- remove_v1ne(tests_raw)
-tests_adj <- remove_v1ne(tests_adj)
-factors_raw <- remove_v1ne(factors_raw)
-factors_adj <- remove_v1ne(factors_adj)
-mci_v1_raw <- remove_v1ne(mci_v1_raw)
-mci_v2_raw <- remove_v1ne(mci_v2_raw)
-mci_v3_raw <- remove_v1ne(mci_v3_raw)
-mci_v4_raw <- remove_v1ne(mci_v4_raw)
-mci_v1_adj <- remove_v1ne(mci_v1_adj)
-mci_v2_adj <- remove_v1ne(mci_v2_adj)
-mci_v3_adj <- remove_v1ne(mci_v3_adj)
-mci_v4_adj <- remove_v1ne(mci_v4_adj)
+# #-----------------------------------------------#
+# #     Remove V1NE subjects from all datasets    #
+# #-----------------------------------------------#
+# 
+# # Get list of V1NE participants
+# v1ne_subjs <- admin %>% 
+#   filter(grepl("V1NE", VGRP_procvar)) %>%
+#   pull(vetsaid)
+# 
+# # Create function to remove V1NE subjects from a dataset
+# remove_v1ne <- function(data) {
+#   data %>% 
+#     filter(!VETSAID %in% v1ne_subjs)
+# }
+# 
+# # Remove V1NE subjects from all datasets
+# tests_raw <- remove_v1ne(tests_raw)
+# tests_adj <- remove_v1ne(tests_adj)
+# factors_raw <- remove_v1ne(factors_raw)
+# factors_adj <- remove_v1ne(factors_adj)
+# mci_v1_raw <- remove_v1ne(mci_v1_raw)
+# mci_v2_raw <- remove_v1ne(mci_v2_raw)
+# mci_v3_raw <- remove_v1ne(mci_v3_raw)
+# mci_v4_raw <- remove_v1ne(mci_v4_raw)
+# mci_v1_adj <- remove_v1ne(mci_v1_adj)
+# mci_v2_adj <- remove_v1ne(mci_v2_adj)
+# mci_v3_adj <- remove_v1ne(mci_v3_adj)
+# mci_v4_adj <- remove_v1ne(mci_v4_adj)
 
 
 #-------------------------------------------#
@@ -572,7 +572,8 @@ mci_long <- mci_long %>%
             ~ factor(., levels = c(0, 1), labels = c("CU", "MCI"))) %>%
   mutate(Adjustment = factor(Adjustment, levels = c("Uncorrected", "PE-corrected"))) 
 
- 
+
+
 #---------------------------------#
 #     Summary tables of MCI dx    #
 #---------------------------------#
@@ -598,6 +599,13 @@ anymci_tab <- print(CreateTableOne(vars = anymci_vars,
 anymci_tab_outfile = paste0("results/mci_rates_anyMCI_", Sys.Date(), ".csv")
 write.csv(anymci_tab, anymci_tab_outfile)
 
+# Run chisq test for each wave
+for (i in 1:4) {
+  wave_var <- paste0("anyMCI_V", i)
+  chisq_test <- chisq.test(table(mci_long$Adjustment, mci_long[[wave_var]]))
+  print(paste("Chi-squared test for wave", i))
+  print(chisq_test)
+}
 
 #------------------------#
 #     Plots of MCI dx    #

@@ -21,8 +21,8 @@ library(haven)
 # Define the input and output file paths
 setwd("~/netshare/M/Projects/PracEffects_GEE")
 
-input_file <- "data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-14.csv"
-# input_file <- "data/raw_data/V1V2V3V4_cog_data_raw_2025-05-14.csv"
+input_file <- "data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv"
+# input_file <- "data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv"
 
 output_file <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"
 # output_file <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_raw_afqt-adjusted.csv"

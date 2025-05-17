@@ -16,9 +16,9 @@ setwd("~/netshare/M/Projects/PracEffects_GEE")
 # Load admin data and get age 
 admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
-# Remove V1NE participants
-admin <- admin %>% 
-  filter(!grepl("V1NE", VGRP_procvar))
+# # Remove V1NE participants
+# admin <- admin %>% 
+#   filter(!grepl("V1NE", VGRP_procvar))
 
 # Select only the columns we need
 admin <- admin %>% select(VETSAID=vetsaid, starts_with("AGE"))
@@ -28,7 +28,7 @@ nas201 <- read.csv("~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive meas
 nas201 <- nas201 %>% rename_all(toupper)
 
 # Load in raw (unadjusted) outcome data. These are variables we want to adjust for PEs
-outcome_data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-14.csv", stringsAsFactors = FALSE)
+outcome_data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv", stringsAsFactors = FALSE)
 
 # Merge age 20 afqt into outcome data
 outcome_data <- outcome_data %>% 

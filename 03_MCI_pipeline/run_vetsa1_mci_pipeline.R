@@ -15,11 +15,10 @@ mci_scripts_dir <- file.path(working_dir, "code/pe_gee_manuscript/03_MCI_pipelin
 input_cog_data <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_pe-adjusted_afqt-adjusted.csv"
 # input_cog_data <- "data/intermediate_data/MCI_01_V1V2V3V4_cog_data_raw_afqt-adjusted.csv"
 
-
 # Admin file with demographic data
 admin_file <- "~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat"
 
-# Merge file for exclusion criteria
+# Master data file for clinical exclusion criteria
 merge_file <- "~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/VETSA 1 Aging/vetsa1merged_22dec2016_nomiss.sas7bdat"
 
 # Brain cancer IDs file 

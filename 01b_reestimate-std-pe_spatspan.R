@@ -16,9 +16,14 @@ setwd("~/netshare/M/Projects/PracEffects_GEE")
 # Load admin data and get age 
 admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
-# Remove V1NE participants
-admin <- admin %>% 
-  filter(!grepl("V1NE", VGRP_procvar))
+# Get list of V1NE participants
+v1ne_subjs <- admin %>% 
+  filter(grepl("V1NE", VGRP_procvar)) %>%
+  pull(vetsaid)
+
+# # Remove V1NE participants
+# admin <- admin %>% 
+#   filter(!grepl("V1NE", VGRP_procvar))
 
 # Select only the columns we need
 admin <- admin %>% select(VETSAID=vetsaid, starts_with("AGE"))
@@ -28,7 +33,7 @@ nas201 <- read.csv("~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive meas
 nas201 <- nas201 %>% rename_all(toupper)
 
 # Load in raw (unadjusted) outcome data. These are variables we want to adjust for PEs
-outcome_data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-14.csv", stringsAsFactors = FALSE)
+outcome_data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv", stringsAsFactors = FALSE)
 
 # Merge age 20 afqt into outcome data
 outcome_data <- outcome_data %>% 
@@ -63,6 +68,12 @@ outcome_data_long <- outcome_data %>%
 outcome_data_long <- outcome_data_long %>% 
   arrange(VETSAID, WAVE)
 
+# For purposes of creating accurate GAP and SKIP data, V1NE subjects need to 
+# be recoded to change WAVE==1 to WAVE==2. This will be recoded back to WAVE==1
+# after the assessment information is created.
+outcome_data_long <- outcome_data_long %>%
+  mutate(WAVE = ifelse(VETSAID %in% v1ne_subjs & WAVE == 1, 2, WAVE))
+
 # Create several variables:
 #   ASSESSMENT: how many assessments has an individual completed?
 #   GAP: how many waves have elapsed since last assessment?
@@ -88,6 +99,11 @@ assessment_outcome_long <- assessment_outcome_long %>%
          WAVE2_ASSESSMENT2 = ifelse(WAVE == 2 & ASSESSMENT == 2, 1, 0),
          WAVE3_ASSESSMENT2 = ifelse(WAVE == 3 & ASSESSMENT == 2, 1, 0),
          WAVE3_ASSESSMENT3 = ifelse(WAVE == 3 & ASSESSMENT == 3, 1, 0))
+
+# Recode WAVE back to original value for V1NE subjects.
+assessment_outcome_long <- assessment_outcome_long %>%
+  mutate(WAVE = ifelse(VETSAID %in% v1ne_subjs & WAVE == 2, 1, WAVE),
+         WAVE2 = ifelse(VETSAID %in% v1ne_subjs & WAVE == 1, 0, WAVE2))
 
 # Pivot age file to long format
 admin_long <- admin %>% 

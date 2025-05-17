@@ -61,14 +61,14 @@ V1V2V3V4_CogData_PE <- read_csv(input_cog_data)
 admin_data <- read_sas(admin_file, NULL)
 names(admin_data) <- toupper(names(admin_data))
 
-# Remove V1NE participants if VGRP_procvar exists
-if("VGRP_PROCVAR" %in% toupper(names(admin_data))) {
-  admin_data <- admin_data %>% 
-    filter(!grepl("V1NE", VGRP_PROCVAR))
-} else if("vgrp_procvar" %in% names(admin_data)) {
-  admin_data <- admin_data %>% 
-    filter(!grepl("V1NE", vgrp_procvar))
-}
+# # Remove V1NE participants if VGRP_procvar exists
+# if("VGRP_PROCVAR" %in% toupper(names(admin_data))) {
+#   admin_data <- admin_data %>% 
+#     filter(!grepl("V1NE", VGRP_PROCVAR))
+# } else if("vgrp_procvar" %in% names(admin_data)) {
+#   admin_data <- admin_data %>% 
+#     filter(!grepl("V1NE", vgrp_procvar))
+# }
 
 # Convert all variable names to uppercase
 names(V1V2V3V4_CogData_PE) <- toupper(names(V1V2V3V4_CogData_PE))

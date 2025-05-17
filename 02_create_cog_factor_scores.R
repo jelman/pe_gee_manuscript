@@ -16,22 +16,22 @@ setwd("~/netshare/M/Projects/PracEffects_GEE")
 
 ### Set input data file. This should either be the raw or PE adjusted data.
 # Adjusted
-data <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-14.csv",head=T, stringsAsFactors = F)           
+data <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv",head=T, stringsAsFactors = F)           
 # # Raw
-# data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-14.csv",head=T, stringsAsFactors = F)
+# data <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv",head=T, stringsAsFactors = F)
 
 ### Set output file name. This should correspond to either the raw of PE adjusted data.
 # Adjusted
-outfile = "data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-14.csv"
+outfile = "data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-17.csv"
 # # Raw
-# outfile = "data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-05-14.csv"
+# outfile = "data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-05-17.csv"
 
 # Load admin file
 admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
-# remove V1NE participants
-admin <- admin %>% 
-  filter(!grepl("V1NE", VGRP_procvar)) 
+# # remove V1NE participants
+# admin <- admin %>% 
+#   filter(!grepl("V1NE", VGRP_procvar)) 
 
 # Rename to uppercase
 admin <- admin %>% rename_all(toupper)
