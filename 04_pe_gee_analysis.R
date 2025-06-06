@@ -18,6 +18,7 @@ library(parameters)
 library(tableone)
 library(flextable)
 library(haven)
+library(geepack)
 
 #---------------------------------#
 # Set directories and load data   #
@@ -374,34 +375,40 @@ factors_long$Adjustment = factor(factors_long$Adjustment, levels = c("Unadjusted
 
 # Test for differences in adjustment by domain and wave
 # Memory
-memory_summ = lmer(memory ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
-  model_parameters() %>% mutate(Domain = "Episodic memory")
+memory_summ = geeglm(memory ~ WAVE * Adjustment, family = gaussian, id = factors_long$VETSAID, data = factors_long) %>%
+model_parameters() %>% mutate(Domain = "Episodic memory")
 # Executive Function
-ef_summ = lmer(commonEF ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
-  model_parameters()  %>% mutate(Domain = "Executive function")
+ef_summ = geeglm(commonEF ~ WAVE * Adjustment, family = gaussian, id = factors_long$VETSAID, data = factors_long) %>%
+model_parameters()  %>% mutate(Domain = "Executive function")
 # Fluency
-fluency_summ = lmer(fluency ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
-  model_parameters() %>% mutate(Domain = "Fluency")
+fluency_summ = geeglm(fluency ~ WAVE * Adjustment, family = gaussian, id = factors_long$VETSAID, data = factors_long) %>%
+model_parameters() %>% mutate(Domain = "Fluency")
 # Processing Speed
-speed_summ = lmer(speed ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
-  model_parameters() %>% mutate(Domain = "Processing speed")
+speed_summ = geeglm(speed ~ WAVE * Adjustment, family = gaussian, id = factors_long$VETSAID, data = factors_long) %>%
+model_parameters() %>% mutate(Domain = "Processing speed")
 # Visual Memory
-vis_mem_summ = lmer(vis_mem ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
-  model_parameters() %>% mutate(Domain = "Visual memory")
+vis_mem_summ = geeglm(vis_mem ~ WAVE * Adjustment, family = gaussian, id = factors_long$VETSAID, data = factors_long) %>%
+model_parameters() %>% mutate(Domain = "Visual memory")
 # Visuospatial
-vis_spat_summ = lmer(vis_spat ~ WAVE * Adjustment + (1|VETSAID), data = factors_long) %>% 
-  model_parameters() %>% mutate(Domain = "Visuospatial")
+vis_spat_summ = geeglm(vis_spat ~ WAVE * Adjustment, family = gaussian, id = factors_long$VETSAID, data = factors_long) %>%
+model_parameters() %>% mutate(Domain = "Visuospatial")
 
 # Combine results
 factors_diff_test <- bind_rows(memory_summ, ef_summ, fluency_summ, speed_summ, vis_mem_summ, vis_spat_summ) 
 
-factors_diff_test_table <- factors_diff_test %>% 
-  flextable() %>% 
-  theme_apa() %>%
-  colformat_double(digits=3) %>% 
-  merge_v("Domain") %>% 
-  valign(j="Domain", valign="top") %>%
-  autofit()
+# Create summary table
+factors_diff_test_table <- factors_diff_test %>%
+filter(grepl(":", Parameter)) %>%
+mutate(Parameter = gsub("PE_corrected","",Parameter)) %>%
+select(Domain, everything(), -CI, -Chi2, -df_error) %>%
+flextable() %>%
+colformat_double(digits=3) %>%
+merge_v("Domain") %>%
+hline(i = rle(cumsum(.$body$spans$columns[,1] ))$values) %>%
+fix_border_issues(.) %>%
+theme_apa() %>%
+autofit()
+
 
 # Save summary table
 factors_diff_test_outname = paste0("results/factors_diff_test_summary_", Sys.Date(), ".docx")
