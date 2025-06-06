@@ -60,12 +60,16 @@ admin = admin %>%
   mutate(
     Race = case_when(
       RACEALL==1 ~ "American Indian or Alaskan Native",
+      RACEALL==2 ~ "Asian",
+      RACEALL==3 ~ "Native Hawaiian or Pacific Islander",
       RACEALL==4 ~ "Black or African-American",
       RACEALL==5 ~ "White",
-      RACEALL==6 ~ "More than one race"),
+      RACEALL==6 ~ "More than one race",
+      RACEALL==7 ~ "Decline to answer",),
     Ethnicity = case_when(
       ETHNALL==1 ~ "Hispanic",
-      ETHNALL==2 ~ "Non-Hispanic")
+      ETHNALL==2 ~ "Non-Hispanic",
+      ETHNALL==3 ~ "Decline to answer")
     ) %>%
   mutate_at(vars(RACEALL, ETHNALL), ~ as.factor(.)) 
 
@@ -122,7 +126,8 @@ age_plot <- ggplot(admin_long, aes(x=AGE, y=fct_rev(GROUP), fill=factor(WAVE), a
   theme_minimal() +
   labs(x="Age", y="") +
   theme(
-    panel.background = element_rect(fill="white"),
+    panel.background = element_rect(fill="white", color="white"),
+    panel.border = element_blank(),
     legend.position="none",
     axis.title=element_text(size=14),
     axis.text=element_text(size=12)
@@ -132,7 +137,10 @@ age_plot <- ggplot(admin_long, aes(x=AGE, y=fct_rev(GROUP), fill=factor(WAVE), a
 age_upset_plot <- ggpubr::ggarrange(upset_plot, age_plot, 
                   nrow =1, 
                   labels="AUTO", 
-                  font.label = list(size = 24)) +  bgcolor("white") 
+                  font.label = list(size = 24)) +  bgcolor("white") +
+  theme(plot.background = element_rect(fill="white", color="white"),
+        panel.background = element_rect(fill="white", color="white"),
+        panel.border = element_blank())
 
 # Save plot
 age_upset_plot_outname = paste0("results/age_upset_plots_", Sys.Date(), ".svg")
