@@ -291,7 +291,7 @@ factors_adj_long <- factors_adj %>%
                names_to = c(".value", "WAVE"), 
                names_pattern = "(.+?)_V(.$)",
                values_drop_na = TRUE) %>%
-  mutate(Adjustment = "PE_corrected")
+  mutate(Adjustment = "PE-adjusted")
 
 # Bind raw and adjusted data
 factors_long <- factors_raw_long %>% 
@@ -323,7 +323,7 @@ factors_long_domain <- factors_long_domain %>%
 # Get difference scores for each domain
 factors_diff <- factors_long_domain %>%
   pivot_wider(names_from = Adjustment, values_from = Score) %>%
-  mutate(Diff = Unadjusted - PE_corrected)
+  mutate(Diff = Unadjusted - `PE-adjusted`)
 
 # Get summary statistics of difference scores by wave and domain
 factors_diff_summary <- factors_diff %>%
@@ -371,7 +371,8 @@ save_as_docx(factors_diff_summary_4tp, path = factors_diff_4tp_outname)
 
 ### Test for differences in adjustment by domain and wave ###
 factors_long$WAVE = as.factor(factors_long$WAVE)
-factors_long$Adjustment = factor(factors_long$Adjustment, levels = c("Unadjusted", "PE_corrected"))
+factors_long$Adjustment = factor(factors_long$Adjustment, levels = c("Unadjusted", "PE-adjusted"))
+factors_long$VETSAID = as.factor(factors_long$VETSAID)
 
 # Test for differences in adjustment by domain and wave
 # Memory
@@ -399,7 +400,7 @@ factors_diff_test <- bind_rows(memory_summ, ef_summ, fluency_summ, speed_summ, v
 # Create summary table
 factors_diff_test_table <- factors_diff_test %>%
 filter(grepl(":", Parameter)) %>%
-mutate(Parameter = gsub("PE_corrected","",Parameter)) %>%
+mutate(Parameter = gsub("PE-adjusted","",Parameter)) %>%
 select(Domain, everything(), -CI, -Chi2, -df_error) %>%
 flextable() %>%
 colformat_double(digits=3) %>%
