@@ -33,6 +33,9 @@ admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vet
 # Load model estimates of practice effects
 pe_estimates <- read.csv("results/gee_standardized_results_complete_2025-05-17.csv")
 
+# Load cognitive test names
+cog_test_names <- read.csv("docs/test_abbreviations.csv")
+
 # Load raw and adjusted cognitive test scores
 tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv")
 tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv")
@@ -168,13 +171,19 @@ models_of_interest <- c("WAVE2_ASSESSMENT2",
                         "WAVE3_ASSESSMENT3", 
                         "WAVE4_ASSESSMENT4")
 
+# Merge in test names
+pe_estimates_long <- pe_estimates_long %>%
+  left_join(cog_test_names, by = "term") 
+
 pe_plot_df <- pe_estimates_long %>%
   filter(Assessment %in% models_of_interest,
          term %in% order_of_tests) %>%
   mutate(Model = factor(Model),
          Assessment = factor(Assessment)) %>%
-  arrange(desc(Domain), desc(term)) %>%  # Arrange data by domain and term in descending order
-  mutate(term = factor(term, levels = unique(term)))  # Set order of terms
+  arrange(desc(Domain), desc(measure)) %>%  # Arrange data by domain and term in descending order
+  mutate(measure = factor(measure, levels = unique(measure)))  # Set order of terms
+
+
 
 #---------------------------------------------------------------#
 # Descriptive statistics of estimated practice effects          #
@@ -220,7 +229,7 @@ d3_colors <- pal_d3()(8)  # Get 8 additional colors (black is first color)
 custom_d3 <- c("black", d3_colors)  # Add black as first color
 
 # Create annotated forest plot that includes estimates and CIs
-forest_plot <- ggplot(pe_plot_df, aes(x = term, y = estimate, 
+forest_plot <- ggplot(pe_plot_df, aes(x = measure, y = estimate, 
                                       ymin = conf.low, ymax = conf.high, 
                                       color = Domain)) +
   geom_point(position = position_dodge(width = 0.5)) +
@@ -230,7 +239,7 @@ forest_plot <- ggplot(pe_plot_df, aes(x = term, y = estimate,
   facet_wrap(~ Model) +
   ylab("Practice Effect Estimates (SD units)") + xlab("") +
   geom_text(data = text_df, 
-            aes(x = term, y = max_y * 1.5, # Adjust position of text (change scale_y_continuous as well)  
+            aes(x = measure, y = max_y * 1.5, # Adjust position of text (change scale_y_continuous as well)  
                 label = text_label),
             hjust = 1,
             color = "black",
@@ -540,7 +549,7 @@ mci_raw <- mci_v1_raw %>%
   full_join(mci_v3_raw %>% select(VETSAID, rMCI_cons_V3), by = "VETSAID") %>%
   full_join(mci_v4_raw %>% select(VETSAID, rMCI_cons_V4), by = "VETSAID") %>%
   # filter(!is.na(rMCI_cons_V1) & !is.na(rMCI_cons_V2) & !is.na(rMCI_cons_V3) & !is.na(rMCI_cons_V4)) %>%
-  mutate(Adjustment = "Uncorrected")
+  mutate(Adjustment = "Unadjusted")
 
 # Join all waves of diagnosis data based on adjusted scores
 mci_adj <- mci_v1_adj %>%
@@ -549,7 +558,7 @@ mci_adj <- mci_v1_adj %>%
   full_join(mci_v3_adj %>% select(VETSAID, rMCI_cons_V3), by = "VETSAID") %>%
   full_join(mci_v4_adj %>% select(VETSAID, rMCI_cons_V4), by = "VETSAID") %>%
   # filter(!is.na(rMCI_cons_V1) & !is.na(rMCI_cons_V2) & !is.na(rMCI_cons_V3) & !is.na(rMCI_cons_V4)) %>%
-  mutate(Adjustment = "PE-corrected")
+  mutate(Adjustment = "PE-adjusted")
 
 # Create anyMCI variables for raw data
 mci_raw <- mci_raw %>%
@@ -618,7 +627,7 @@ mci_long <- mci_long %>%
                      labels = c("CU", "nonamn sMCI", "amn sMCI", "nonamn mMCI", "amn mMCI"))) %>%
   mutate_at(vars(starts_with("anyMCI")), 
             ~ factor(., levels = c(0, 1), labels = c("CU", "MCI"))) %>%
-  mutate(Adjustment = factor(Adjustment, levels = c("Uncorrected", "PE-corrected"))) 
+  mutate(Adjustment = factor(Adjustment, levels = c("Unadjusted", "PE-adjusted"))) 
 
 
 
