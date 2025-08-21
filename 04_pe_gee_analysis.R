@@ -41,8 +41,8 @@ tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv")
 tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv")
 
 # Load raw and adjusted cognitive factor scores
-factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-05-17.csv")
-factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-17.csv")
+factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-08-20.csv")
+factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-08-20.csv")
 
 # Load raw and adjusted MCI diagnosis
 mci_v1_raw <- read.csv("data/output_data/vetsa1_mci_raw_2025-05-17.csv")
@@ -159,12 +159,12 @@ pe_estimates_long$Model <- pe_estimates_long$Assessment %>%
     "WAVE3" = "AR 3 baseline",
     "SKIP1" = "Skipped 1 assessment",
     "SKIP2" = "Skipped 2 assessments",
-    "WAVE2_ASSESSMENT2" = "Follow-up 1",
-    "WAVE3_ASSESSMENT3" = "Follow-up 2",
-    "WAVE4_ASSESSMENT4" = "Follow-up 3",
-    "WAVE3_ASSESSMENT2" = "Follow-up 1, wave 4",
-    "WAVE4" = "Follow-up 1, wave 4",
-    "WAVE4_ASSESSMENT3" = "Follow-up 2, wave 4",
+    "WAVE2_ASSESSMENT2" = "Follow-up 1 (wave 2)",
+    "WAVE3_ASSESSMENT3" = "Follow-up 2 (wave 3)",
+    "WAVE4_ASSESSMENT4" = "Follow-up 3 (wave 4)",
+    "WAVE3_ASSESSMENT2" = "Follow-up 1 (wave 4)",
+    "WAVE4" = "Follow-up 1 (wave 4)",
+    "WAVE4_ASSESSMENT3" = "Follow-up 2 (wave 4)",
   )
 
 models_of_interest <- c("WAVE2_ASSESSMENT2",  
@@ -232,8 +232,8 @@ custom_d3 <- c("black", d3_colors)  # Add black as first color
 forest_plot <- ggplot(pe_plot_df, aes(x = measure, y = estimate, 
                                       ymin = conf.low, ymax = conf.high, 
                                       color = Domain)) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  geom_errorbar(position = position_dodge(width = 0.5), width = 0.3) +
+  geom_point(size = 2, position = position_dodge(width = 0.5)) +
+  geom_errorbar(linewidth = 1, position = position_dodge(width = 0.5), width = 0.3) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
   coord_flip() +
   facet_wrap(~ Model) +
@@ -251,10 +251,11 @@ forest_plot <- ggplot(pe_plot_df, aes(x = measure, y = estimate,
         panel.grid.major.y = element_blank(),
         legend.position = "bottom",
         legend.title = element_blank(),
-        legend.text = element_text(size = 11),
+        legend.text = element_text(face = "bold", size = 14),
         strip.background = element_blank(),
-        strip.text = element_text(face = "bold", size = 12),
-        axis.title = element_text(size = 12))
+        strip.text = element_text(face = "bold", size = 14),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12))
 
 # Save out forest plot
 forestplot_name = paste0("results/forest_plot_", Sys.Date(), ".svg")
@@ -459,26 +460,26 @@ factor_score_summary$Domain <- factor(factor_score_summary$Domain,
 
 # Create line plot of cognitive score trajectories across wave. Facet by domain.
 factor_score_summary_plot <- ggplot(factor_score_summary, aes(x = WAVE, y = Mean, color=Domain)) +
-  geom_point(aes(shape = Adjustment)) +
-  geom_line(aes(linetype = Adjustment)) +
-  geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = 0.2) +
+  geom_point(size = 2, aes(shape = Adjustment)) +
+  geom_line(linewidth = 1, aes(linetype = Adjustment)) +
+  geom_errorbar(linewidth = 1, aes(ymin = Mean - SE, ymax = Mean + SE), width = 0.2) +
   facet_wrap(~ Domain, scales = "free_y") +
   ylab("Score (SD units)") + xlab("Wave") +
   scale_color_d3(guide = "none") + # Use standard d3 palette because no GCA
-  theme_bw(14) +
+  theme_bw(18) +
   theme(text = element_text(family = "Arial"),
         panel.grid.major.y = element_blank(),
         legend.position = "bottom",
         legend.title = element_blank(),
-        legend.text = element_text(size = 18),
+        legend.text = element_text(face = "bold", size = 18),
         strip.background = element_blank(),
         strip.text = element_text(face = "bold", size = 18),
-        axis.title = element_text(size = 18))
+        axis.title = element_text(face = "bold", size = 18))
 
 # Save plot
-factor_score_outname = paste0("results/factor_score_plot_", Sys.Date(), ".svg")
+factor_score_outname = paste0("results/factor_score_plot_", Sys.Date(), ".png")
 ggsave(factor_score_outname, factor_score_summary_plot, width = 12, height = 8, 
-       device = "svg", dpi = 300)
+       device = "png", dpi = 300)
 
 
 # Create dataframe with mean and within-subject SE of cognitive factor scores by Adjustment and Domain
@@ -721,26 +722,25 @@ anymci_percentages <- anymci_percentages %>%
 # Step 3: Create bar plot
 anymci_plot <- ggplot(anymci_percentages, aes(x = Wave, y = Percentage, fill = Adjustment)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.9), width = 0.8) +
-  geom_text(aes(label = sprintf("%.1f%%", Percentage)), 
-            position = position_dodge(width = 0.9), 
-            vjust = -0.5, 
-            size = 5) +
+  geom_text(aes(label = sprintf("%.1f%%", Percentage)),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5,
+            size = 6) +
   labs(
     x = "Wave",
     y = "MCI diagnosis (%)",
-    fill = NULL
-  ) +
-  scale_fill_manual(values = c("gray74","gray33")) + 
+    fill = NULL) +
+  scale_fill_manual(values = c("gray74","gray33")) +
   theme_pubr() +
   theme(
     legend.position = "bottom",
-    legend.text = element_text(size = 14),
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 18, face = "bold")
-  )
+    legend.text = element_text(face="bold", size = 24),
+    axis.text = element_text(size = 18),
+    axis.title = element_text(size = 24, face = "bold")
+    )
 
 # Save plot
-anymci_plot_outname = paste0("results/mci_rates_plot_anyMCI_", Sys.Date(), ".svg")
+anymci_plot_outname = paste0("results/mci_rates_plot_anyMCI_", Sys.Date(), ".png")
 ggsave(anymci_plot_outname, anymci_plot, width = 12, height = 8, 
-       device = "svg", dpi = 300)
+       device = "png", dpi = 300)
 

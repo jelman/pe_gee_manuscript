@@ -100,8 +100,9 @@ upset_plot <- upset(
   set_sizes = 
     upset_set_size() + 
     geom_text(aes(label=..count..), hjust=1.1, stat="count") +
-    expand_limits(y=1600)
-  )
+    expand_limits(y=1600),
+  themes=upset_default_themes(text=element_text(face='bold', size=18)
+  ))
 
 
 # Pivot AGE and AR variables to long format. The suffix should indicate wave. 
@@ -120,7 +121,7 @@ admin_long <- admin_long %>%
 
 # Create a ridgeline plot with ggridges for AGE. 
 age_plot <- ggplot(admin_long, aes(x=AGE, y=fct_rev(GROUP), fill=factor(WAVE), alpha=factor(AR))) +
-  geom_density_ridges(scale=1.5, rel_min_height = 0.01) +
+  geom_density_ridges(scale=1.75, rel_min_height = 0.05) +
   scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73", "#D55E00")) +
   scale_alpha_manual(values=c("0"=1, "1"=0.5)) +
   theme_minimal() +
@@ -129,8 +130,8 @@ age_plot <- ggplot(admin_long, aes(x=AGE, y=fct_rev(GROUP), fill=factor(WAVE), a
     panel.background = element_rect(fill="white", color="white"),
     panel.border = element_blank(),
     legend.position="none",
-    axis.title=element_text(size=14),
-    axis.text=element_text(size=12)
+    axis.title=element_text(face="bold", size=18),
+    axis.text=element_text(face="bold", size=18)
   )
 
 # Combine plots
