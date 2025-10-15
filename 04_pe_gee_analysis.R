@@ -623,7 +623,7 @@ anymci_vars <- mci_long %>% select(contains("anyMCI")) %>% names()
 anymci_tab <- print(CreateTableOne(vars = anymci_vars, 
                                  strata = "Adjustment", 
                                  data = mci_long, 
-                                 test = TRUE), 
+                                 test = FALSE), 
                   quote = FALSE, noSpaces = TRUE, printToggle = TRUE) 
 anymci_tab_outfile = paste0("results/mci_rates_anyMCI_", Sys.Date(), ".csv")
 write.csv(anymci_tab, anymci_tab_outfile)
@@ -633,34 +633,103 @@ amn_vars <- mci_long %>% select(contains("amnMCI")) %>% names()
 amn_tab <- print(CreateTableOne(vars = amn_vars, 
                                  strata = "Adjustment", 
                                  data = mci_long, 
-                                 test = TRUE), 
+                                 test = FALSE), 
                   quote = FALSE, noSpaces = TRUE, printToggle = TRUE)
 amn_tab_outfile = paste0("results/mci_rates_amnMCI-nonamnMCI_", Sys.Date(), ".csv")
 write.csv(amn_tab, amn_tab_outfile)
 
-# Run chisq test of any MCI for each wave
-for (i in 1:4) {
-  wave_var <- paste0("anyMCI_V", i)
-  chisq_test <- chisq.test(table(mci_long$Adjustment, mci_long[[wave_var]]))
-  print(paste("Chi-squared test for wave", i))
-  print(chisq_test)
+## McNemar tests on paired counts (Unadjusted vs PE-adjusted) by wave
+## We'll collect counts of discordant diagnoses (CU -> MCI and MCI -> CU), compute p-values
+get_paired_table <- function(data, varname) {
+  wide <- data %>%
+    select(VETSAID, Adjustment, all_of(varname)) %>%
+    pivot_wider(names_from = Adjustment, values_from = all_of(varname))
+
+  # Convert to numeric 0/1 when possible; handle factor labels like 'MCI'/'CU'
+  convert_vec <- function(x) {
+    if (is.null(x)) return(rep(NA_real_, nrow(wide)))
+    if (is.factor(x) || is.character(x)) {
+      x_chr <- as.character(x)
+      return(ifelse(x_chr %in% c("MCI", "1"), 1,
+                    ifelse(x_chr %in% c("CU", "0"), 0, NA_real_)))
+    }
+    as.numeric(x)
+  }
+
+  wide$Unadjusted <- convert_vec(wide$Unadjusted)
+  wide$`PE-adjusted` <- convert_vec(wide$`PE-adjusted`)
+
+  # Keep only rows where at least one value is non-missing
+  wide <- wide %>% filter(!(is.na(Unadjusted) & is.na(`PE-adjusted`)))
+
+  # Build contingency table (rows = Unadjusted, cols = PE-adjusted)
+  tab <- table(wide$Unadjusted, wide$`PE-adjusted`)
+  list(tab = tab, n = nrow(wide), wide = wide)
 }
 
-# Run chisq test of amnMCI for each wave
-for (i in 1:4) {
-  wave_var <- paste0("amnMCI_V", i)
-  chisq_test <- chisq.test(table(mci_long$Adjustment, mci_long[[wave_var]]))
-  print(paste("Chi-squared test for wave", i))
-  print(chisq_test)
+# Compute and save a summary table of discordant diagnoses
+results_list <- list()
+for (prefix in c("anyMCI", "amnMCI", "nonamnMCI")) {
+  for (i in 1:4) {
+    wave_var <- paste0(prefix, "_V", i)
+    paired <- get_paired_table(mci_long, wave_var)
+    tab <- paired$tab
+    n_subj <- paired$n
+
+    # Initialize counts
+    b <- NA_integer_  # CU -> MCI (Unadjusted 0, PE-adjusted 1)
+    c <- NA_integer_  # MCI -> CU (Unadjusted 1, PE-adjusted 0)
+
+    if (length(dim(tab)) == 2 && all(dim(tab) == c(2,2))) {
+      # Ensure dimnames are '0' and '1'
+      rn <- rownames(tab); cn <- colnames(tab)
+      if (all(c("0","1") %in% rn) && all(c("0","1") %in% cn)) {
+        b <- as.integer(tab["0","1"])
+        c <- as.integer(tab["1","0"])
+      } else {
+        # If numeric names differ, try to coerce
+        b <- as.integer(tab[1,2])
+        c <- as.integer(tab[2,1])
+      }
+    }
+
+    total_discordant <- ifelse(is.na(b) || is.na(c), NA_integer_, b + c)
+
+    # Compute test: always use McNemar chi-square for discordant diagnoses when possible
+    p_val <- NA_real_; chi2_stat <- NA_real_; method <- NA_character_
+    if (!is.na(total_discordant) && total_discordant > 0) {
+      res <- tryCatch(mcnemar.test(tab), error = function(e) NULL)
+      if (!is.null(res)) {
+        p_val <- res$p.value
+        chi2_stat <- as.numeric(res$statistic)
+        method <- "McNemar chi-square"
+      }
+    }
+
+    results_list[[length(results_list) + 1]] <- tibble(
+      Type = prefix,
+      Wave = i,
+      n = n_subj,
+      discordant_diagnoses = total_discordant,
+      CU_to_MCI = b,
+      MCI_to_CU = c,
+      chi2_stat = chi2_stat,
+      p_value = p_val,
+      method = method
+    )
+  }
 }
 
-# Run chisq test of nonamnMCI for each wave
-for (i in 1:4) {
-  wave_var <- paste0("nonamnMCI_V", i)
-  chisq_test <- chisq.test(table(mci_long$Adjustment, mci_long[[wave_var]]))
-  print(paste("Chi-squared test for wave", i))
-  print(chisq_test)
-}
+mcnemar_summary <- bind_rows(results_list) %>%
+  mutate(Type = recode(Type, anyMCI = "Any MCI", amnMCI = "Amnestic MCI", nonamnMCI = "Non-amnestic MCI")) %>%
+  arrange(Type, Wave)
+
+# Save summary
+mcnemar_summary_out <- paste0("results/mci_test_summary_", Sys.Date(), ".csv")
+write.csv(mcnemar_summary, mcnemar_summary_out, row.names = FALSE)
+
+cat("McNemar summary (discordant diagnoses) saved to:", mcnemar_summary_out, "\n")
+print(mcnemar_summary)
 
 #------------------------#
 #     Plots of MCI dx    #
