@@ -55,35 +55,6 @@ mci_v2_adj <- read.csv("data/output_data/vetsa2_mci_adjusted_2025-05-17.csv")
 mci_v3_adj <- read.csv("data/output_data/vetsa3_mci_adjusted_2025-05-17.csv")
 mci_v4_adj <- read.csv("data/output_data/vetsa4_mci_adjusted_2025-05-17.csv")
 
-# #-----------------------------------------------#
-# #     Remove V1NE subjects from all datasets    #
-# #-----------------------------------------------#
-# 
-# # Get list of V1NE participants
-# v1ne_subjs <- admin %>% 
-#   filter(grepl("V1NE", VGRP_procvar)) %>%
-#   pull(vetsaid)
-# 
-# # Create function to remove V1NE subjects from a dataset
-# remove_v1ne <- function(data) {
-#   data %>% 
-#     filter(!VETSAID %in% v1ne_subjs)
-# }
-# 
-# # Remove V1NE subjects from all datasets
-# tests_raw <- remove_v1ne(tests_raw)
-# tests_adj <- remove_v1ne(tests_adj)
-# factors_raw <- remove_v1ne(factors_raw)
-# factors_adj <- remove_v1ne(factors_adj)
-# mci_v1_raw <- remove_v1ne(mci_v1_raw)
-# mci_v2_raw <- remove_v1ne(mci_v2_raw)
-# mci_v3_raw <- remove_v1ne(mci_v3_raw)
-# mci_v4_raw <- remove_v1ne(mci_v4_raw)
-# mci_v1_adj <- remove_v1ne(mci_v1_adj)
-# mci_v2_adj <- remove_v1ne(mci_v2_adj)
-# mci_v3_adj <- remove_v1ne(mci_v3_adj)
-# mci_v4_adj <- remove_v1ne(mci_v4_adj)
-
 
 #-------------------------------------------#
 #     Prep practice effect estimate data    #
@@ -695,52 +666,144 @@ for (i in 1:4) {
 #     Plots of MCI dx    #
 #------------------------#
 
-### Any MCI ###
+### MCI plots: Any, Amnestic, Non-amnestic ###
 
-# Step 1: Calculate MCI percentages by wave and adjustment method
-anymci_percentages <- mci_long %>%
-  group_by(Adjustment) %>%
-  summarize(
-    # For factor variables, we count the proportion where the factor equals "MCI"
-    MCI_V1 = mean(anyMCI_V1 == "MCI", na.rm = TRUE) * 100,
-    MCI_V2 = mean(anyMCI_V2 == "MCI", na.rm = TRUE) * 100,
-    MCI_V3 = mean(anyMCI_V3 == "MCI", na.rm = TRUE) * 100,
-    MCI_V4 = mean(anyMCI_V4 == "MCI", na.rm = TRUE) * 100,
-  )
-
-# Step 2: Convert to long format for plotting
-anymci_percentages <- anymci_percentages %>%
-  pivot_longer(
-    cols = starts_with("MCI_"),
-    names_to = "Wave",
-    values_to = "Percentage"
+# Prepare a tidy percentages dataframe for Any, Amnestic, Non-amnestic MCI by Adjustment and Wave
+mci_percentages_long <- mci_long %>%
+  select(VETSAID, Adjustment, starts_with("anyMCI"), starts_with("amnMCI"), starts_with("nonamnMCI")) %>%
+  # Ensure all selected indicator columns are the same type to avoid pivot_longer type-combine errors
+  mutate(across(starts_with("anyMCI") | starts_with("amnMCI") | starts_with("nonamnMCI"), as.character)) %>%
+  pivot_longer(cols = -c(VETSAID, Adjustment), names_to = "var", values_to = "value") %>%
+  mutate(
+    Type = case_when(
+      grepl("^anyMCI", var) ~ "Any MCI",
+      grepl("^amnMCI", var) ~ "Amnestic MCI",
+      grepl("^nonamnMCI", var) ~ "Non-amnestic MCI",
+      TRUE ~ NA_character_
+    ),
+    Wave = case_when(
+      grepl("_V1$", var) ~ "1",
+      grepl("_V2$", var) ~ "2",
+      grepl("_V3$", var) ~ "3",
+      grepl("_V4$", var) ~ "4",
+      TRUE ~ NA_character_
+    )
   ) %>%
-  mutate(Wave = factor(Wave, 
-                       levels = c("MCI_V1", "MCI_V2", "MCI_V3", "MCI_V4"),
-                       labels = c("1", "2", "3", "4")))
+  filter(!is.na(Type) & !is.na(Wave)) %>%
+  group_by(Type, Adjustment, Wave) %>%
+  summarize(Percentage = mean(value == "MCI" | value == 1, na.rm = TRUE) * 100,
+            n = sum(!is.na(value)), .groups = "drop")
 
-# Step 3: Create bar plot
-anymci_plot <- ggplot(anymci_percentages, aes(x = Wave, y = Percentage, fill = Adjustment)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.9), width = 0.8) +
+# Compute McNemar tests for paired difference between Unadjusted and PE-adjusted for each Type and Wave
+# We'll pivot wider to get the pairs per subject and run test per Type/Wave
+mcnemar_results <- mci_long %>%
+  select(VETSAID, Adjustment, starts_with("anyMCI"), starts_with("amnMCI"), starts_with("nonamnMCI")) %>%
+  # Coerce indicator columns to character so wide pivoting keeps consistent types
+  mutate(across(starts_with("anyMCI") | starts_with("amnMCI") | starts_with("nonamnMCI"), as.character)) %>%
+  pivot_longer(cols = -c(VETSAID, Adjustment), names_to = "var", values_to = "value") %>%
+  mutate(
+    Type = case_when(
+      grepl("^anyMCI", var) ~ "Any MCI",
+      grepl("^amnMCI", var) ~ "Amnestic MCI",
+      grepl("^nonamnMCI", var) ~ "Non-amnestic MCI",
+      TRUE ~ NA_character_
+    ),
+    Wave = case_when(
+      grepl("_V1$", var) ~ "1",
+      grepl("_V2$", var) ~ "2",
+      grepl("_V3$", var) ~ "3",
+      grepl("_V4$", var) ~ "4",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(Type) & !is.na(Wave)) %>%
+  # Convert values to numeric 0/1 for tests
+  mutate(valnum = case_when(
+    # After coercion, indicators may be characters '1'/'0' or labels 'MCI'/'CU'
+    value %in% c("MCI", "1") ~ 1,
+    value %in% c("CU", "0") ~ 0,
+    TRUE ~ NA_real_
+  )) %>%
+  select(-value)
+
+# Pivot so that each row is a subject x Type x Wave with Unadjusted and PE-adjusted columns
+mcnemar_df <- mcnemar_results %>%
+  pivot_wider(names_from = Adjustment, values_from = valnum)
+
+# Compute McNemar p-values per Type x Wave without relying on cur_data()/summarize internals
+mcnemar_df <- mcnemar_df %>%
+  group_by(Type, Wave) %>%
+  group_split() %>%
+  purrr::map_dfr(function(df_group) {
+    # Ensure the expected columns exist
+    if (!("Unadjusted" %in% names(df_group)) || !("PE-adjusted" %in% names(df_group))) {
+      return(tibble(Type = df_group$Type[1], Wave = df_group$Wave[1], p_value = NA_real_))
+    }
+    u <- df_group$Unadjusted
+    p <- df_group$`PE-adjusted`
+    # require at least one pair with non-missing values and at least one discordant pair
+    if (sum(!is.na(u) & !is.na(p)) > 0 && sum(u != p, na.rm = TRUE) > 0) {
+      pv <- tryCatch({
+        mcnemar.test(table(u, p))$p.value
+      }, error = function(e) NA_real_)
+    } else {
+      pv <- NA_real_
+    }
+    tibble(Type = df_group$Type[1], Wave = df_group$Wave[1], p_value = pv)
+  })
+
+# Join p-values back to percentages for annotation
+mci_percentages_long <- mci_percentages_long %>%
+  left_join(mcnemar_df, by = c("Type", "Wave")) %>%
+  mutate(signif = ifelse(!is.na(p_value) & p_value < 0.05, "*", ""))
+
+# Okabe-Ito base palette — pick orange and blue for Unadjusted vs PE-adjusted
+okabe_ito <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+# Map Adjustment -> color (orange for Unadjusted, blue for PE-adjusted)
+adj_colors <- c("Unadjusted" = okabe_ito[2], "PE-adjusted" = okabe_ito[6])
+
+# Prepare plot data: ensure Adjustment ordering
+mci_percentages_long <- mci_percentages_long %>%
+  mutate(Adjustment = factor(Adjustment, levels = c("Unadjusted", "PE-adjusted")))
+
+## Ensure Type ordering for facets
+mci_percentages_long <- mci_percentages_long %>%
+  mutate(Type = factor(Type, levels = c("Any MCI", "Amnestic MCI", "Non-amnestic MCI")))
+
+# Create faceted bar plot using paired shades; fill uses paste(Type, Adjustment, sep = "_") so keys match `fill_map`
+mci_plot <- ggplot(mci_percentages_long, aes(x = Wave, y = Percentage, fill = Adjustment)) +
+  geom_col(position = position_dodge(width = 0.9), width = 0.8, color = "black", size = 0.2) +
   geom_text(aes(label = sprintf("%.1f%%", Percentage)),
             position = position_dodge(width = 0.9),
             vjust = -0.5,
-            size = 6) +
-  labs(
-    x = "Wave",
-    y = "MCI diagnosis (%)",
-    fill = NULL) +
-  scale_fill_manual(values = c("gray74","gray33")) +
-  theme_pubr() +
-  theme(
-    legend.position = "bottom",
-    legend.text = element_text(face="bold", size = 24),
-    axis.text = element_text(size = 18),
-    axis.title = element_text(size = 24, face = "bold")
-    )
+            size = 4) +
+  facet_wrap(~ Type, scales = "fixed") +
+  scale_fill_manual(values = adj_colors, labels = c("Unadjusted", "PE-adjusted")) +
+  labs(x = "Wave", y = "MCI diagnosis (%)", fill = NULL) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+    legend.text = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10, face = "bold"),
+    axis.title = element_text(size = 12, face = "bold"),
+    strip.text = element_text(face = "bold", size = 14))
+
+
+# Add significance asterisks above the higher of the two bars for each Type/Wave where p<0.05
+# Compute y positions per Type/Wave
+ypos_df <- mci_percentages_long %>%
+  group_by(Type, Wave) %>%
+  summarize(max_y = max(Percentage, na.rm = TRUE),
+            p_value = first(p_value),
+            signif = first(signif), .groups = "drop") %>%
+  mutate(ypos = max_y + 3) # offset a bit
+
+# Add text annotations for significance
+mci_plot <- mci_plot +
+  geom_text(data = ypos_df %>% filter(signif == "*"),
+            aes(x = Wave, y = ypos, label = signif),
+            inherit.aes = FALSE, size = 8)
 
 # Save plot
-anymci_plot_outname = paste0("results/mci_rates_plot_anyMCI_", Sys.Date(), ".png")
-ggsave(anymci_plot_outname, anymci_plot, width = 12, height = 8, 
-       device = "png", dpi = 300)
+mci_plot_outname = paste0("results/mci_rates_plot_types_", Sys.Date(), ".png")
+ggsave(mci_plot_outname, mci_plot, width = 14, height = 6, device = "png", dpi = 300)
 
