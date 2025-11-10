@@ -41,8 +41,8 @@ tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv")
 tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv")
 
 # Load raw and adjusted cognitive factor scores
-factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-08-20.csv")
-factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-08-20.csv")
+factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-10-24.csv")
+factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-10-24.csv")
 
 # Load raw and adjusted MCI diagnosis
 mci_v1_raw <- read.csv("data/output_data/vetsa1_mci_raw_2025-05-17.csv")
@@ -60,33 +60,21 @@ mci_v4_adj <- read.csv("data/output_data/vetsa4_mci_adjusted_2025-05-17.csv")
 #     Prep practice effect estimate data    #
 #-------------------------------------------#
 
-### Define order of tests and test groups ###
+### Define order of scores and scores groups ###
 
-# Select tests of interest
-gca_tests <- c("AFQTPCTTRAN_R")
-epmem_tests <- c("LMITOT","LMDTOT","CVATOT","CVSDFR","CVLDFR")
-ef_tests <- c("TRL4TLOG","CSSACC","STRIT")
-fluency_tests <- c("LFCOR","CFCOR")
-speed_tests <- c("TRL2TLOG","TRL3TLOG","STRWRAW","STRCRAW","SRTGMEANLOG","CHRTGMEANLOG")
-wm_tests <- c("DSTOT","SSPTOTP","LNTOT","RSATOT")
-visspat_tests <- c("MR1COR","AFQTBXPCTTRAN_R","HFTOTCOR")
-vismem_tests <- c("VRCTOT","VRITOT","VRDTOT")
-abstract_tests <- c("MTXAGE")
+# Select scores used for cognitive factor scores. Additional tests used for MCI
+# dx are included at the end.
+episodic_cog_tests <- c("CVATOT","CVSDFR","CVLDFR","LMITOT","LMDTOT","VRITOT","VRDTOT")
+ef_cog_tests <- c("TRL4TLOG","CSSACC","STRIT","DSTOT","LNTOT","RSATOT")
+fluency_cog_tests <- c("LFCOR","CFCOR","CSCOR")
+speed_cog_tests <- c("TRL2TLOG","TRL3TLOG","STRWRAW","STRCRAW","SRTGMEANLOG","CHRTGMEANLOG")
+visspat_cog_tests <- c("MR1COR","HFTOTCOR","AFQTBXPCTTRAN_R")
+other_cog_tests <- c("TRL1TLOG","SSPTOTP","MTXAGE","VRCTOT")
 
-# Order of tests
-order_of_tests <- c(gca_tests, epmem_tests, ef_tests, fluency_tests, speed_tests, 
-                    wm_tests, visspat_tests, vismem_tests, abstract_tests)
+# Gather all domain scores
+cog_tests <- c(episodic_cog_tests, ef_cog_tests, fluency_cog_tests, 
+               speed_cog_tests, visspat_cog_tests, other_cog_tests)
 
-# # Grouping of tests. Each bracket is specified by label, first test, last test
-# test_groups <- list(
-#   epmem = c("Episodic memory", epmem_tests[1], epmem_tests[length(epmem_tests)]),
-#   ef = c("Executive function", ef_tests[1], ef_tests[length(ef_tests)]),
-#   fluency = c("Fluency", fluency_tests[1], fluency_tests[length(fluency_tests)]),
-#   speed = c("Processing speed", speed_tests[1], speed_tests[length(speed_tests)]),
-#   wm = c("Working memory", wm_tests[1], wm_tests[length(wm_tests)]),
-#   visspat = c("Visuospatial", visspat_tests[1], visspat_tests[length(visspat_tests)]),
-#   vismem = c("Visual memory", vismem_tests[1], vismem_tests[length(vismem_tests)])
-# )
 
 ### Prep data ###
 
@@ -96,29 +84,27 @@ pe_estimates_long <- pe_estimates %>%
                names_to = c(".value", "Assessment"), 
                names_pattern = "(.+?)_(.+)") %>%
   rename(term = outcome) %>%
-  filter(term %in% order_of_tests)
+  filter(term %in% cog_tests)
 
 # Add domain to pe_estimates_long. If term is in one of the lists above, assign the domain
 pe_estimates_long$Domain <- pe_estimates_long$term %>%
   recode_factor(
-    !!!setNames(rep("GCA", length(gca_tests)), gca_tests),
-    !!!setNames(rep("Episodic memory", length(epmem_tests)), epmem_tests),
-    !!!setNames(rep("Executive function", length(ef_tests)), ef_tests),
-    !!!setNames(rep("Fluency", length(fluency_tests)), fluency_tests),
-    !!!setNames(rep("Processing speed", length(speed_tests)), speed_tests),
-    !!!setNames(rep("Working memory", length(wm_tests)), wm_tests),
-    !!!setNames(rep("Visuospatial", length(visspat_tests)), visspat_tests),
-    !!!setNames(rep("Visual memory", length(vismem_tests)), vismem_tests),
-    !!!setNames(rep("Abstract reasoning", length(abstract_tests)), abstract_tests)
+    !!!setNames(rep("Episodic memory", length(episodic_cog_tests)), episodic_cog_tests),
+    !!!setNames(rep("Executive function", length(ef_cog_tests)), ef_cog_tests),
+    !!!setNames(rep("Fluency", length(fluency_cog_tests)), fluency_cog_tests),
+    !!!setNames(rep("Processing speed", length(speed_cog_tests)), speed_cog_tests),
+    !!!setNames(rep("Visuospatial", length(visspat_cog_tests)), visspat_cog_tests),
+    !!!setNames(rep("Other", length(other_cog_tests)), other_cog_tests)
   )
 
-# Set order of domain to be GCA, Episodic memory, Visual memory, Executive function, Fluency, Processing speed, Visuospatial
+# Set order of domain to be Episodic memory, Executive function, Fluency, Processing speed, Visuospatial, Other
 pe_estimates_long$Domain <- factor(pe_estimates_long$Domain, 
-                                   levels = c("GCA", "Episodic memory", 
+                                   levels = c("Episodic memory", 
                                               "Executive function", 
-                                              "Fluency", "Processing speed", 
-                                              "Working memory","Visuospatial",
-                                              "Visual memory", "Abstract reasoning"))
+                                              "Fluency", 
+                                              "Processing speed", 
+                                              "Visuospatial",
+                                              "Other"))
 
 ### Create "model" variable with descriptive versions of coefficient ###
 pe_estimates_long$Model <- pe_estimates_long$Assessment %>%
@@ -148,7 +134,7 @@ pe_estimates_long <- pe_estimates_long %>%
 
 pe_plot_df <- pe_estimates_long %>%
   filter(Assessment %in% models_of_interest,
-         term %in% order_of_tests) %>%
+         term %in% cog_tests) %>%
   mutate(Model = factor(Model),
          Assessment = factor(Assessment)) %>%
   arrange(desc(Domain), desc(measure)) %>%  # Arrange data by domain and term in descending order
@@ -196,8 +182,9 @@ text_df <- pe_plot_df %>%
   mutate(text_label = sprintf("%.2f (%.2f, %.2f)", estimate, conf.low, conf.high))
 
 # Custom d3 color palette. Black as added as first color for GCA in forest plot
-d3_colors <- pal_d3()(8)  # Get 8 additional colors (black is first color)
-custom_d3 <- c("black", d3_colors)  # Add black as first color
+d3_colors <- pal_d3()(5)  # Get 5  colors for cognitive domains
+custom_d3 <- c(d3_colors, "#7F7F7FFF")  # Add gray to end for Other tests
+# Should produce: "#1F77B4FF" "#FF7F0EFF" "#2CA02CFF" "#D62728FF" "#9467BDFF" "#7F7F7FFF"
 
 # Create annotated forest plot that includes estimates and CIs
 forest_plot <- ggplot(pe_plot_df, aes(x = measure, y = estimate, 
@@ -229,9 +216,9 @@ forest_plot <- ggplot(pe_plot_df, aes(x = measure, y = estimate,
         axis.text = element_text(size = 12))
 
 # Save out forest plot
-forestplot_name = paste0("results/forest_plot_", Sys.Date(), ".svg")
+forestplot_name = paste0("results/forest_plot_", Sys.Date(), ".tiff")
 ggsave(forestplot_name, forest_plot, width = 16, height = 8, 
-       device = "svg", dpi = 300)
+       device = "tiff", dpi = 300)
 
 # Version of plot without estimates and CIs
 forest_plot_no_text <- ggplot(pe_plot_df, aes(x = term, y = estimate, 
@@ -287,13 +274,12 @@ factors_long_domain <- factors_long %>%
 
 # Filter and rename factors
 factors_long_domain <- factors_long_domain %>%
-  filter(Domain %in% c("memory", "commonEF", "fluency", "speed", "vis_mem", "vis_spat")) %>%
+  filter(Domain %in% c("memory", "commonEF", "fluency", "speed", "vis_spat")) %>%
   mutate(Domain = recode(Domain, 
                          memory = "Episodic memory",
                          commonEF = "Executive function",
                          fluency = "Fluency",
                          speed = "Processing speed",
-                         vis_mem = "Visual memory",
                          vis_spat = "Visuospatial"))
 
 #--------------------------------------------------------------------#
@@ -331,7 +317,7 @@ save_as_docx(factors_diff_summary, path = factors_diff_outname)
 factors_diff_summary_4tp <- factors_diff %>%
   group_by(VETSAID) %>%
   add_count() %>%
-  filter(n == 24, WAVE!=1) %>% # 4 waves * 6 domains
+  filter(n == 20, WAVE!=1) %>% # 4 waves * 5 domains
   group_by(Domain, WAVE) %>%
   summarize(
     Mean = mean(Diff, na.rm=T),
@@ -368,15 +354,12 @@ model_parameters() %>% mutate(Domain = "Fluency")
 # Processing Speed
 speed_summ = geeglm(speed ~ WAVE * Adjustment, family = gaussian, id = factors_long$VETSAID, data = factors_long) %>%
 model_parameters() %>% mutate(Domain = "Processing speed")
-# Visual Memory
-vis_mem_summ = geeglm(vis_mem ~ WAVE * Adjustment, family = gaussian, id = factors_long$VETSAID, data = factors_long) %>%
-model_parameters() %>% mutate(Domain = "Visual memory")
 # Visuospatial
 vis_spat_summ = geeglm(vis_spat ~ WAVE * Adjustment, family = gaussian, id = factors_long$VETSAID, data = factors_long) %>%
 model_parameters() %>% mutate(Domain = "Visuospatial")
 
 # Combine results
-factors_diff_test <- bind_rows(memory_summ, ef_summ, fluency_summ, speed_summ, vis_mem_summ, vis_spat_summ) 
+factors_diff_test <- bind_rows(memory_summ, ef_summ, fluency_summ, speed_summ, vis_spat_summ) 
 
 # Create summary table
 factors_diff_test_table <- factors_diff_test %>%
@@ -426,7 +409,6 @@ factor_score_summary$Domain <- factor(factor_score_summary$Domain,
                                                  "Executive function", 
                                                  "Fluency", 
                                                  "Processing speed", 
-                                                 "Visual memory", 
                                                  "Visuospatial"))
 
 # Create line plot of cognitive score trajectories across wave. Facet by domain.
@@ -448,9 +430,9 @@ factor_score_summary_plot <- ggplot(factor_score_summary, aes(x = WAVE, y = Mean
         axis.title = element_text(face = "bold", size = 18))
 
 # Save plot
-factor_score_outname = paste0("results/factor_score_plot_", Sys.Date(), ".png")
+factor_score_outname = paste0("results/factor_score_plot_", Sys.Date(), ".tiff")
 ggsave(factor_score_outname, factor_score_summary_plot, width = 12, height = 8, 
-       device = "png", dpi = 300)
+       device = "tiff", dpi = 300)
 
 
 # Create dataframe with mean and within-subject SE of cognitive factor scores by Adjustment and Domain
@@ -458,7 +440,7 @@ ggsave(factor_score_outname, factor_score_summary_plot, width = 12, height = 8,
 factor_score_summary_4tp <- factors_long_domain %>%
   group_by(VETSAID) %>%
   add_count() %>%
-  filter(n==48) %>% # 4 waves * 6 domains * 2 adjustments
+  filter(n==40) %>% # 4 waves * 5 domains * 2 adjustments
   # First center scores within subject for each Domain and Adjustment combination
   group_by(VETSAID, Domain, Adjustment) %>%
   mutate(
@@ -483,31 +465,30 @@ factor_score_summary_4tp$Domain <- factor(factor_score_summary_4tp$Domain,
                                                  "Executive function", 
                                                  "Fluency", 
                                                  "Processing speed", 
-                                                 "Visual memory", 
                                                  "Visuospatial"))
 
 # Create line plot of cognitive score trajectories for people with all 4 waves
 factor_score_summary_plot_4tp <- ggplot(factor_score_summary_4tp, aes(x = WAVE, y = Mean, color=Domain)) +
-  geom_point(aes(shape = Adjustment)) +
-  geom_line(aes(linetype = Adjustment)) +
-  geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = 0.2) +
+  geom_point(size = 2, aes(shape = Adjustment)) +
+  geom_line(linewidth = 1, aes(linetype = Adjustment)) +
+  geom_errorbar(linewidth = 1, aes(ymin = Mean - SE, ymax = Mean + SE), width = 0.2) +
   facet_wrap(~ Domain, scales = "free_y") +
   ylab("Score (SD units)") + xlab("Wave") +
   scale_color_d3(guide = "none") + # Use standard d3 palette because no GCA
-  theme_bw(14) +
+  theme_bw(18) +
   theme(text = element_text(family = "Arial"),
         panel.grid.major.y = element_blank(),
         legend.position = "bottom",
         legend.title = element_blank(),
-        legend.text = element_text(size = 18),
+        legend.text = element_text(face = "bold", size = 18),
         strip.background = element_blank(),
         strip.text = element_text(face = "bold", size = 18),
-        axis.title = element_text(size = 18))
+        axis.title = element_text(face = "bold", size = 18))
 
 # Save plot
-factor_score_plot_4tp_outname = paste0("results/factor_score_plot_4tp_", Sys.Date(), ".svg")
+factor_score_plot_4tp_outname = paste0("results/factor_score_plot_4tp_", Sys.Date(), ".tiff")
 ggsave(factor_score_plot_4tp_outname, factor_score_summary_plot_4tp, width = 12, height = 8, 
-       device = "svg", dpi = 300)
+       device = "tiff", dpi = 300)
 
 
 #--------------------------#
@@ -841,7 +822,7 @@ mci_percentages_long <- mci_percentages_long %>%
 
 # Create faceted bar plot using paired shades; fill uses paste(Type, Adjustment, sep = "_") so keys match `fill_map`
 mci_plot <- ggplot(mci_percentages_long, aes(x = Wave, y = Percentage, fill = Adjustment)) +
-  geom_col(position = position_dodge(width = 0.9), width = 0.8, color = "black", size = 0.2) +
+  geom_col(position = position_dodge(width = 0.9), width = 0.8, color = "black", linewidth = 0.2) +
   geom_text(aes(label = sprintf("%.1f%%", Percentage)),
             position = position_dodge(width = 0.9),
             vjust = -0.5,
@@ -873,6 +854,6 @@ mci_plot <- mci_plot +
             inherit.aes = FALSE, size = 8)
 
 # Save plot
-mci_plot_outname = paste0("results/mci_rates_plot_types_", Sys.Date(), ".png")
-ggsave(mci_plot_outname, mci_plot, width = 14, height = 6, device = "png", dpi = 300)
+mci_plot_outname = paste0("results/mci_rates_plot_types_", Sys.Date(), ".tiff")
+ggsave(mci_plot_outname, mci_plot, width = 14, height = 6, device = "tiff", dpi = 300)
 
