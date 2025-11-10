@@ -22,9 +22,9 @@ data <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv",he
 
 ### Set output file name. This should correspond to either the raw of PE adjusted data.
 # Adjusted
-outfile = "data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-08-20.csv"
+outfile = "data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-10-24.csv"
 # # Raw
-# outfile = "data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-08-20.csv"
+# outfile = "data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-10-24.csv"
 
 # Load admin file
 admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
@@ -382,18 +382,31 @@ SPA2 <- SPA2y[,2:4]
 SPA3 <- SPA3y[,2:4]
 SPA4 <- SPA4y[,2:4]
 
-VMEM1x <- data.frame(VETSAID, sVRCTOT_V1_stndV1, VRITOT_V1_stndV1, VRDTOT_V1_stndV1)
-VMEM2x <- data.frame(VETSAID, sVRCTOT_V2_stndV1, VRITOT_V2_stndV1, VRDTOT_V2_stndV1)
-VMEM3x <- data.frame(VETSAID, sVRCTOT_V3_stndV1, VRITOT_V3_stndV1, VRDTOT_V3_stndV1)
-VMEM4x <- data.frame(VETSAID, sVRCTOT_V4_stndV1, VRITOT_V4_stndV1, VRDTOT_V4_stndV1)
-VMEM1y <- VMEM1x[rowSums(is.na(VMEM1x))<2,] # up to 1 tests can be missing
-VMEM2y <- VMEM2x[rowSums(is.na(VMEM2x))<2,]
-VMEM3y <- VMEM3x[rowSums(is.na(VMEM3x))<2,]
-VMEM4y <- VMEM4x[rowSums(is.na(VMEM4x))<2,]
-VMEM1 <- VMEM1y[,2:4]
-VMEM2 <- VMEM2y[,2:4]
-VMEM3 <- VMEM3y[,2:4]
-VMEM4 <- VMEM4y[,2:4]
+VISMEM1x <- data.frame(VETSAID, sVRCTOT_V1_stndV1, VRITOT_V1_stndV1, VRDTOT_V1_stndV1)
+VISMEM2x <- data.frame(VETSAID, sVRCTOT_V2_stndV1, VRITOT_V2_stndV1, VRDTOT_V2_stndV1)
+VISMEM3x <- data.frame(VETSAID, sVRCTOT_V3_stndV1, VRITOT_V3_stndV1, VRDTOT_V3_stndV1)
+VISMEM4x <- data.frame(VETSAID, sVRCTOT_V4_stndV1, VRITOT_V4_stndV1, VRDTOT_V4_stndV1)
+VISMEM1y <- VISMEM1x[rowSums(is.na(VISMEM1x))<2,] # up to 1 tests can be missing
+VISMEM2y <- VISMEM2x[rowSums(is.na(VISMEM2x))<2,]
+VISMEM3y <- VISMEM3x[rowSums(is.na(VISMEM3x))<2,]
+VISMEM4y <- VISMEM4x[rowSums(is.na(VISMEM4x))<2,]
+VISMEM1 <- VISMEM1y[,2:4]
+VISMEM2 <- VISMEM2y[,2:4]
+VISMEM3 <- VISMEM3y[,2:4]
+VISMEM4 <- VISMEM4y[,2:4]
+
+VERBALMEM1x <- data.frame(VETSAID, LMITOT_V1_stndV1, LMDTOT_V1_stndV1, CVATOT_V1_stndV1, CVSDFR_V1_stndV1, CVLDFR_V1_stndV1)
+VERBALMEM2x <- data.frame(VETSAID, LMITOT_V2_stndV1, LMDTOT_V2_stndV1, CVATOT_V2_stndV1, CVSDFR_V2_stndV1, CVLDFR_V2_stndV1)
+VERBALMEM3x <- data.frame(VETSAID, LMITOT_V3_stndV1, LMDTOT_V3_stndV1, CVATOT_V3_stndV1, CVSDFR_V3_stndV1, CVLDFR_V3_stndV1)
+VERBALMEM4x <- data.frame(VETSAID, LMITOT_V4_stndV1, LMDTOT_V4_stndV1, CVATOT_V4_stndV1, CVSDFR_V4_stndV1, CVLDFR_V4_stndV1)
+VERBALMEM1y <- VERBALMEM1x[rowSums(is.na(VERBALMEM1x))<3,] # up to 2 tests can be missing
+VERBALMEM2y <- VERBALMEM2x[rowSums(is.na(VERBALMEM2x))<3,]
+VERBALMEM3y <- VERBALMEM3x[rowSums(is.na(VERBALMEM3x))<3,]
+VERBALMEM4y <- VERBALMEM4x[rowSums(is.na(VERBALMEM4x))<3,]
+VERBALMEM1 <- VERBALMEM1y[,2:6]
+VERBALMEM2 <- VERBALMEM2y[,2:6]
+VERBALMEM3 <- VERBALMEM3y[,2:6]
+VERBALMEM4 <- VERBALMEM4y[,2:6]
 
 
 ###################################
@@ -426,10 +439,15 @@ SF2_imp <- mice(SF2,m=5)
 SF3_imp <- mice(SF3,m=5) 
 SF4_imp <- mice(SF4,m=5) 
 
-VMEM1_imp <- mice(VMEM1,m=5) 
-VMEM2_imp <- mice(VMEM2,m=5) 
-VMEM3_imp <- mice(VMEM3,m=5) 
-VMEM4_imp <- mice(VMEM4,m=5) 
+VISMEM1_imp <- mice(VISMEM1,m=5) 
+VISMEM2_imp <- mice(VISMEM2,m=5) 
+VISMEM3_imp <- mice(VISMEM3,m=5) 
+VISMEM4_imp <- mice(VISMEM4,m=5) 
+
+VERBALMEM1_imp <- mice(VERBALMEM1,m=5) 
+VERBALMEM2_imp <- mice(VERBALMEM2,m=5) 
+VERBALMEM3_imp <- mice(VERBALMEM3,m=5) 
+VERBALMEM4_imp <- mice(VERBALMEM4,m=5) 
 
 SPA1_imp <- mice(SPA1,m=5) # imputing the variables, 5 times
 SPA2_imp <- mice(SPA2,m=5) 
@@ -462,10 +480,15 @@ SF2_data2 <- complete(SF2_imp,"long")
 SF3_data2 <- complete(SF3_imp,"long") 
 SF4_data2 <- complete(SF4_imp,"long") 
 
-VMEM1_data2 <- complete(VMEM1_imp,"long") 
-VMEM2_data2 <- complete(VMEM2_imp,"long") 
-VMEM3_data2 <- complete(VMEM3_imp,"long") 
-VMEM4_data2 <- complete(VMEM4_imp,"long") 
+VISMEM1_data2 <- complete(VISMEM1_imp,"long") 
+VISMEM2_data2 <- complete(VISMEM2_imp,"long") 
+VISMEM3_data2 <- complete(VISMEM3_imp,"long") 
+VISMEM4_data2 <- complete(VISMEM4_imp,"long") 
+
+VERBALMEM1_data2 <- complete(VERBALMEM1_imp,"long") 
+VERBALMEM2_data2 <- complete(VERBALMEM2_imp,"long") 
+VERBALMEM3_data2 <- complete(VERBALMEM3_imp,"long") 
+VERBALMEM4_data2 <- complete(VERBALMEM4_imp,"long") 
 
 SPA1_data2 <- complete(SPA1_imp,"long") #creating complete data set from imputed variables, stacked by imputation
 SPA2_data2 <- complete(SPA2_imp,"long") 
@@ -673,43 +696,76 @@ for(idx in seq_along(unique(SF4_data2$.id))) {
 SF4_Imputed <- cbind(SF4y[,1], dataimp)
 names(SF4_Imputed) <- c("VETSAID","AN4_sf","BN4_sf","CS4_sf")
 
-dataimp <- VMEM1
-for(idx in seq_along(unique(VMEM1_data2$.id))) {
-      i <- unique(VMEM1_data2$.id)[idx]
-      dataimp[idx, ] <- colMeans(VMEM1_data2[VMEM1_data2$.id == i, 1:3])
+dataimp <- VISMEM1
+for(idx in seq_along(unique(VISMEM1_data2$.id))) {
+      i <- unique(VISMEM1_data2$.id)[idx]
+      dataimp[idx, ] <- colMeans(VISMEM1_data2[VISMEM1_data2$.id == i, 1:3])
 }
-VMEM1_Imputed <- cbind(VMEM1y[,1], dataimp)
-names(VMEM1_Imputed)[1] <- "VETSAID"
+VISMEM1_Imputed <- cbind(VISMEM1y[,1], dataimp)
+names(VISMEM1_Imputed)[1] <- "VETSAID"
 
-dataimp <- VMEM2
-for(idx in seq_along(unique(VMEM2_data2$.id))) {
-      i <- unique(VMEM2_data2$.id)[idx]
-      dataimp[idx, ] <- colMeans(VMEM2_data2[VMEM2_data2$.id == i, 1:3])
+dataimp <- VISMEM2
+for(idx in seq_along(unique(VISMEM2_data2$.id))) {
+      i <- unique(VISMEM2_data2$.id)[idx]
+      dataimp[idx, ] <- colMeans(VISMEM2_data2[VISMEM2_data2$.id == i, 1:3])
 }
-VMEM2_Imputed <- cbind(VMEM2y[,1], dataimp)
-names(VMEM2_Imputed)[1] <- "VETSAID"
+VISMEM2_Imputed <- cbind(VISMEM2y[,1], dataimp)
+names(VISMEM2_Imputed)[1] <- "VETSAID"
 
-dataimp <- VMEM3
-for(idx in seq_along(unique(VMEM3_data2$.id))) {
-      i <- unique(VMEM3_data2$.id)[idx]
-      dataimp[idx, ] <- colMeans(VMEM3_data2[VMEM3_data2$.id == i, 1:3])
+dataimp <- VISMEM3
+for(idx in seq_along(unique(VISMEM3_data2$.id))) {
+      i <- unique(VISMEM3_data2$.id)[idx]
+      dataimp[idx, ] <- colMeans(VISMEM3_data2[VISMEM3_data2$.id == i, 1:3])
 }
-VMEM3_Imputed <- cbind(VMEM3y[,1], dataimp)
-names(VMEM3_Imputed)[1] <- "VETSAID"
+VISMEM3_Imputed <- cbind(VISMEM3y[,1], dataimp)
+names(VISMEM3_Imputed)[1] <- "VETSAID"
 
-dataimp <- VMEM4
-for(idx in seq_along(unique(VMEM4_data2$.id))) {
-      i <- unique(VMEM4_data2$.id)[idx]
-      dataimp[idx, ] <- colMeans(VMEM4_data2[VMEM4_data2$.id == i, 1:3])
+dataimp <- VISMEM4
+for(idx in seq_along(unique(VISMEM4_data2$.id))) {
+      i <- unique(VISMEM4_data2$.id)[idx]
+      dataimp[idx, ] <- colMeans(VISMEM4_data2[VISMEM4_data2$.id == i, 1:3])
 }
-VMEM4_Imputed <- cbind(VMEM4y[,1], dataimp)
-names(VMEM4_Imputed)[1] <- "VETSAID"
+VISMEM4_Imputed <- cbind(VISMEM4y[,1], dataimp)
+names(VISMEM4_Imputed)[1] <- "VETSAID"
+
+dataimp <- VERBALMEM1
+for(idx in seq_along(unique(VERBALMEM1_data2$.id))) {
+  i <- unique(VERBALMEM1_data2$.id)[idx]
+  dataimp[idx, ] <- colMeans(VERBALMEM1_data2[VERBALMEM1_data2$.id == i, 1:5])
+}
+VERBALMEM1_Imputed <- cbind(VERBALMEM1y[,1], dataimp)
+names(VERBALMEM1_Imputed)[1] <- "VETSAID"
+
+dataimp <- VERBALMEM2
+for(idx in seq_along(unique(VERBALMEM2_data2$.id))) {
+  i <- unique(VERBALMEM2_data2$.id)[idx]
+  dataimp[idx, ] <- colMeans(VERBALMEM2_data2[VERBALMEM2_data2$.id == i, 1:5])
+}
+VERBALMEM2_Imputed <- cbind(VERBALMEM2y[,1], dataimp)
+names(VERBALMEM2_Imputed)[1] <- "VETSAID"
+
+dataimp <- VERBALMEM3
+for(idx in seq_along(unique(VERBALMEM3_data2$.id))) {
+  i <- unique(VERBALMEM3_data2$.id)[idx]
+  dataimp[idx, ] <- colMeans(VERBALMEM3_data2[VERBALMEM3_data2$.id == i, 1:5])
+}
+VERBALMEM3_Imputed <- cbind(VERBALMEM3y[,1], dataimp)
+names(VERBALMEM3_Imputed)[1] <- "VETSAID"
+
+dataimp <- VERBALMEM4
+for(idx in seq_along(unique(VERBALMEM4_data2$.id))) {
+  i <- unique(VERBALMEM4_data2$.id)[idx]
+  dataimp[idx, ] <- colMeans(VERBALMEM4_data2[VERBALMEM4_data2$.id == i, 1:5])
+}
+VERBALMEM4_Imputed <- cbind(VERBALMEM4y[,1], dataimp)
+names(VERBALMEM4_Imputed)[1] <- "VETSAID"
 
 dataimp <- SPA1
 for(idx in seq_along(unique(SPA1_data2$.id))) {
-      i <- unique(SPA1_data2$.id)[idx]
-      dataimp[idx, ] <- colMeans(SPA1_data2[SPA1_data2$.id == i, 1:3])
+  i <- unique(SPA1_data2$.id)[idx]
+  dataimp[idx, ] <- colMeans(SPA1_data2[SPA1_data2$.id == i, 1:3])
 }
+
 SPA1_Imputed <- cbind(SPA1y[,1], dataimp)
 names(SPA1_Imputed)[1] <- "VETSAID"
 
@@ -806,14 +862,23 @@ speed_V2 <- (speed_V2x-mean(speed_V1x,na.rm=T))/sd(speed_V1x,na.rm=T)
 speed_V3 <- (speed_V3x-mean(speed_V1x,na.rm=T))/sd(speed_V1x,na.rm=T)
 speed_V4 <- (speed_V4x-mean(speed_V1x,na.rm=T))/sd(speed_V1x,na.rm=T)
 
-VMEM_V1x <- 0.05350*sVRCTOT_V1_stndV1 + 0.80128*VRITOT_V1_stndV1 + 0.16498*VRDTOT_V1_stndV1
-VMEM_V2x <- 0.05350*sVRCTOT_V2_stndV1 + 0.80128*VRITOT_V2_stndV1 + 0.16498*VRDTOT_V2_stndV1
-VMEM_V3x <- 0.05350*sVRCTOT_V3_stndV1 + 0.80128*VRITOT_V3_stndV1 + 0.16498*VRDTOT_V3_stndV1
-VMEM_V4x <- 0.05350*sVRCTOT_V4_stndV1 + 0.80128*VRITOT_V4_stndV1 + 0.16498*VRDTOT_V4_stndV1
-VisMem_V1 <- scale(VMEM_V1x)
-VisMem_V2 <- (VMEM_V2x-mean(VMEM_V1x,na.rm=T))/sd(VMEM_V1x,na.rm=T)
-VisMem_V3 <- (VMEM_V3x-mean(VMEM_V1x,na.rm=T))/sd(VMEM_V1x,na.rm=T)
-VisMem_V4 <- (VMEM_V4x-mean(VMEM_V1x,na.rm=T))/sd(VMEM_V1x,na.rm=T)
+VISMEM_V1x <- 0.05350*sVRCTOT_V1_stndV1 + 0.80128*VRITOT_V1_stndV1 + 0.16498*VRDTOT_V1_stndV1
+VISMEM_V2x <- 0.05350*sVRCTOT_V2_stndV1 + 0.80128*VRITOT_V2_stndV1 + 0.16498*VRDTOT_V2_stndV1
+VISMEM_V3x <- 0.05350*sVRCTOT_V3_stndV1 + 0.80128*VRITOT_V3_stndV1 + 0.16498*VRDTOT_V3_stndV1
+VISMEM_V4x <- 0.05350*sVRCTOT_V4_stndV1 + 0.80128*VRITOT_V4_stndV1 + 0.16498*VRDTOT_V4_stndV1
+VisMem_V1 <- scale(VISMEM_V1x)
+VisMem_V2 <- (VISMEM_V2x-mean(VISMEM_V1x,na.rm=T))/sd(VISMEM_V1x,na.rm=T)
+VisMem_V3 <- (VISMEM_V3x-mean(VISMEM_V1x,na.rm=T))/sd(VISMEM_V1x,na.rm=T)
+VisMem_V4 <- (VISMEM_V4x-mean(VISMEM_V1x,na.rm=T))/sd(VISMEM_V1x,na.rm=T)
+
+VERBALMEM_V1x <- .91*.66*LMITOT_V1_stndV1 + .94*.66*LMDTOT_V1_stndV1 + .18*CVATOT_V1_stndV1 + .68*.72*CVATOT_V1_stndV1 + .90*.72*CVSDFR_V1_stndV1 + .91*.72*CVLDFR_V1_stndV1
+VERBALMEM_V2x <- .91*.66*LMITOT_V2_stndV1 + .94*.66*LMDTOT_V2_stndV1 + .18*CVATOT_V2_stndV1 + .68*.72*CVATOT_V2_stndV1 + .90*.72*CVSDFR_V2_stndV1 + .91*.72*CVLDFR_V2_stndV1
+VERBALMEM_V3x <- .91*.66*LMITOT_V3_stndV1 + .94*.66*LMDTOT_V3_stndV1 + .18*CVATOT_V3_stndV1 + .68*.72*CVATOT_V3_stndV1 + .90*.72*CVSDFR_V3_stndV1 + .91*.72*CVLDFR_V3_stndV1
+VERBALMEM_V4x <- .91*.66*LMITOT_V4_stndV1 + .94*.66*LMDTOT_V4_stndV1 + .18*CVATOT_V4_stndV1 + .68*.72*CVATOT_V4_stndV1 + .90*.72*CVSDFR_V4_stndV1 + .91*.72*CVLDFR_V4_stndV1
+VerbalMem_V1 <- scale(VERBALMEM_V1x)
+VerbalMem_V2 <- (VERBALMEM_V2x-mean(VERBALMEM_V1x,na.rm=T))/sd(VERBALMEM_V1x,na.rm=T)
+VerbalMem_V3 <- (VERBALMEM_V3x-mean(VERBALMEM_V1x,na.rm=T))/sd(VERBALMEM_V1x,na.rm=T)
+VerbalMem_V4 <- (VERBALMEM_V4x-mean(VERBALMEM_V1x,na.rm=T))/sd(VERBALMEM_V1x,na.rm=T)
 
 #Standardized Scoring Coefficients from Proc Factor n=1 priors=smc method=ML (CR)
 SPA_V1x <- 0.16715*MR1COR_V1_stndV1 + 0.27901*AFQTBXPCTTRAN_R_V1_stndV1 + 0.59952*HFTOTCOR_V1_stndV1
@@ -865,14 +930,19 @@ Part7SPA <- merge(merge(merge(Part6SF, SPA1_Imputed, by = "VETSAID", all = TRUE)
                  merge(SPA3_Imputed, SPA4_Imputed, by = "VETSAID", all = TRUE),
                  by = "VETSAID", all = TRUE)
 
-Part8VMEM <- merge(merge(merge(Part7SPA, VMEM1_Imputed, by = "VETSAID", all = TRUE),
-                        VMEM2_Imputed, by = "VETSAID", all = TRUE),
-                  merge(VMEM3_Imputed, VMEM4_Imputed, by = "VETSAID", all = TRUE),
+Part8VISMEM <- merge(merge(merge(Part7SPA, VISMEM1_Imputed, by = "VETSAID", all = TRUE),
+                        VISMEM2_Imputed, by = "VETSAID", all = TRUE),
+                  merge(VISMEM3_Imputed, VISMEM4_Imputed, by = "VETSAID", all = TRUE),
                   by = "VETSAID", all = TRUE)
+
+Part9VERBALMEM <- merge(merge(merge(Part8VISMEM, VERBALMEM1_Imputed, by = "VETSAID", all = TRUE),
+                              VERBALMEM2_Imputed, by = "VETSAID", all = TRUE),
+                        merge(VERBALMEM3_Imputed, VERBALMEM4_Imputed, by = "VETSAID", all = TRUE),
+                        by = "VETSAID", all = TRUE)
 
 #IDs <- data.frame(VETSAID, VETSAWAVE)
 IDs <- data.frame(VETSAID)
-all_Imputed <- merge(Part8VMEM, IDs, by = "VETSAID", all=T)
+all_Imputed <- merge(Part9VERBALMEM, IDs, by = "VETSAID", all=T)
 # Remove duplicated variables and rename
 all_Imputed <- all_Imputed %>% select(-ends_with(".y"))
 names(all_Imputed) = gsub(".x","",names(all_Imputed))
@@ -942,15 +1012,23 @@ VisSpat_V2_imputed <- (SPA_V2x_imputed-mean(SPA_V1x_imputed,na.rm=T))/sd(SPA_V1x
 VisSpat_V3_imputed <- (SPA_V3x_imputed-mean(SPA_V1x_imputed,na.rm=T))/sd(SPA_V1x_imputed,na.rm=T)
 VisSpat_V4_imputed <- (SPA_V4x_imputed-mean(SPA_V1x_imputed,na.rm=T))/sd(SPA_V1x_imputed,na.rm=T)
 
-VMEM_V1x_imputed <- 0.05350*all_Imputed$sVRCTOT_V1_stndV1 + 0.80128*all_Imputed$VRITOT_V1_stndV1 + 0.16498*all_Imputed$VRDTOT_V1_stndV1
-VMEM_V2x_imputed <- 0.05350*all_Imputed$sVRCTOT_V2_stndV1 + 0.80128*all_Imputed$VRITOT_V2_stndV1 + 0.16498*all_Imputed$VRDTOT_V2_stndV1
-VMEM_V3x_imputed <- 0.05350*all_Imputed$sVRCTOT_V3_stndV1 + 0.80128*all_Imputed$VRITOT_V3_stndV1 + 0.16498*all_Imputed$VRDTOT_V3_stndV1
-VMEM_V4x_imputed <- 0.05350*all_Imputed$sVRCTOT_V4_stndV1 + 0.80128*all_Imputed$VRITOT_V4_stndV1 + 0.16498*all_Imputed$VRDTOT_V4_stndV1
-VisMem_V1_imputed <- scale(VMEM_V1x_imputed)
-VisMem_V2_imputed <- (VMEM_V2x_imputed-mean(VMEM_V1x_imputed,na.rm=T))/sd(VMEM_V1x_imputed,na.rm=T)
-VisMem_V3_imputed <- (VMEM_V3x_imputed-mean(VMEM_V1x_imputed,na.rm=T))/sd(VMEM_V1x_imputed,na.rm=T)
-VisMem_V4_imputed <- (VMEM_V4x_imputed-mean(VMEM_V1x_imputed,na.rm=T))/sd(VMEM_V1x_imputed,na.rm=T)
+VISMEM_V1x_imputed <- 0.05350*all_Imputed$sVRCTOT_V1_stndV1 + 0.80128*all_Imputed$VRITOT_V1_stndV1 + 0.16498*all_Imputed$VRDTOT_V1_stndV1
+VISMEM_V2x_imputed <- 0.05350*all_Imputed$sVRCTOT_V2_stndV1 + 0.80128*all_Imputed$VRITOT_V2_stndV1 + 0.16498*all_Imputed$VRDTOT_V2_stndV1
+VISMEM_V3x_imputed <- 0.05350*all_Imputed$sVRCTOT_V3_stndV1 + 0.80128*all_Imputed$VRITOT_V3_stndV1 + 0.16498*all_Imputed$VRDTOT_V3_stndV1
+VISMEM_V4x_imputed <- 0.05350*all_Imputed$sVRCTOT_V4_stndV1 + 0.80128*all_Imputed$VRITOT_V4_stndV1 + 0.16498*all_Imputed$VRDTOT_V4_stndV1
+VisMem_V1_imputed <- scale(VISMEM_V1x_imputed)
+VisMem_V2_imputed <- (VISMEM_V2x_imputed-mean(VISMEM_V1x_imputed,na.rm=T))/sd(VISMEM_V1x_imputed,na.rm=T)
+VisMem_V3_imputed <- (VISMEM_V3x_imputed-mean(VISMEM_V1x_imputed,na.rm=T))/sd(VISMEM_V1x_imputed,na.rm=T)
+VisMem_V4_imputed <- (VISMEM_V4x_imputed-mean(VISMEM_V1x_imputed,na.rm=T))/sd(VISMEM_V1x_imputed,na.rm=T)
 
+VERBALMEM_V1x_imputed <- .91*.66*all_Imputed$LMITOT_V1_stndV1 + .94*.66*all_Imputed$LMDTOT_V1_stndV1 + .18*all_Imputed$CVATOT_V1_stndV1 + .68*.72*all_Imputed$CVATOT_V1_stndV1 + .90*.72*all_Imputed$CVSDFR_V1_stndV1 + .91*.72*all_Imputed$CVLDFR_V1_stndV1
+VERBALMEM_V2x_imputed <- .91*.66*all_Imputed$LMITOT_V2_stndV1 + .94*.66*all_Imputed$LMDTOT_V2_stndV1 + .18*all_Imputed$CVATOT_V2_stndV1 + .68*.72*all_Imputed$CVATOT_V2_stndV1 + .90*.72*all_Imputed$CVSDFR_V2_stndV1 + .91*.72*all_Imputed$CVLDFR_V2_stndV1
+VERBALMEM_V3x_imputed <- .91*.66*all_Imputed$LMITOT_V3_stndV1 + .94*.66*all_Imputed$LMDTOT_V3_stndV1 + .18*all_Imputed$CVATOT_V3_stndV1 + .68*.72*all_Imputed$CVATOT_V3_stndV1 + .90*.72*all_Imputed$CVSDFR_V3_stndV1 + .91*.72*all_Imputed$CVLDFR_V3_stndV1
+VERBALMEM_V4x_imputed <- .91*.66*all_Imputed$LMITOT_V4_stndV1 + .94*.66*all_Imputed$LMDTOT_V4_stndV1 + .18*all_Imputed$CVATOT_V4_stndV1 + .68*.72*all_Imputed$CVATOT_V4_stndV1 + .90*.72*all_Imputed$CVSDFR_V4_stndV1 + .91*.72*all_Imputed$CVLDFR_V4_stndV1
+VerbalMem_V1_imputed <- scale(VERBALMEM_V1x_imputed)
+VerbalMem_V2_imputed <- (VERBALMEM_V2x_imputed-mean(VERBALMEM_V1x_imputed,na.rm=T))/sd(VERBALMEM_V1x_imputed,na.rm=T)
+VerbalMem_V3_imputed <- (VERBALMEM_V3x_imputed-mean(VERBALMEM_V1x_imputed,na.rm=T))/sd(VERBALMEM_V1x_imputed,na.rm=T)
+VerbalMem_V4_imputed <- (VERBALMEM_V4x_imputed-mean(VERBALMEM_V1x_imputed,na.rm=T))/sd(VERBALMEM_V1x_imputed,na.rm=T)
 
 ############################
 ### Export Scores to csv ###
@@ -979,7 +1057,8 @@ allScores_imp <- data.frame(VETSAID, #VETSAWAVE,
                         fluency_V1_imputed, fluency_V2_imputed, fluency_V3_imputed, fluency_V4_imputed,
                         semantic_flu_V1_imputed, semantic_flu_V2_imputed, semantic_flu_V3_imputed, semantic_flu_V4_imputed,
                         VisSpat_V1_imputed, VisSpat_V2_imputed, VisSpat_V3_imputed, VisSpat_V4_imputed,
-                        VisMem_V1_imputed,VisMem_V2_imputed,VisMem_V3_imputed, VisMem_V4_imputed)
+                        VisMem_V1_imputed,VisMem_V2_imputed,VisMem_V3_imputed, VisMem_V4_imputed,
+                        VerbalMem_V1_imputed, VerbalMem_V2_imputed, VerbalMem_V3_imputed, VerbalMem_V4_imputed)
 impnames <- c("VETSAID", #"VETSAWAVE",
               "memory_V1", "memory_V2", "memory_V3", "memory_V4",
               "speed_V1", "speed_V2", "speed_V3",  "speed_V4",
@@ -988,7 +1067,8 @@ impnames <- c("VETSAID", #"VETSAWAVE",
               "fluency_V1", "fluency_V2", "fluency_V3", "fluency_V4",
               "semantic_flu_V1", "semantic_flu_V2", "semantic_flu_V3",  "semantic_flu_V4",
               "vis_spat_V1", "vis_spat_V2", "vis_spat_V3", "vis_spat_V4",
-              "vis_mem_V1","vis_mem_V2","vis_mem_V3", "vis_mem_V4")
+              "vis_mem_V1","vis_mem_V2","vis_mem_V3", "vis_mem_V4",
+              "verbal_mem_V1","verbal_mem_V2","verbal_mem_V3", "verbal_mem_V4")
 names(allScores_imp) <- impnames
 describe(allScores_imp)
 # describe(allScores)
