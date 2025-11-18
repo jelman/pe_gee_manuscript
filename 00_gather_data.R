@@ -1,9 +1,9 @@
 library(dplyr)
 
 # Read in the data
-uncorr_df <- read.csv("~/netshare/M/VETSA DATA FILES_852014/PracticeEffects/data/temp_data/V1V2V3V4_cog_data_raw_2025-05-14.csv")
+uncorr_df <- read.csv("~/netshare/M/VETSA DATA FILES_852014/PracticeEffects/data/temp_data/V1V2V3V4_cog_data_raw_2025-08-08.csv")
 str(uncorr_df)
-corr_df <- read.csv("~/netshare/M/VETSA DATA FILES_852014/PracticeEffects/data/output_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv")
+corr_df <- read.csv("~/netshare/M/VETSA DATA FILES_852014/PracticeEffects/data/output_data/V1V2V3V4_cog_data_pe-adjusted_2025-08-08.csv")
 str(corr_df)
 
 # Get names of corrected variables
