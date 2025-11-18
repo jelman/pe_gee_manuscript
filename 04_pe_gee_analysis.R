@@ -35,6 +35,13 @@ pe_estimates <- read.csv("results/gee_standardized_results_complete_2025-05-17.c
 
 # Load cognitive test names
 cog_test_names <- read.csv("docs/test_abbreviations.csv")
+# Add superscripts to specific measure values
+cog_test_names <- cog_test_names %>%
+  mutate(measure = case_when(
+    term == "BNTTOTCOR" ~ paste0(measure, "*"),
+    term == "SSPTOTP" ~ paste0(measure, "†"),
+    TRUE ~ measure
+  ))
 
 # Load raw and adjusted cognitive test scores
 tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv")
@@ -69,7 +76,7 @@ ef_cog_tests <- c("TRL4TLOG","CSSACC","STRIT","DSTOT","LNTOT","RSATOT")
 fluency_cog_tests <- c("LFCOR","CFCOR","CSCOR")
 speed_cog_tests <- c("TRL2TLOG","TRL3TLOG","STRWRAW","STRCRAW","SRTGMEANLOG","CHRTGMEANLOG")
 visspat_cog_tests <- c("MR1COR","HFTOTCOR","AFQTBXPCTTRAN_R")
-other_cog_tests <- c("TRL1TLOG","SSPTOTP","MTXAGE","VRCTOT")
+other_cog_tests <- c("TRL1TLOG","SSPTOTP","MTXAGE","VRCTOT","BNTTOTCOR")
 
 # Gather all domain scores
 cog_tests <- c(episodic_cog_tests, ef_cog_tests, fluency_cog_tests, 
@@ -85,6 +92,25 @@ pe_estimates_long <- pe_estimates %>%
                names_pattern = "(.+?)_(.+)") %>%
   rename(term = outcome) %>%
   filter(term %in% cog_tests)
+
+# Copy estimates for BNTTOTCOR from assessment WAVE4 to WAVE2_ASSESSMENT2.
+# The BNT was administered starting in wave 3. Thus, the estimate for WAVE4 
+# corresponds to the practice effect at the second assessment, which occurred 
+# at wave 4. A note in the figure captin will indicate this
+pe_estimates_long <- pe_estimates_long %>%
+  mutate(estimate = ifelse(term == "BNTTOTCOR" & Assessment == "WAVE2_ASSESSMENT2",
+                           pe_estimates_long$estimate[pe_estimates_long$term == "BNTTOTCOR" & pe_estimates_long$Assessment == "WAVE4"],
+                           estimate),
+         conf.low = ifelse(term == "BNTTOTCOR" & Assessment == "WAVE2_ASSESSMENT2",
+                           pe_estimates_long$conf.low[pe_estimates_long$term == "BNTTOTCOR" & pe_estimates_long$Assessment == "WAVE4"],
+                           conf.low),
+         conf.high = ifelse(term == "BNTTOTCOR" & Assessment == "WAVE2_ASSESSMENT2",
+                            pe_estimates_long$conf.high[pe_estimates_long$term == "BNTTOTCOR" & pe_estimates_long$Assessment == "WAVE4"],
+                            conf.high),
+         p.value = ifelse(term == "BNTTOTCOR" & Assessment == "WAVE2_ASSESSMENT2",
+                          pe_estimates_long$p.value[pe_estimates_long$term == "BNTTOTCOR" & pe_estimates_long$Assessment == "WAVE4"],
+                          p.value)
+         )
 
 # Add domain to pe_estimates_long. If term is in one of the lists above, assign the domain
 pe_estimates_long$Domain <- pe_estimates_long$term %>%
@@ -116,9 +142,9 @@ pe_estimates_long$Model <- pe_estimates_long$Assessment %>%
     "WAVE3" = "AR 3 baseline",
     "SKIP1" = "Skipped 1 assessment",
     "SKIP2" = "Skipped 2 assessments",
-    "WAVE2_ASSESSMENT2" = "Follow-up 1 (wave 2)",
-    "WAVE3_ASSESSMENT3" = "Follow-up 2 (wave 3)",
-    "WAVE4_ASSESSMENT4" = "Follow-up 3 (wave 4)",
+    "WAVE2_ASSESSMENT2" = "Follow-up 1",
+    "WAVE3_ASSESSMENT3" = "Follow-up 2",
+    "WAVE4_ASSESSMENT4" = "Follow-up 3",
     "WAVE3_ASSESSMENT2" = "Follow-up 1 (wave 4)",
     "WAVE4" = "Follow-up 1 (wave 4)",
     "WAVE4_ASSESSMENT3" = "Follow-up 2 (wave 4)",
@@ -161,7 +187,6 @@ pe_summary <- pe_plot_df %>%
   ) %>%
   arrange(Domain, Model) %>%
   flextable() %>% 
-  theme_apa() %>%
   colformat_double(digits=2) %>% 
   merge_v("Domain") %>% 
   valign(j="Domain", valign="top") %>%
@@ -179,7 +204,9 @@ save_as_docx(pe_summary, path = pe_summary_outname)
 min_y <- min(pe_plot_df$conf.low, na.rm=TRUE)
 max_y <- max(pe_plot_df$conf.high, na.rm=TRUE)
 text_df <- pe_plot_df %>%
-  mutate(text_label = sprintf("%.2f (%.2f, %.2f)", estimate, conf.low, conf.high))
+  mutate(text_label = str_glue(" 
+                              {format(round(estimate, 2), nsmall = 2)}, ({format(round(conf.low, 2), nsmall = 2)}, {format(round(conf.high, 2), nsmall = 2)})
+                              "))
 
 # Custom d3 color palette. Black as added as first color for GCA in forest plot
 d3_colors <- pal_d3()(5)  # Get 5  colors for cognitive domains
@@ -292,6 +319,7 @@ factors_diff <- factors_long_domain %>%
   pivot_wider(names_from = Adjustment, values_from = Score) %>%
   mutate(Diff = Unadjusted - `PE-adjusted`)
 
+
 # Get summary statistics of difference scores by wave and domain
 factors_diff_summary <- factors_diff %>%
   filter(WAVE!=1) %>%
@@ -361,17 +389,34 @@ model_parameters() %>% mutate(Domain = "Visuospatial")
 # Combine results
 factors_diff_test <- bind_rows(memory_summ, ef_summ, fluency_summ, speed_summ, vis_spat_summ) 
 
+
+# Calculate paired sample t-test for each domain and wave between Unadjusted and PE-adjusted scores
+factors_diff_tests <- factors_diff %>%
+  filter(WAVE != 1) %>%
+  group_by(Domain, WAVE) %>%
+  summarize(
+    t_test = list(t.test(Unadjusted, `PE-adjusted`, paired = TRUE)),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = map_dbl(t_test, ~ .$statistic),
+    df = map_dbl(t_test, ~ .$parameter),
+    p_value = map_dbl(t_test, ~ .$p.value),
+    mean_diff = map_dbl(t_test, ~ .$estimate),
+    ci_lower = map_dbl(t_test, ~ .$conf.int[1]),
+    ci_upper = map_dbl(t_test, ~ .$conf.int[2])
+  ) %>%
+  select(Domain, Wave=WAVE, t=t_statistic, df, p=p_value, `Mean Difference`=mean_diff, 
+         `2.5% CI`=ci_lower, `97.5% CI` = ci_upper)
+
+
 # Create summary table
-factors_diff_test_table <- factors_diff_test %>%
-filter(grepl(":", Parameter)) %>%
-mutate(Parameter = gsub("PE-adjusted","",Parameter)) %>%
-select(Domain, everything(), -CI, -Chi2, -df_error) %>%
+factors_diff_test_table <- factors_diff_tests %>%
 flextable() %>%
 colformat_double(digits=3) %>%
 merge_v("Domain") %>%
 hline(i = rle(cumsum(.$body$spans$columns[,1] ))$values) %>%
 fix_border_issues(.) %>%
-theme_apa() %>%
 autofit()
 
 
