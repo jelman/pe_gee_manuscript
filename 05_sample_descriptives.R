@@ -8,7 +8,7 @@ library(haven)
 library(forcats)
 library(labelled)
 library(ggpubr)
-
+library(effectsize)
 
 # Set working directory
 setwd("~/netshare/M/Projects/PracEffects_GEE")
@@ -25,11 +25,25 @@ names(admin) <- toupper(names(admin))
 afqt_20 = read.csv("~/netshare/M/NAS VETSA MASTER DATAFILES/Other cognitive measures/AFQT--age 20 cannot be distributed outside VETSA/AFQT_Age20_2020_05_19_revised.csv")
 names(afqt_20) <- toupper(names(afqt_20))
 
+# Load Charlson index
+charlson <- read.csv("~/netshare/M/NAS VETSA MASTER DATAFILES/Other data/Morbidity Data/Charlson Morbidity Measure/charlson_v1v2v3v4.csv")
+names(charlson) <- toupper(names(charlson))
+
+# Pivot Charlson to long format. The suffix should indicate wave.
+charlson_long = charlson %>% 
+  select(VETSAID, starts_with("CHARLSON")) %>%
+  pivot_longer(cols=-VETSAID, 
+               names_to=c(".value","WAVE"), 
+               names_sep="_",
+               values_drop_na=TRUE)  %>%
+  mutate(WAVE = as.integer(gsub("V","",WAVE)))
+
+
 # Load individual test data
 tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv")
 
 # Load cognitive factor scores
-factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-05-17.csv")
+factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-10-24.csv")
 
 # Load and merge MCI data
 mci_v1_adj <- read.csv("data/output_data/vetsa1_mci_adjusted_2025-05-17.csv")
@@ -95,14 +109,27 @@ admin <- admin %>%
 
 upset_plot <- upset(
   data=admin,
-  c("VETSA_1","VETSA_2","VETSA_3","VETSA_4"),
-  name = "Participants per timepoint",
+  intersect = c("VETSA_1","VETSA_2","VETSA_3","VETSA_4"),
+  name = "Longitudinal assessment pattern",
+  base_annotations = list(
+    'Intersection size'=(
+      intersection_size()
+      + ylab('N per pattern')
+    )
+  ),
   set_sizes = 
     upset_set_size() + 
     geom_text(aes(label=..count..), hjust=1.1, stat="count") +
-    expand_limits(y=1600),
-  themes=upset_default_themes(text=element_text(face='bold', size=18)
-  ))
+    expand_limits(y=1600) +
+    ylab("N per wave"),
+  themes=upset_default_themes(text=element_text(face='bold', size=18)),
+  queries = list(
+    upset_query(set='VETSA_1', fill='#E69F00'),
+    upset_query(set='VETSA_2', fill='#56B4E9'),
+    upset_query(set='VETSA_3', fill='#009E73'),
+    upset_query(set='VETSA_4', fill='#D55E00')
+  )
+)
 
 
 # Pivot AGE and AR variables to long format. The suffix should indicate wave. 
@@ -143,7 +170,7 @@ age_upset_plot <- ggpubr::ggarrange(upset_plot, age_plot,
         panel.background = element_rect(fill="white", color="white"),
         panel.border = element_blank())
 
-# Save plot
+# Save combined plot
 age_upset_plot_outname = paste0("results/age_upset_plots_", Sys.Date(), ".svg")
 ggsave(age_upset_plot_outname, age_upset_plot, width = 16, height = 6, 
        device = "svg", dpi = 300)
@@ -168,4 +195,45 @@ nonmissing_tests <- tests_adj %>%
   pivot_longer(cols = everything(), names_to = "test", values_to = "n") 
 
   
+#----------------------------------------------------#
+#   Evaluate balance of returnees and replacements   #
+#----------------------------------------------------#
+
+# Create dataframe with covariates that we want to evaluate for balance
+balance_df <- admin %>%
+  select(VETSAID, EDUCATION=TEDALL, Race, Ethnicity, NAS201) %>%
+  right_join(admin_long, by="VETSAID") %>%
+  left_join(charlson_long, by=c("VETSAID", "WAVE")) 
+
+
+# Wave 1
+balance_df_v2 = balance_df %>% filter(WAVE==2 & !is.na(AGE))
+
+# Create table showing SMD at wave 2
+balance_v2 = CreateTableOne(data = balance_df_v2,
+                            vars = c("AGE","EDUCATION", "NAS201", "Ethnicity", "Race", "CHARLSON"),
+                            strata = "AR")
+print(balance_v2, smd = TRUE, quote = TRUE, noSpaces = TRUE)
+
+# Create table showing SMD at wave 3
+balance_df_v3 = balance_df %>% filter(WAVE==3 & !is.na(AGE))
+balance_v3 = CreateTableOne(data = balance_df_v3,
+                            vars = c("AGE","EDUCATION", "NAS201", "Ethnicity", "Race", "CHARLSON"),
+                            strata = "AR")
+print(balance_v3, smd = TRUE, quote = TRUE, noSpaces = TRUE)
+
+# Create table showing SMD at wave 4
+# Set wave 2 AR participants to also be ARs at wave 4
+ar_v4 = balance_df %>%
+  filter(WAVE==3 & AR==1)
+returness_v4 = balance_df %>%
+  filter(WAVE==4 & !is.na(AGE) & !VETSAID %in% ar_v4$VETSAID)
+balance_df_v4 = ar_v4 %>% bind_rows(returness_v4) 
+
+
+balance_v4 = CreateTableOne(data = balance_df_v4,
+                            vars = c("AGE","EDUCATION", "NAS201", "Ethnicity", "Race", "CHARLSON"),
+                            strata = "AR")
+print(balance_v4, smd = TRUE, quote = TRUE, noSpaces = TRUE)
+
 
