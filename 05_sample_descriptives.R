@@ -119,7 +119,7 @@ upset_plot <- upset(
   ),
   set_sizes = 
     upset_set_size() + 
-    geom_text(aes(label=..count..), hjust=1.1, stat="count") +
+    geom_text(aes(label=after_stat(count)), hjust=1.1, stat="count") +
     expand_limits(y=1600) +
     ylab("N per wave"),
   themes=upset_default_themes(text=element_text(face='bold', size=18)),
@@ -171,9 +171,9 @@ age_upset_plot <- ggpubr::ggarrange(upset_plot, age_plot,
         panel.border = element_blank())
 
 # Save combined plot
-age_upset_plot_outname = paste0("results/age_upset_plots_", Sys.Date(), ".svg")
+age_upset_plot_outname = paste0("results/age_upset_plots_", Sys.Date(), ".png")
 ggsave(age_upset_plot_outname, age_upset_plot, width = 16, height = 6, 
-       device = "svg", dpi = 300)
+       device = "png", dpi = 300)
 
 #--------------------------------#
 #   Create sample descriptives   #
@@ -227,7 +227,7 @@ print(balance_v3, smd = TRUE, quote = TRUE, noSpaces = TRUE)
 ar_v4 = balance_df %>%
   filter(WAVE==3 & AR==1)
 returness_v4 = balance_df %>%
-  filter(WAVE==4 & !is.na(AGE) & !VETSAID %in% ar_v4$VETSAID)
+  filter(WAVE==4 & !is.na(AGE))
 balance_df_v4 = ar_v4 %>% bind_rows(returness_v4) 
 
 
