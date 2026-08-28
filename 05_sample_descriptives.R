@@ -207,6 +207,15 @@ balance_df <- admin %>%
 
 
 # Wave 1
+balance_df_v1 = balance_df %>% filter(WAVE==1 & !is.na(AGE))
+
+# Create table showing SMD at wave 1
+balance_v1 = CreateTableOne(data = balance_df_v1,
+                            vars = c("AGE","EDUCATION", "NAS201", "Ethnicity", "Race", "CHARLSON"),
+                            )
+print(balance_v1, smd = FALSE, quote = TRUE, noSpaces = TRUE)
+
+# Wave 2
 balance_df_v2 = balance_df %>% filter(WAVE==2 & !is.na(AGE))
 
 # Create table showing SMD at wave 2
