@@ -902,3 +902,40 @@ mci_plot <- mci_plot +
 mci_plot_outname = paste0("results/mci_rates_plot_types_", Sys.Date(), ".tiff")
 ggsave(mci_plot_outname, mci_plot, width = 14, height = 6, device = "tiff", dpi = 300)
 
+#### Alternative MCi plot: vertical panels ###
+# Create faceted bar plot using paired shades; fill uses paste(Type, Adjustment, sep = "_") so keys match `fill_map`
+mci_plot <- ggplot(mci_percentages_long, aes(x = Wave, y = Percentage, fill = Adjustment)) +
+  geom_col(position = position_dodge(width = 0.9), width = 0.8, color = "black", linewidth = 0.2) +
+  geom_text(aes(label = sprintf("%.1f%%", Percentage)),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5,
+            size = 2.75) +
+  facet_wrap(~ Type, scales = "fixed", ncol = 1) +
+  scale_fill_manual(values = adj_colors, labels = c("Unadjusted", "PE-adjusted")) +
+  labs(x = "Wave", y = "MCI diagnosis (%)", fill = NULL) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        legend.text = element_text(face = "bold", size = 10),
+        axis.text = element_text(size = 8, face = "bold"),
+        axis.title = element_text(size = 10, face = "bold"),
+        strip.text = element_text(face = "bold", size = 10))
+
+
+# Add significance asterisks above the higher of the two bars for each Type/Wave where p<0.05
+# Compute y positions per Type/Wave
+ypos_df <- mci_percentages_long %>%
+  group_by(Type, Wave) %>%
+  summarize(max_y = max(Percentage, na.rm = TRUE),
+            p_value = first(p_value),
+            signif = first(signif), .groups = "drop") %>%
+  mutate(ypos = max_y + 3) # offset a bit
+
+# Add text annotations for significance
+mci_plot <- mci_plot +
+  geom_text(data = ypos_df %>% filter(signif == "*"),
+            aes(x = Wave, y = ypos, label = signif),
+            inherit.aes = FALSE, size = 4)
+
+# Save plot
+mci_plot_outname = paste0("results/mci_rates_plot_types_", Sys.Date(), ".tiff")
+ggsave(mci_plot_outname, mci_plot, width = 3.4,   device = "tiff", dpi = 300)
