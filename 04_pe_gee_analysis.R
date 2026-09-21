@@ -25,10 +25,10 @@ library(geepack)
 #---------------------------------#
 
 # Set working directory
-setwd("~/netshare/M/Projects/PracEffects_GEE")
+setwd("M:/Projects/PracEffects_GEE")
 
 # Load admin file
-admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
+admin <- read_sas("M:/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
 # Load model estimates of practice effects
 pe_estimates <- read.csv("results/gee_standardized_results_complete_2025-05-17.csv")
@@ -48,8 +48,8 @@ tests_raw <- read.csv("data/raw_data/V1V2V3V4_cog_data_raw_2025-05-17.csv")
 tests_adj <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv")
 
 # Load raw and adjusted cognitive factor scores
-factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-10-24.csv")
-factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-10-24.csv")
+factors_raw <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_raw_2026-09-16.csv")
+factors_adj <- read.csv("data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2026-09-16.csv")
 
 # Load raw and adjusted MCI diagnosis
 mci_v1_raw <- read.csv("data/output_data/vetsa1_mci_raw_2025-05-17.csv")

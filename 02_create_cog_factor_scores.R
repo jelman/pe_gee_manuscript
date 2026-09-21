@@ -12,7 +12,7 @@ library(psych)
 library(haven)
 
 ### Set working directory
-setwd("~/netshare/M/Projects/PracEffects_GEE")
+setwd("M:/Projects/PracEffects_GEE")
 
 ### Set input data file. This should either be the raw or PE adjusted data.
 # Adjusted
@@ -22,12 +22,12 @@ data <- read.csv("data/raw_data/V1V2V3V4_cog_data_pe-adjusted_2025-05-17.csv",he
 
 ### Set output file name. This should correspond to either the raw of PE adjusted data.
 # Adjusted
-outfile = "data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2025-10-24.csv"
+outfile = "data/output_data/V1V2V3V4_cog_factor_scores_pe-adjusted_2026-09-16.csv"
 # # Raw
-# outfile = "data/output_data/V1V2V3V4_cog_factor_scores_raw_2025-10-24.csv"
+# outfile = "data/output_data/V1V2V3V4_cog_factor_scores_raw_2026-09-16.csv"
 
 # Load admin file
-admin <- read_sas("~/netshare/M/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
+admin <- read_sas("M:/NAS VETSA MASTER DATAFILES/Master Data/Admin/vetsa_admin_file_20250205.sas7bdat", NULL)
 
 # # remove V1NE participants
 # admin <- admin %>% 
@@ -115,19 +115,20 @@ DStot_V2_stndV1=(DSTOT_V2p-mean(DSTOT_V1p,na.rm=T))/sd(DSTOT_V1p,na.rm=T)
 DStot_V3_stndV1=(DSTOT_V3p-mean(DSTOT_V1p,na.rm=T))/sd(DSTOT_V1p,na.rm=T)
 DStot_V4_stndV1=(DSTOT_V4p-mean(DSTOT_V1p,na.rm=T))/sd(DSTOT_V1p,na.rm=T)
 
-TRL2rt <- exp(TRL2TLOG_V1p)
-TRL3rt <- exp(TRL3TLOG_V1p)
-TRL4rt <- exp(TRL4TLOG_V1p)
-TRL2rt_V2p <- exp(TRL2TLOG_V2p)
-TRL3rt_V2p <- exp(TRL3TLOG_V2p)
-TRL4rt_V2p <- exp(TRL4TLOG_V2p)
-TRL2rt_V3p <- exp(TRL2TLOG_V3p)
-TRL3rt_V3p <- exp(TRL3TLOG_V3p)
-TRL4rt_V3p <- exp(TRL4TLOG_V3p)
+# Use log-transformed scores, do not exponentiate
+TRL2rt <- TRL2TLOG_V1p
+TRL3rt <- TRL3TLOG_V1p
+TRL4rt <- TRL4TLOG_V1p
+TRL2rt_V2p <- TRL2TLOG_V2p
+TRL3rt_V2p <- TRL3TLOG_V2p
+TRL4rt_V2p <- TRL4TLOG_V2p
+TRL2rt_V3p <- TRL2TLOG_V3p
+TRL3rt_V3p <- TRL3TLOG_V3p
+TRL4rt_V3p <- TRL4TLOG_V3p
 
-TRL2rt_V4p <- exp(TRL2TLOG_V4p)
-TRL3rt_V4p <- exp(TRL3TLOG_V4p)
-TRL4rt_V4p <- exp(TRL4TLOG_V4p)
+TRL2rt_V4p <- TRL2TLOG_V4p
+TRL3rt_V4p <- TRL3TLOG_V4p
+TRL4rt_V4p <- TRL4TLOG_V4p
 
 Trail4_V1_stndV1=scale(TRL4rt)
 Trail4_V2_stndV1=(TRL4rt_V2p-mean(TRL4rt,na.rm=T))/sd(TRL4rt,na.rm=T)
@@ -244,42 +245,50 @@ VRDTOT_V4_stndV1 = (VRDTOT_V4p-mean(VRDTOT_V1p,na.rm=T))/sd(VRDTOT_V1p,na.rm=T)
 ### Create interference scores for EF    ###
 ############################################
 #
-library(lme4)
+# Interference scores are residuals of the EF condition after adjusting for the
+# baseline conditions. The adjustment is estimated at wave 1 and the same coefficients
+# are applied to every wave so that the score is consistent across waves and
+# wave-to-wave change reflects interference-specific change rather than change in
+# the baseline conditions. Scores are then standardized using the wave 1 mean and SD,
+# matching how other measures in the script are put on the wave 1 scale.
 
-Stroop_V1_lm <- lmer(STRCWRAW_V1p~STRCRAW_V1p+STRWRAW_V1p + (1|CASE), na.action=na.exclude) # Regress EF condition on baseline conditions (controlling for case)
-Stroop_V1 <- resid(Stroop_V1_lm)+mean(STRCWRAW_V1p, na.rm=T)                        # save residuals into new variable after adding mean back in
-Stroop_V1z <- scale(Stroop_V1)
-
-Stroop_V2_lm <- lmer(STRCWRAW_V2p~STRCRAW_V2p+STRWRAW_V2p + (1|CASE), na.action=na.exclude)
-Stroop_V2 <- (resid(Stroop_V2_lm)-mean(STRCWRAW_V1p, na.rm=T)+mean(STRCWRAW_V2p, na.rm=T))/sd(Stroop_V1, na.rm=T)
-Stroop_V3_lm <- lmer(STRCWRAW_V3p~STRCRAW_V3p+STRWRAW_V3p + (1|CASE), na.action=na.exclude)
-Stroop_V3 <- (resid(Stroop_V3_lm)-mean(STRCWRAW_V1p, na.rm=T)+mean(STRCWRAW_V3p, na.rm=T))/sd(Stroop_V1, na.rm=T)
-Stroop_V4_lm <- lmer(STRCWRAW_V4p~STRCRAW_V4p+STRWRAW_V4p + (1|CASE), na.action=na.exclude)
-Stroop_V4 <- (resid(Stroop_V4_lm)-mean(STRCWRAW_V1p, na.rm=T)+mean(STRCWRAW_V4p, na.rm=T))/sd(Stroop_V1, na.rm=T)
-
-
-Trail_V1_lm <- lmer(TRL4rt~TRL3rt+TRL2rt + (1|CASE), na.action=na.exclude)
-Trail_V1 <- resid(Trail_V1_lm)+mean(TRL4rt, na.rm=T)
-Trail_V1z <- scale(Trail_V1)
-
-Trail_V2_lm <- lmer(TRL4rt_V2p~TRL3rt_V2p+TRL2rt_V2p + (1|CASE), na.action=na.exclude)
-Trail_V2 <- (resid(Trail_V2_lm)-mean(TRL4rt, na.rm=T)+mean(TRL4rt_V2p, na.rm=T))/sd(TRL4rt, na.rm=T)
-Trail_V3_lm <- lmer(TRL4rt_V3p~TRL3rt_V3p+TRL2rt_V3p + (1|CASE), na.action=na.exclude)
-Trail_V3 <- (resid(Trail_V3_lm)-mean(TRL4rt, na.rm=T)+mean(TRL4rt_V3p, na.rm=T))/sd(TRL4rt, na.rm=T)
-Trail_V4_lm <- lmer(TRL4rt_V4p~TRL3rt_V4p+TRL2rt_V4p + (1|CASE), na.action=na.exclude)
-Trail_V4 <- (resid(Trail_V4_lm)-mean(TRL4rt, na.rm=T)+mean(TRL4rt_V4p, na.rm=T))/sd(TRL4rt, na.rm=T)
+Stroop_b <- coef(lm(STRCWRAW_V1p ~ STRCRAW_V1p + STRWRAW_V1p))                     
+Stroop_V1r <- STRCWRAW_V1p - (Stroop_b[1] + Stroop_b[2]*STRCRAW_V1p + Stroop_b[3]*STRWRAW_V1p)
+Stroop_V2r <- STRCWRAW_V2p - (Stroop_b[1] + Stroop_b[2]*STRCRAW_V2p + Stroop_b[3]*STRWRAW_V2p)
+Stroop_V3r <- STRCWRAW_V3p - (Stroop_b[1] + Stroop_b[2]*STRCRAW_V3p + Stroop_b[3]*STRWRAW_V3p)
+Stroop_V4r <- STRCWRAW_V4p - (Stroop_b[1] + Stroop_b[2]*STRCRAW_V4p + Stroop_b[3]*STRWRAW_V4p)
+Stroop_M1 <- mean(Stroop_V1r, na.rm=T) 
+Stroop_S1 <- sd(Stroop_V1r, na.rm=T)
+Stroop_V1z <- (Stroop_V1r - Stroop_M1)/Stroop_S1
+Stroop_V2  <- (Stroop_V2r - Stroop_M1)/Stroop_S1
+Stroop_V3  <- (Stroop_V3r - Stroop_M1)/Stroop_S1
+Stroop_V4  <- (Stroop_V4r - Stroop_M1)/Stroop_S1
 
 
-CatSw_V1_lm <- lmer(CSSACC_V1p~CFANCOR_V1p+CFBNCOR_V1p + (1|CASE), na.action=na.exclude)
-CatSw_V1 <- resid(CatSw_V1_lm)+mean(TRL4rt, na.rm=T)
-CatSw_V1z <- scale(CatSw_V1)
+Trail_b <- coef(lm(TRL4rt ~ TRL3rt + TRL2rt))
+Trail_V1r <- TRL4rt     - (Trail_b[1] + Trail_b[2]*TRL3rt     + Trail_b[3]*TRL2rt)
+Trail_V2r <- TRL4rt_V2p - (Trail_b[1] + Trail_b[2]*TRL3rt_V2p + Trail_b[3]*TRL2rt_V2p)
+Trail_V3r <- TRL4rt_V3p - (Trail_b[1] + Trail_b[2]*TRL3rt_V3p + Trail_b[3]*TRL2rt_V3p)
+Trail_V4r <- TRL4rt_V4p - (Trail_b[1] + Trail_b[2]*TRL3rt_V4p + Trail_b[3]*TRL2rt_V4p)
+Trail_M1 <- mean(Trail_V1r, na.rm=T)
+Trail_S1 <- sd(Trail_V1r, na.rm=T)
+Trail_V1z <- (Trail_V1r - Trail_M1)/Trail_S1
+Trail_V2  <- (Trail_V2r - Trail_M1)/Trail_S1
+Trail_V3  <- (Trail_V3r - Trail_M1)/Trail_S1
+Trail_V4  <- (Trail_V4r - Trail_M1)/Trail_S1
 
-CatSw_V2_lm <- lmer(CSSACC_V2p~CFANCOR_V2p+CFBNCOR_V2p + (1|CASE), na.action=na.exclude)
-CatSw_V2 <- (resid(CatSw_V2_lm)-mean(CSSACC_V1p, na.rm=T)+mean(CSSACC_V2p, na.rm=T))/sd(CSSACC_V1p, na.rm=T)
-CatSw_V3_lm <- lmer(CSSACC_V3p~CFANCOR_V3p+CFBNCOR_V3p + (1|CASE), na.action=na.exclude)
-CatSw_V3 <- (resid(CatSw_V3_lm)-mean(CSSACC_V1p, na.rm=T)+mean(CSSACC_V3p, na.rm=T))/sd(CSSACC_V1p, na.rm=T)
-CatSw_V4_lm <- lmer(CSSACC_V4p~CFANCOR_V4p+CFBNCOR_V4p + (1|CASE), na.action=na.exclude)
-CatSw_V4 <- (resid(CatSw_V4_lm)-mean(CSSACC_V1p, na.rm=T)+mean(CSSACC_V4p, na.rm=T))/sd(CSSACC_V1p, na.rm=T)
+
+CatSw_b <- coef(lm(CSSACC_V1p ~ CFANCOR_V1p + CFBNCOR_V1p))
+CatSw_V1r <- CSSACC_V1p - (CatSw_b[1] + CatSw_b[2]*CFANCOR_V1p + CatSw_b[3]*CFBNCOR_V1p)
+CatSw_V2r <- CSSACC_V2p - (CatSw_b[1] + CatSw_b[2]*CFANCOR_V2p + CatSw_b[3]*CFBNCOR_V2p)
+CatSw_V3r <- CSSACC_V3p - (CatSw_b[1] + CatSw_b[2]*CFANCOR_V3p + CatSw_b[3]*CFBNCOR_V3p)
+CatSw_V4r <- CSSACC_V4p - (CatSw_b[1] + CatSw_b[2]*CFANCOR_V4p + CatSw_b[3]*CFBNCOR_V4p)
+CatSw_M1 <- mean(CatSw_V1r, na.rm=T)
+CatSw_S1 <- sd(CatSw_V1r, na.rm=T)
+CatSw_V1z <- (CatSw_V1r - CatSw_M1)/CatSw_S1
+CatSw_V2  <- (CatSw_V2r - CatSw_M1)/CatSw_S1
+CatSw_V3  <- (CatSw_V3r - CatSw_M1)/CatSw_S1
+CatSw_V4  <- (CatSw_V4r - CatSw_M1)/CatSw_S1
 
 ################################################
 ########     IMPUTE MISSING DATA       #########
